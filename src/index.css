@@ -1495,6 +1495,37 @@ input {
   color: var(--ink-muted);
 }
 
+/* ---- Donde estan los buses ---- */
+
+.snake-container {
+  background: var(--surface);
+  border: 1px solid #999;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.snake-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 1px solid #eee;
+}
+
+.snake-graph {
+  padding: 12px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.snake-graph svg {
+  display: block;
+  min-width: 340px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
