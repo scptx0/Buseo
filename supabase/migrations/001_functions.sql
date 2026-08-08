@@ -110,175 +110,113 @@ $$;
 -- ============================================================
 -- 4. Buscar todas las rutas posibles (directas + transbordo)
 -- ============================================================
-CREATE OR REPLACE FUNCTION search_all_routes(
-  p_origin INT,
-  p_dest INT
-)
-RETURNS jsonb
-LANGUAGE plpgsql
-STABLE
-AS $$
+CREATE OR REPLACE FUNCTION search_all_routes(p_origin INT, p_dest INT)
+RETURNS jsonb LANGUAGE plpgsql STABLE AS $$
 DECLARE
   rec RECORD;
-  rec2 RECORD;
   route_eta INT;
   routes jsonb := '[]'::jsonb;
   nodes jsonb;
   route_json jsonb;
+  sig TEXT;
 BEGIN
-  -- Si origen = destino, no hay ruta
-  IF p_origin = p_dest THEN
-    RETURN routes;
-  END IF;
+  IF p_origin = p_dest THEN RETURN routes; END IF;
 
-  -- ============================================================
-  -- Rutas directas: misma línea, misma dirección, origen < destino
-  -- ============================================================
   FOR rec IN
-    SELECT DISTINCT
-      l.id AS line_id,
-      l.name AS line_name,
-      ls_o.direction,
-      ls_o.stop_order AS origin_order,
-      ls_d.stop_order AS dest_order
+    SELECT DISTINCT ON (l.id, ls_o.direction)
+      l.id AS line_id, l.name AS line_name, ls_o.direction,
+      ls_o.stop_order AS origin_order, ls_d.stop_order AS dest_order
     FROM line_stops ls_o
-    JOIN line_stops ls_d ON ls_d.line_id = ls_o.line_id
-                         AND ls_d.direction = ls_o.direction
-                         AND ls_d.station_id = p_dest
+    JOIN line_stops ls_d ON ls_d.line_id = ls_o.line_id AND ls_d.direction = ls_o.direction AND ls_d.station_id = p_dest
     JOIN lines l ON l.id = ls_o.line_id
-    WHERE ls_o.station_id = p_origin
-      AND ls_o.stop_order < ls_d.stop_order
+    WHERE ls_o.station_id = p_origin AND ls_o.stop_order < ls_d.stop_order
       AND EXISTS (SELECT 1 FROM segments WHERE line_id = l.id)
   LOOP
     route_eta := segment_eta(rec.line_id, rec.direction, rec.origin_order, rec.dest_order);
-
     IF route_eta > 0 THEN
-    -- Nodos del tramo
-    SELECT jsonb_agg(jsonb_build_object(
-      'stationId', rn.station_id,
-      'stationName', rn.station_name,
-      'stopOrder', rn.stop_order,
-      'durationSeconds', rn.duration_seconds,
-      'distanceMeters', rn.distance_meters
-    ) ORDER BY rn.stop_order) INTO nodes
-    FROM get_route_nodes(rec.line_id, rec.direction, rec.origin_order, rec.dest_order) rn;
-
-    route_json := jsonb_build_object(
-      'id', gen_random_uuid()::text,
-      'lineName', rec.line_name,
-      'lineId', rec.line_id,
-      'direction', rec.direction,
-      'etaMin', route_eta,
-      'transfers', 0,
-      'steps', jsonb_build_array(
-        jsonb_build_object(
-          'lineId', rec.line_id,
-          'lineName', rec.line_name,
-          'direction', rec.direction,
-          'fromStop', rec.origin_order,
-          'toStop', rec.dest_order,
-          'nodes', nodes
-        )
-      ),
-      'alerts', '[]'::jsonb
-    );
-
-    routes := routes || route_json;
+      SELECT jsonb_agg(jsonb_build_object(
+        'stationId', rn.station_id, 'stationName', rn.station_name,
+        'stopOrder', rn.stop_order, 'durationSeconds', rn.duration_seconds,
+        'distanceMeters', rn.distance_meters
+      ) ORDER BY rn.stop_order) INTO nodes
+      FROM get_route_nodes(rec.line_id, rec.direction, rec.origin_order, rec.dest_order) rn;
+      sig := rec.line_id::text || '|' || rec.direction;
+      route_json := jsonb_build_object(
+        'id', gen_random_uuid()::text, 'lineName', rec.line_name, 'lineId', rec.line_id,
+        'direction', rec.direction, 'etaMin', route_eta, 'transfers', 0, 'sig', sig,
+        'steps', jsonb_build_array(jsonb_build_object(
+          'lineId', rec.line_id, 'lineName', rec.line_name, 'direction', rec.direction,
+          'fromStop', rec.origin_order, 'toStop', rec.dest_order, 'nodes', nodes
+        )), 'alerts', '[]'::jsonb
+      );
+      routes := routes || route_json;
     END IF;
   END LOOP;
 
-  -- ============================================================
-  -- Rutas con transbordo: L1 origen→transbordo + L2 transbordo→destino
-  -- ============================================================
   FOR rec IN
-    SELECT DISTINCT
-      l1.id AS line1_id,
-      l1.name AS line1_name,
-      ls_o.direction AS dir1,
-      ls_o.stop_order AS origin_order,
-      ls_t1.stop_order AS transfer_order1,
-      l2.id AS line2_id,
-      l2.name AS line2_name,
-      ls_t2.direction AS dir2,
-      ls_t2.stop_order AS transfer_order2,
-      ls_d.stop_order AS dest_order,
-      ls_t1.station_id AS transfer_station
+    SELECT DISTINCT ON (l1.id || '|' || l2.id || '|' || ls_o.direction || '|' || ls_t2.direction)
+      l1.id AS line1_id, l1.name AS line1_name, ls_o.direction AS dir1,
+      ls_o.stop_order AS origin_order, ls_t1.stop_order AS transfer_order1,
+      ls_t1.station_id AS transfer_station,
+      l2.id AS line2_id, l2.name AS line2_name, ls_t2.direction AS dir2,
+      ls_t2.stop_order AS transfer_order2, ls_d.stop_order AS dest_order,
+      segment_eta(l1.id, ls_o.direction, ls_o.stop_order, ls_t1.stop_order)
+        + segment_eta(l2.id, ls_t2.direction, ls_t2.stop_order, ls_d.stop_order) AS eta_calc
     FROM line_stops ls_o
-    JOIN line_stops ls_t1 ON ls_t1.line_id = ls_o.line_id
-                          AND ls_t1.direction = ls_o.direction
-                          AND ls_t1.stop_order > ls_o.stop_order
-    JOIN line_stops ls_t2 ON ls_t2.station_id = ls_t1.station_id
-                          AND ls_t2.line_id <> ls_t1.line_id
-    JOIN line_stops ls_d ON ls_d.line_id = ls_t2.line_id
-                         AND ls_d.direction = ls_t2.direction
-                         AND ls_d.station_id = p_dest
-                         AND ls_d.stop_order > ls_t2.stop_order
+    JOIN line_stops ls_t1 ON ls_t1.line_id = ls_o.line_id AND ls_t1.direction = ls_o.direction AND ls_t1.stop_order > ls_o.stop_order
+    JOIN line_stops ls_t2 ON ls_t2.station_id = ls_t1.station_id AND ls_t2.line_id <> ls_t1.line_id
+    JOIN line_stops ls_d ON ls_d.line_id = ls_t2.line_id AND ls_d.direction = ls_t2.direction AND ls_d.station_id = p_dest AND ls_d.stop_order > ls_t2.stop_order
     JOIN lines l1 ON l1.id = ls_o.line_id
     JOIN lines l2 ON l2.id = ls_t2.line_id
-    WHERE ls_o.station_id = p_origin
-      AND ls_o.line_id <> ls_t2.line_id
+    WHERE ls_o.station_id = p_origin AND ls_o.line_id <> ls_t2.line_id
       AND EXISTS (SELECT 1 FROM segments WHERE line_id = l1.id)
       AND EXISTS (SELECT 1 FROM segments WHERE line_id = l2.id)
-    ORDER BY l1.id, l2.id
+    ORDER BY l1.id || '|' || l2.id || '|' || ls_o.direction || '|' || ls_t2.direction, eta_calc ASC
   LOOP
-    route_eta := segment_eta(rec.line1_id, rec.dir1, rec.origin_order, rec.transfer_order1)
-               + segment_eta(rec.line2_id, rec.dir2, rec.transfer_order2, rec.dest_order);
-
+    route_eta := rec.eta_calc;
     IF route_eta > 0 THEN
-    -- Nodos del primer tramo
-    SELECT jsonb_agg(jsonb_build_object(
-      'stationId', rn.station_id,
-      'stationName', rn.station_name,
-      'stopOrder', rn.stop_order,
-      'durationSeconds', rn.duration_seconds,
-      'distanceMeters', rn.distance_meters
-    ) ORDER BY rn.stop_order) INTO nodes
-    FROM get_route_nodes(rec.line1_id, rec.dir1, rec.origin_order, rec.transfer_order1) rn;
-
-    route_json := jsonb_build_object(
-      'id', gen_random_uuid()::text,
-      'lineName', rec.line1_name || ' + ' || rec.line2_name,
-      'lineId', rec.line1_id,
-      'direction', rec.dir1,
-      'etaMin', route_eta,
-      'transfers', 1,
-      'steps', jsonb_build_array(
-        jsonb_build_object(
-          'lineId', rec.line1_id,
-          'lineName', rec.line1_name,
-          'direction', rec.dir1,
-          'fromStop', rec.origin_order,
-          'toStop', rec.transfer_order1,
-          'nodes', nodes
-        ),
-        jsonb_build_object(
-          'lineId', rec.line2_id,
-          'lineName', rec.line2_name,
-          'direction', rec.dir2,
-          'fromStop', rec.transfer_order2,
-          'toStop', rec.dest_order,
-          'nodes', (
-            SELECT jsonb_agg(jsonb_build_object(
-              'stationId', rn.station_id,
-              'stationName', rn.station_name,
-              'stopOrder', rn.stop_order,
-              'durationSeconds', rn.duration_seconds,
+      sig := rec.line1_id::text || '|' || rec.line2_id::text || '|' || rec.dir1 || '|' || rec.dir2;
+      SELECT jsonb_agg(jsonb_build_object(
+        'stationId', rn.station_id, 'stationName', rn.station_name,
+        'stopOrder', rn.stop_order, 'durationSeconds', rn.duration_seconds,
+        'distanceMeters', rn.distance_meters
+      ) ORDER BY rn.stop_order) INTO nodes
+      FROM get_route_nodes(rec.line1_id, rec.dir1, rec.origin_order, rec.transfer_order1) rn;
+      route_json := jsonb_build_object(
+        'id', gen_random_uuid()::text,
+        'lineName', rec.line1_name || ' + ' || rec.line2_name,
+        'lineId', rec.line1_id, 'direction', rec.dir1,
+        'etaMin', route_eta, 'transfers', 1, 'sig', sig,
+        'steps', jsonb_build_array(
+          jsonb_build_object(
+            'lineId', rec.line1_id, 'lineName', rec.line1_name, 'direction', rec.dir1,
+            'fromStop', rec.origin_order, 'toStop', rec.transfer_order1, 'nodes', nodes
+          ),
+          jsonb_build_object(
+            'lineId', rec.line2_id, 'lineName', rec.line2_name, 'direction', rec.dir2,
+            'fromStop', rec.transfer_order2, 'toStop', rec.dest_order,
+            'nodes', (SELECT jsonb_agg(jsonb_build_object(
+              'stationId', rn.station_id, 'stationName', rn.station_name,
+              'stopOrder', rn.stop_order, 'durationSeconds', rn.duration_seconds,
               'distanceMeters', rn.distance_meters
             ) ORDER BY rn.stop_order)
-            FROM get_route_nodes(rec.line2_id, rec.dir2, rec.transfer_order2, rec.dest_order) rn
+            FROM get_route_nodes(rec.line2_id, rec.dir2, rec.transfer_order2, rec.dest_order) rn)
           )
-        )
-      ),
-      'alerts', '[]'::jsonb
-    );
-
-    routes := routes || route_json;
+        ), 'alerts', '[]'::jsonb
+      );
+      routes := routes || route_json;
     END IF;
   END LOOP;
 
-  -- Ordenar por ETA
-  SELECT jsonb_agg(ordered ORDER BY (ordered->>'etaMin')::int) INTO routes
-  FROM jsonb_array_elements(routes) ordered;
+  WITH dedup AS (
+    SELECT DISTINCT ON (elem->>'sig') elem as r
+    FROM jsonb_array_elements(routes) elem
+    ORDER BY elem->>'sig', (elem->>'etaMin')::int ASC
+  )
+  SELECT jsonb_agg(r ORDER BY (r->>'etaMin')::int ASC) INTO routes FROM dedup;
+
+  SELECT jsonb_agg(elem - 'sig' ORDER BY (elem->>'etaMin')::int ASC) INTO routes
+  FROM jsonb_array_elements(routes) elem;
 
   RETURN COALESCE(routes, '[]'::jsonb);
 END;
