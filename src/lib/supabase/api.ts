@@ -2,28 +2,23 @@ import { supabase } from './client'
 import type { StationApi, RouteApi } from '../types'
 
 export async function fetchStations(): Promise<StationApi[]> {
-  const { data, error } = await supabase.functions.invoke<StationApi[]>('stations', {
-    method: 'GET',
-  })
+  const { data, error } = await supabase.rpc('get_stations')
 
   if (error) throw new Error(error.message)
-  return data ?? []
+  return (data as StationApi[]) ?? []
 }
 
 export async function searchRoutes(
   origin: number,
   dest: number,
 ): Promise<RouteApi[]> {
-  const { data, error } = await supabase.functions.invoke<RouteApi[]>(
-    'planear-buscar',
-    {
-      method: 'POST',
-      body: { origin, dest },
-    },
-  )
+  const { data, error } = await supabase.rpc('search_all_routes', {
+    p_origin: origin,
+    p_dest: dest,
+  })
 
   if (error) throw new Error(error.message)
-  return data ?? []
+  return (data as RouteApi[]) ?? []
 }
 
 export async function startTrip(params: {
@@ -32,21 +27,15 @@ export async function startTrip(params: {
   dest: number
   steps: unknown
 }): Promise<{ success: boolean; routeId: string }> {
-  const { data, error } = await supabase.functions.invoke<{
-    success: boolean
-    routeId: string
-  }>('viaje-iniciar', {
-    method: 'POST',
-    body: {
-      user_id: params.userId,
-      origin: params.origin,
-      dest: params.dest,
-      steps: params.steps,
-    },
+  const { data, error } = await supabase.rpc('start_trip', {
+    p_user_id: params.userId,
+    p_origin: params.origin,
+    p_dest: params.dest,
+    p_steps: params.steps,
   })
 
   if (error) throw new Error(error.message)
-  return data ?? { success: false, routeId: '' }
+  return (data as { success: boolean; routeId: string }) ?? { success: false, routeId: '' }
 }
 
 export function getUserUUID(): string {

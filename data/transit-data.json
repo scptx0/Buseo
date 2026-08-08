@@ -1,0 +1,1867 @@
+{
+  "stations": {
+    "chimpu-ocllo": {
+      "id": "chimpu-ocllo",
+      "name": "Chimpu Ocllo",
+      "lat": -11.896385739118433,
+      "lng": -77.03742955064882,
+      "polygon": [
+        [
+          -11.896538622051889,
+          -77.03742955064882
+        ],
+        [
+          -11.89649794076468,
+          -77.03750733470845
+        ],
+        [
+          -11.896322748700252,
+          -77.03743357396226
+        ],
+        [
+          -11.896347026258985,
+          -77.03734170830563
+        ],
+        [
+          -11.896538622051889,
+          -77.03742955064882
+        ]
+      ],
+      "lineIds": [
+        "linea-b"
+      ],
+      "isTransfer": false
+    },
+    "los-incas": {
+      "id": "los-incas",
+      "name": "Los Incas",
+      "lat": -11.915448851579383,
+      "lng": -77.0480515890502,
+      "polygon": [
+        [
+          -11.915536453258383,
+          -77.04806231104955
+        ],
+        [
+          -11.915573851176656,
+          -77.04814277731812
+        ],
+        [
+          -11.91528254093788,
+          -77.04797648036157
+        ],
+        [
+          -11.915323219413096,
+          -77.04793624722728
+        ],
+        [
+          -11.915536453258383,
+          -77.04806231104955
+        ]
+      ],
+      "lineIds": [
+        "linea-b"
+      ],
+      "isTransfer": false
+    },
+    "andres-belaunde": {
+      "id": "andres-belaunde",
+      "name": "Andrés Belaunde",
+      "lat": -11.935047704278102,
+      "lng": -77.05640256661314,
+      "polygon": [
+        [
+          -11.93513103624044,
+          -77.05640591988842
+        ],
+        [
+          -11.935133004711673,
+          -77.05646694949847
+        ],
+        [
+          -11.934969621549987,
+          -77.05637037517049
+        ],
+        [
+          -11.934990618588339,
+          -77.05632879455705
+        ],
+        [
+          -11.93513103624044,
+          -77.05640591988842
+        ]
+      ],
+      "lineIds": [
+        "linea-b"
+      ],
+      "isTransfer": false
+    },
+    "22-de-agosto": {
+      "id": "22-de-agosto",
+      "name": "22 de Agosto",
+      "lat": -11.94664475567111,
+      "lng": -77.06059150797019,
+      "polygon": [
+        [
+          -11.946824250574625,
+          -77.06057669963073
+        ],
+        [
+          -11.946515355474993,
+          -77.06063312862692
+        ],
+        [
+          -11.946493009858367,
+          -77.06054982868017
+        ],
+        [
+          -11.94670595036533,
+          -77.06052698837217
+        ],
+        [
+          -11.946824250574625,
+          -77.06057669963073
+        ]
+      ],
+      "lineIds": [
+        "linea-b"
+      ],
+      "isTransfer": false
+    },
+    "las-vegas": {
+      "id": "las-vegas",
+      "name": "Las Vegas",
+      "lat": -11.954885291952515,
+      "lng": -77.05992496686571,
+      "polygon": [
+        [
+          -11.955091126084387,
+          -77.05991947998523
+        ],
+        [
+          -11.954718009698134,
+          -77.0599477656418
+        ],
+        [
+          -11.95471079359855,
+          -77.05988205152246
+        ],
+        [
+          -11.955081196656147,
+          -77.05988790354674
+        ],
+        [
+          -11.955091126084387,
+          -77.05991947998523
+        ]
+      ],
+      "lineIds": [
+        "linea-b"
+      ],
+      "isTransfer": false
+    },
+    "universidad": {
+      "id": "universidad",
+      "name": "Universidad",
+      "lat": -11.962783229419088,
+      "lng": -77.06231383059324,
+      "polygon": [
+        [
+          -11.962730739787922,
+          -77.06239632496921
+        ],
+        [
+          -11.962718273499018,
+          -77.06231248922127
+        ],
+        [
+          -11.963227067005564,
+          -77.062209194713
+        ],
+        [
+          -11.963251338209727,
+          -77.06225655937074
+        ],
+        [
+          -11.962730739787922,
+          -77.06239632496921
+        ]
+      ],
+      "lineIds": [
+        "linea-b"
+      ],
+      "isTransfer": false
+    },
+    "naranjal": {
+      "id": "naranjal",
+      "name": "Naranjal",
+      "lat": -11.982590213113186,
+      "lng": -77.05870593297658,
+      "polygon": [
+        [
+          -11.98050693495384,
+          -77.05936039280387
+        ],
+        [
+          -11.980412478647189,
+          -77.05887223077454
+        ],
+        [
+          -11.982731896175467,
+          -77.05840016199892
+        ],
+        [
+          -11.982758133816338,
+          -77.05885077310292
+        ],
+        [
+          -11.98050693495384,
+          -77.05936039280387
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "izaguirre": {
+      "id": "izaguirre",
+      "name": "Izaguirre",
+      "lat": -11.98952581619446,
+      "lng": -77.05696891132884,
+      "polygon": [
+        [
+          -11.989768703148725,
+          -77.05706992420954
+        ],
+        [
+          -11.989306912702043,
+          -77.057023440749
+        ],
+        [
+          -11.989312975300434,
+          -77.05696766059638
+        ],
+        [
+          -11.989753409122542,
+          -77.05700738376902
+        ],
+        [
+          -11.989768703148725,
+          -77.05706992420954
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "pacifico": {
+      "id": "pacifico",
+      "name": "Pacífico",
+      "lat": -11.994760245267136,
+      "lng": -77.05608522424947,
+      "polygon": [
+        [
+          -11.994431874886441,
+          -77.05629764436101
+        ],
+        [
+          -11.994405902070907,
+          -77.05624074611686
+        ],
+        [
+          -11.995259293272229,
+          -77.05572107548683
+        ],
+        [
+          -11.995292686786067,
+          -77.05577607712284
+        ],
+        [
+          -11.994431874886441,
+          -77.05629764436101
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "independencia": {
+      "id": "independencia",
+      "name": "Independencia",
+      "lat": -11.998488750594612,
+      "lng": -77.0552623499796,
+      "polygon": [
+        [
+          -11.998187977645486,
+          -77.05533791967858
+        ],
+        [
+          -11.998177781946413,
+          -77.05520762709416
+        ],
+        [
+          -11.999289110875527,
+          -77.05507472865807
+        ],
+        [
+          -11.999312051103328,
+          -77.05519199198403
+        ],
+        [
+          -11.998187977645486,
+          -77.05533791967858
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "los-jazmines": {
+      "id": "los-jazmines",
+      "name": "Los Jazmines",
+      "lat": -12.00167999629499,
+      "lng": -77.05486357673895,
+      "polygon": [
+        [
+          -12.001786345425723,
+          -77.05485162885627
+        ],
+        [
+          -12.001731417857945,
+          -77.05478711028985
+        ],
+        [
+          -12.002273681015556,
+          -77.05470466989944
+        ],
+        [
+          -12.002278355693203,
+          -77.0547751624072
+        ],
+        [
+          -12.001786345425723,
+          -77.05485162885627
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "tomas-valle": {
+      "id": "tomas-valle",
+      "name": "Tomás Valle",
+      "lat": -12.006676086912666,
+      "lng": -77.05394953274264,
+      "polygon": [
+        [
+          -12.0065969320471,
+          -77.05399395808739
+        ],
+        [
+          -12.0065838138662,
+          -77.05392757078216
+        ],
+        [
+          -12.007045556956534,
+          -77.05383771768598
+        ],
+        [
+          -12.007057362830777,
+          -77.05389471462622
+        ],
+        [
+          -12.0065969320471,
+          -77.05399395808739
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "el-milagro": {
+      "id": "el-milagro",
+      "name": "El Milagro",
+      "lat": -12.011228770497807,
+      "lng": -77.05293535489096,
+      "polygon": [
+        [
+          -12.011142520959288,
+          -77.0530045326367
+        ],
+        [
+          -12.011136028158255,
+          -77.05294478948034
+        ],
+        [
+          -12.011515392984402,
+          -77.05286039041816
+        ],
+        [
+          -12.011524668401327,
+          -77.05291728866231
+        ],
+        [
+          -12.011142520959288,
+          -77.0530045326367
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "honorio-delgado": {
+      "id": "honorio-delgado",
+      "name": "Honorio Delgado",
+      "lat": -12.017861363173944,
+      "lng": -77.05143649877844,
+      "polygon": [
+        [
+          -12.0173481568323,
+          -77.05158481991666
+        ],
+        [
+          -12.017340357336355,
+          -77.0515337846862
+        ],
+        [
+          -12.0179440376595,
+          -77.05137589444226
+        ],
+        [
+          -12.017972115780891,
+          -77.05142692967273
+        ],
+        [
+          -12.0173481568323,
+          -77.05158481991666
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "uni": {
+      "id": "uni",
+      "name": "UNI",
+      "lat": -12.02335693285818,
+      "lng": -77.04976860286092,
+      "polygon": [
+        [
+          -12.023331355012044,
+          -77.04982157648773
+        ],
+        [
+          -12.023321517378264,
+          -77.04980213047283
+        ],
+        [
+          -12.023453997482905,
+          -77.04962711633867
+        ],
+        [
+          -12.023461211744168,
+          -77.04965997339833
+        ],
+        [
+          -12.023331355012044,
+          -77.04982157648773
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "parque-del-trabajo": {
+      "id": "parque-del-trabajo",
+      "name": "Parque del Trabajo",
+      "lat": -12.029878117611698,
+      "lng": -77.04420450068474,
+      "polygon": [
+        [
+          -12.030156061408912,
+          -77.04425863114399
+        ],
+        [
+          -12.028995754446804,
+          -77.04435335944768
+        ],
+        [
+          -12.028986930800523,
+          -77.04421352242795
+        ],
+        [
+          -12.030125178778967,
+          -77.04413683761067
+        ],
+        [
+          -12.030156061408912,
+          -77.04425863114399
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "caqueta": {
+      "id": "caqueta",
+      "name": "Caquetá",
+      "lat": -12.036363773861991,
+      "lng": -77.04365968564049,
+      "polygon": [
+        [
+          -12.036512154647525,
+          -77.043678046631
+        ],
+        [
+          -12.03613178452695,
+          -77.04371224479515
+        ],
+        [
+          -12.0361304729049,
+          -77.04363781349672
+        ],
+        [
+          -12.03650362911624,
+          -77.04360897975047
+        ],
+        [
+          -12.036512154647525,
+          -77.043678046631
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b"
+      ],
+      "isTransfer": true
+    },
+    "ramon-castilla": {
+      "id": "ramon-castilla",
+      "name": "Ramón Castilla",
+      "lat": -12.04397559341211,
+      "lng": -77.04147247837929,
+      "polygon": [
+        [
+          -12.04387992886019,
+          -77.04168638803297
+        ],
+        [
+          -12.043839265897772,
+          -77.04166559894576
+        ],
+        [
+          -12.04405699484422,
+          -77.04128874845591
+        ],
+        [
+          -12.044106835006454,
+          -77.04132026441111
+        ],
+        [
+          -12.04387992886019,
+          -77.04168638803297
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-c"
+      ],
+      "isTransfer": true
+    },
+    "2-de-mayo": {
+      "id": "2-de-mayo",
+      "name": "2 de Mayo",
+      "lat": -12.047404521655396,
+      "lng": -77.04268141134541,
+      "polygon": [
+        [
+          -12.047346132769981,
+          -77.0426961761684
+        ],
+        [
+          -12.04738090062656,
+          -77.04265794223558
+        ],
+        [
+          -12.047483236178282,
+          -77.04265056375733
+        ],
+        [
+          -12.047489796148213,
+          -77.04266532071387
+        ],
+        [
+          -12.047346132769981,
+          -77.0426961761684
+        ]
+      ],
+      "lineIds": [
+        "linea-b"
+      ],
+      "isTransfer": false
+    },
+    "tacna": {
+      "id": "tacna",
+      "name": "Tacna",
+      "lat": -12.04652508414136,
+      "lng": -77.03721608558855,
+      "polygon": [
+        [
+          -12.046481137145026,
+          -77.0373106535843
+        ],
+        [
+          -12.046457523830586,
+          -77.03728919134414
+        ],
+        [
+          -12.046645118437985,
+          -77.03697933025165
+        ],
+        [
+          -12.046670043585738,
+          -77.03699676832179
+        ],
+        [
+          -12.046481137145026,
+          -77.0373106535843
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-c"
+      ],
+      "isTransfer": true
+    },
+    "quilca": {
+      "id": "quilca",
+      "name": "Quilca",
+      "lat": -12.051502201029425,
+      "lng": -77.0423073966827,
+      "polygon": [
+        [
+          -12.050929975204323,
+          -77.04237981529603
+        ],
+        [
+          -12.050929975204323,
+          -77.04231666241903
+        ],
+        [
+          -12.052154166428483,
+          -77.04221291126395
+        ],
+        [
+          -12.052200487067852,
+          -77.04228057506074
+        ],
+        [
+          -12.050929975204323,
+          -77.04237981529603
+        ]
+      ],
+      "lineIds": [
+        "linea-b"
+      ],
+      "isTransfer": false
+    },
+    "espana": {
+      "id": "espana",
+      "name": "España",
+      "lat": -12.057767045106054,
+      "lng": -77.04173304543404,
+      "polygon": [
+        [
+          -12.05806607488733,
+          -77.0418014429834
+        ],
+        [
+          -12.057587345492141,
+          -77.04184168808567
+        ],
+        [
+          -12.057571605374235,
+          -77.04176523584934
+        ],
+        [
+          -12.05806279610011,
+          -77.04172500002825
+        ],
+        [
+          -12.05806607488733,
+          -77.0418014429834
+        ]
+      ],
+      "lineIds": [
+        "linea-b"
+      ],
+      "isTransfer": false
+    },
+    "jiron-de-la-union": {
+      "id": "jiron-de-la-union",
+      "name": "Jirón de la Unión",
+      "lat": -12.048388452671988,
+      "lng": -77.03424691041485,
+      "polygon": [
+        [
+          -12.0482907182856,
+          -77.03440721010077
+        ],
+        [
+          -12.04826841647432,
+          -77.03439312519112
+        ],
+        [
+          -12.048497960379986,
+          -77.03403232959394
+        ],
+        [
+          -12.04851304333848,
+          -77.03405043450437
+        ],
+        [
+          -12.0482907182856,
+          -77.03440721010077
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-c"
+      ],
+      "isTransfer": true
+    },
+    "colmena": {
+      "id": "colmena",
+      "name": "Colmena",
+      "lat": -12.052376520677939,
+      "lng": -77.03291439898824,
+      "polygon": [
+        [
+          -12.052594722982207,
+          -77.03300426701192
+        ],
+        [
+          -12.052590177102688,
+          -77.03305384936982
+        ],
+        [
+          -12.052085583996263,
+          -77.03270677286459
+        ],
+        [
+          -12.05211740521118,
+          -77.03266338830144
+        ],
+        [
+          -12.052594722982207,
+          -77.03300426701192
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-c"
+      ],
+      "isTransfer": true
+    },
+    "central": {
+      "id": "central",
+      "name": "Central",
+      "lat": -12.057661297435972,
+      "lng": -77.03597254497392,
+      "polygon": [
+        [
+          -12.059150879438977,
+          -77.03610970393363
+        ],
+        [
+          -12.055898315977856,
+          -77.03643156900792
+        ],
+        [
+          -12.055940284789795,
+          -77.03588439838164
+        ],
+        [
+          -12.059140387362193,
+          -77.03549816029249
+        ],
+        [
+          -12.059150879438977,
+          -77.03610970393363
+        ]
+      ],
+      "lineIds": [
+        "linea-a",
+        "linea-b",
+        "linea-c"
+      ],
+      "isTransfer": true
+    },
+    "estadio-nacional": {
+      "id": "estadio-nacional",
+      "name": "Estadio Nacional",
+      "lat": -12.068592466698174,
+      "lng": -77.03212202593951,
+      "polygon": [
+        [
+          -12.068262238241076,
+          -77.03228971640173
+        ],
+        [
+          -12.068209779635938,
+          -77.03221997896898
+        ],
+        [
+          -12.068954690866448,
+          -77.03191688935736
+        ],
+        [
+          -12.06897042840532,
+          -77.03200003783489
+        ],
+        [
+          -12.068262238241076,
+          -77.03228971640173
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "mexico": {
+      "id": "mexico",
+      "name": "México",
+      "lat": -12.07662217585185,
+      "lng": -77.02897286280694,
+      "polygon": [
+        [
+          -12.076357268057832,
+          -77.02913647755302
+        ],
+        [
+          -12.076337596676543,
+          -77.02905735238895
+        ],
+        [
+          -12.076792660927225,
+          -77.02885082229962
+        ],
+        [
+          -12.076784792387674,
+          -77.02894201740399
+        ],
+        [
+          -12.076357268057832,
+          -77.02913647755302
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "canada": {
+      "id": "canada",
+      "name": "Canadá",
+      "lat": -12.082241899443606,
+      "lng": -77.02666531002866,
+      "polygon": [
+        [
+          -12.082120027331472,
+          -77.0267468007925
+        ],
+        [
+          -12.082095809148734,
+          -77.026670103603
+        ],
+        [
+          -12.082403123213552,
+          -77.02652905251068
+        ],
+        [
+          -12.082420277945824,
+          -77.02662554099527
+        ],
+        [
+          -12.082120027331472,
+          -77.0267468007925
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "javier-prado": {
+      "id": "javier-prado",
+      "name": "Javier Prado",
+      "lat": -12.089965862756094,
+      "lng": -77.02319072634265,
+      "polygon": [
+        [
+          -12.08877252366674,
+          -77.0240248933326
+        ],
+        [
+          -12.088767278208522,
+          -77.02377008348212
+        ],
+        [
+          -12.090833980805037,
+          -77.02265428455037
+        ],
+        [
+          -12.090860207892467,
+          -77.02289031893818
+        ],
+        [
+          -12.08877252366674,
+          -77.0240248933326
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "canaval-y-moreyra": {
+      "id": "canaval-y-moreyra",
+      "name": "Canaval y Moreyra",
+      "lat": -12.096455257442711,
+      "lng": -77.02488667244116,
+      "polygon": [
+        [
+          -12.098211306524187,
+          -77.02560036502432
+        ],
+        [
+          -12.098108346310077,
+          -77.02580511289653
+        ],
+        [
+          -12.095494287589716,
+          -77.02455322590639
+        ],
+        [
+          -12.095585808676912,
+          -77.02433677815576
+        ],
+        [
+          -12.098211306524187,
+          -77.02560036502432
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "aramburu": {
+      "id": "aramburu",
+      "name": "Aramburú",
+      "lat": -12.103440096078042,
+      "lng": -77.02738218132392,
+      "polygon": [
+        [
+          -12.104002457846606,
+          -77.02747343578964
+        ],
+        [
+          -12.103160790608364,
+          -77.02742643777162
+        ],
+        [
+          -12.10318439389879,
+          -77.02732451383145
+        ],
+        [
+          -12.103901013206215,
+          -77.02734261911586
+        ],
+        [
+          -12.104002457846606,
+          -77.02747343578964
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "domingo-orue": {
+      "id": "domingo-orue",
+      "name": "Domingo Orué",
+      "lat": -12.108525788817602,
+      "lng": -77.02641674990961,
+      "polygon": [
+        [
+          -12.108584707570044,
+          -77.02644961868005
+        ],
+        [
+          -12.10833831995714,
+          -77.02649234808123
+        ],
+        [
+          -12.108336177455165,
+          -77.0264014111505
+        ],
+        [
+          -12.108567567569544,
+          -77.02637292488303
+        ],
+        [
+          -12.108584707570044,
+          -77.02644961868005
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "angamos": {
+      "id": "angamos",
+      "name": "Angamos",
+      "lat": -12.113139435177683,
+      "lng": -77.02593927520533,
+      "polygon": [
+        [
+          -12.11488071523612,
+          -77.02609928135983
+        ],
+        [
+          -12.112200771684618,
+          -77.0260923245705
+        ],
+        [
+          -12.112187167841617,
+          -77.02589753446937
+        ],
+        [
+          -12.114873913382995,
+          -77.02597405915195
+        ],
+        [
+          -12.11488071523612,
+          -77.02609928135983
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "ricardo-palma": {
+      "id": "ricardo-palma",
+      "name": "Ricardo Palma",
+      "lat": -12.118355548276247,
+      "lng": -77.02603493826823,
+      "polygon": [
+        [
+          -12.117899379215306,
+          -77.02619804656817
+        ],
+        [
+          -12.117891961825757,
+          -77.0260425247008
+        ],
+        [
+          -12.120393106467338,
+          -77.02537061325471
+        ],
+        [
+          -12.12048666441946,
+          -77.02553647775714
+        ],
+        [
+          -12.117899379215306,
+          -77.02619804656817
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "benavides": {
+      "id": "benavides",
+      "name": "Benavides",
+      "lat": -12.125110053768738,
+      "lng": -77.02420259239521,
+      "polygon": [
+        [
+          -12.125290875472075,
+          -77.024207103315
+        ],
+        [
+          -12.124965616832258,
+          -77.02430634355028
+        ],
+        [
+          -12.124990975994699,
+          -77.02420033693532
+        ],
+        [
+          -12.125295285755998,
+          -77.02411350172943
+        ],
+        [
+          -12.125290875472075,
+          -77.024207103315
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "28-de-julio": {
+      "id": "28-de-julio",
+      "name": "28 de Julio",
+      "lat": -12.129396091995687,
+      "lng": -77.02282858451015,
+      "polygon": [
+        [
+          -12.129255769154101,
+          -77.02293157332328
+        ],
+        [
+          -12.129238630481366,
+          -77.02283954076688
+        ],
+        [
+          -12.129502137452924,
+          -77.02276722947255
+        ],
+        [
+          -12.129495710456718,
+          -77.02283296701283
+        ],
+        [
+          -12.129255769154101,
+          -77.02293157332328
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "plaza-de-flores": {
+      "id": "plaza-de-flores",
+      "name": "Plaza de Flores",
+      "lat": -12.136400676576608,
+      "lng": -77.01867344860541,
+      "polygon": [
+        [
+          -12.136256434776227,
+          -77.01880556332746
+        ],
+        [
+          -12.136223652537977,
+          -77.01873380558503
+        ],
+        [
+          -12.136514103028436,
+          -77.01859029010019
+        ],
+        [
+          -12.136559342466851,
+          -77.01864796454736
+        ],
+        [
+          -12.136256434776227,
+          -77.01880556332746
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "balta": {
+      "id": "balta",
+      "name": "Balta",
+      "lat": -12.140886966548393,
+      "lng": -77.01774787496106,
+      "polygon": [
+        [
+          -12.141406478639073,
+          -77.01783028430212
+        ],
+        [
+          -12.140586927018346,
+          -77.01779902558654
+        ],
+        [
+          -12.140586927018346,
+          -77.01770809114124
+        ],
+        [
+          -12.141462041369538,
+          -77.01774787496106
+        ],
+        [
+          -12.141406478639073,
+          -77.01783028430212
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "bulevar": {
+      "id": "bulevar",
+      "name": "Bulevar",
+      "lat": -12.148397991467826,
+      "lng": -77.02012073622298,
+      "polygon": [
+        [
+          -12.148689704731597,
+          -77.02016432211845
+        ],
+        [
+          -12.14831539394742,
+          -77.02014286444683
+        ],
+        [
+          -12.148323915914998,
+          -77.02008653805883
+        ],
+        [
+          -12.14865823904705,
+          -77.02010866628267
+        ],
+        [
+          -12.148689704731597,
+          -77.02016432211845
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "estadio-union": {
+      "id": "estadio-union",
+      "name": "Estadio Unión",
+      "lat": -12.153355210750465,
+      "lng": -77.01964187517996,
+      "polygon": [
+        [
+          -12.153683627856395,
+          -77.01963516965688
+        ],
+        [
+          -12.153182807997533,
+          -77.01968881383664
+        ],
+        [
+          -12.153158553608888,
+          -77.01961505309045
+        ],
+        [
+          -12.153656095899306,
+          -77.01957280829875
+        ],
+        [
+          -12.153683627856395,
+          -77.01963516965688
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "escuela-militar": {
+      "id": "escuela-militar",
+      "name": "Escuela Militar",
+      "lat": -12.159453333851255,
+      "lng": -77.01890482240401,
+      "polygon": [
+        [
+          -12.159857126809683,
+          -77.0189329855978
+        ],
+        [
+          -12.159849260719106,
+          -77.01900942855293
+        ],
+        [
+          -12.159100670026016,
+          -77.01894371443382
+        ],
+        [
+          -12.159079693724271,
+          -77.01881362729962
+        ],
+        [
+          -12.159857126809683,
+          -77.0189329855978
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "teran": {
+      "id": "teran",
+      "name": "Terán",
+      "lat": -12.168792571337605,
+      "lng": -77.01859081816012,
+      "polygon": [
+        [
+          -12.16850854719363,
+          -77.0188097096974
+        ],
+        [
+          -12.1685301992691,
+          -77.0186286030088
+        ],
+        [
+          -12.169077868826799,
+          -77.01832632421925
+        ],
+        [
+          -12.169131362071909,
+          -77.01845010217187
+        ],
+        [
+          -12.16850854719363,
+          -77.0188097096974
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "rosario-de-villa": {
+      "id": "rosario-de-villa",
+      "name": "Rosario de Villa",
+      "lat": -12.17270420189493,
+      "lng": -77.01542192432088,
+      "polygon": [
+        [
+          -12.172488331758757,
+          -77.01568370910036
+        ],
+        [
+          -12.1724497324444,
+          -77.01556378534663
+        ],
+        [
+          -12.172934367877806,
+          -77.01511626499207
+        ],
+        [
+          -12.172981544730739,
+          -77.01522595135219
+        ],
+        [
+          -12.172488331758757,
+          -77.01568370910036
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    },
+    "matellini": {
+      "id": "matellini",
+      "name": "Matellini",
+      "lat": -12.178930220352619,
+      "lng": -77.00993823176033,
+      "polygon": [
+        [
+          -12.178609044521368,
+          -77.01036470298376
+        ],
+        [
+          -12.178497616079554,
+          -77.01015817289439
+        ],
+        [
+          -12.181013796807651,
+          -77.00791613441031
+        ],
+        [
+          -12.181158614960786,
+          -77.00816465036982
+        ],
+        [
+          -12.178609044521368,
+          -77.01036470298376
+        ]
+      ],
+      "lineIds": [
+        "linea-c"
+      ],
+      "isTransfer": false
+    }
+  },
+  "lines": {
+    "linea-a": {
+      "id": "linea-a",
+      "name": "Línea A",
+      "type": "regular",
+      "stationIds": [
+        "naranjal",
+        "izaguirre",
+        "pacifico",
+        "independencia",
+        "los-jazmines",
+        "tomas-valle",
+        "el-milagro",
+        "honorio-delgado",
+        "uni",
+        "parque-del-trabajo",
+        "caqueta",
+        "ramon-castilla",
+        "tacna",
+        "jiron-de-la-union",
+        "colmena",
+        "central"
+      ]
+    },
+    "linea-b": {
+      "id": "linea-b",
+      "name": "Línea B",
+      "type": "regular",
+      "stationIds": [
+        "chimpu-ocllo",
+        "los-incas",
+        "andres-belaunde",
+        "22-de-agosto",
+        "las-vegas",
+        "universidad",
+        "naranjal",
+        "izaguirre",
+        "pacifico",
+        "independencia",
+        "los-jazmines",
+        "tomas-valle",
+        "el-milagro",
+        "honorio-delgado",
+        "uni",
+        "parque-del-trabajo",
+        "caqueta",
+        "2-de-mayo",
+        "quilca",
+        "espana",
+        "central"
+      ]
+    },
+    "linea-c": {
+      "id": "linea-c",
+      "name": "Línea C",
+      "type": "regular",
+      "stationIds": [
+        "ramon-castilla",
+        "tacna",
+        "jiron-de-la-union",
+        "colmena",
+        "central",
+        "estadio-nacional",
+        "mexico",
+        "canada",
+        "javier-prado",
+        "canaval-y-moreyra",
+        "aramburu",
+        "domingo-orue",
+        "angamos",
+        "ricardo-palma",
+        "benavides",
+        "28-de-julio",
+        "plaza-de-flores",
+        "balta",
+        "bulevar",
+        "estadio-union",
+        "escuela-militar",
+        "teran",
+        "rosario-de-villa",
+        "matellini"
+      ]
+    }
+  },
+  "segments": [
+    {
+      "from": "naranjal",
+      "to": "izaguirre",
+      "lineId": "linea-a",
+      "distanceMeters": 2711,
+      "durationSeconds": 344,
+      "estimatedTimeMinutes": 6
+    },
+    {
+      "from": "izaguirre",
+      "to": "pacifico",
+      "lineId": "linea-a",
+      "distanceMeters": 764,
+      "durationSeconds": 102,
+      "estimatedTimeMinutes": 2
+    },
+    {
+      "from": "pacifico",
+      "to": "independencia",
+      "lineId": "linea-a",
+      "distanceMeters": 430,
+      "durationSeconds": 69,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "independencia",
+      "to": "los-jazmines",
+      "lineId": "linea-a",
+      "distanceMeters": 357,
+      "durationSeconds": 43,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "los-jazmines",
+      "to": "tomas-valle",
+      "lineId": "linea-a",
+      "distanceMeters": 566,
+      "durationSeconds": 159,
+      "estimatedTimeMinutes": 3
+    },
+    {
+      "from": "tomas-valle",
+      "to": "el-milagro",
+      "lineId": "linea-a",
+      "distanceMeters": 1432,
+      "durationSeconds": 196,
+      "estimatedTimeMinutes": 3
+    },
+    {
+      "from": "el-milagro",
+      "to": "honorio-delgado",
+      "lineId": "linea-a",
+      "distanceMeters": 1534,
+      "durationSeconds": 330,
+      "estimatedTimeMinutes": 6
+    },
+    {
+      "from": "honorio-delgado",
+      "to": "uni",
+      "lineId": "linea-a",
+      "distanceMeters": 2754,
+      "durationSeconds": 490,
+      "estimatedTimeMinutes": 8
+    },
+    {
+      "from": "uni",
+      "to": "parque-del-trabajo",
+      "lineId": "linea-a",
+      "distanceMeters": 2694,
+      "durationSeconds": 513,
+      "estimatedTimeMinutes": 9
+    },
+    {
+      "from": "parque-del-trabajo",
+      "to": "caqueta",
+      "lineId": "linea-a",
+      "distanceMeters": 1875,
+      "durationSeconds": 377,
+      "estimatedTimeMinutes": 6
+    },
+    {
+      "from": "caqueta",
+      "to": "ramon-castilla",
+      "lineId": "linea-a",
+      "distanceMeters": 1433,
+      "durationSeconds": 298,
+      "estimatedTimeMinutes": 5
+    },
+    {
+      "from": "ramon-castilla",
+      "to": "tacna",
+      "lineId": "linea-a",
+      "distanceMeters": 988,
+      "durationSeconds": 323,
+      "estimatedTimeMinutes": 5
+    },
+    {
+      "from": "tacna",
+      "to": "jiron-de-la-union",
+      "lineId": "linea-a",
+      "distanceMeters": 1934,
+      "durationSeconds": 613,
+      "estimatedTimeMinutes": 10
+    },
+    {
+      "from": "jiron-de-la-union",
+      "to": "colmena",
+      "lineId": "linea-a",
+      "distanceMeters": 2173,
+      "durationSeconds": 725,
+      "estimatedTimeMinutes": 12
+    },
+    {
+      "from": "colmena",
+      "to": "central",
+      "lineId": "linea-a",
+      "distanceMeters": 1284,
+      "durationSeconds": 356,
+      "estimatedTimeMinutes": 6
+    },
+    {
+      "from": "chimpu-ocllo",
+      "to": "los-incas",
+      "lineId": "linea-b",
+      "distanceMeters": 2408,
+      "durationSeconds": 315,
+      "estimatedTimeMinutes": 5
+    },
+    {
+      "from": "los-incas",
+      "to": "andres-belaunde",
+      "lineId": "linea-b",
+      "distanceMeters": 2386,
+      "durationSeconds": 318,
+      "estimatedTimeMinutes": 5
+    },
+    {
+      "from": "andres-belaunde",
+      "to": "22-de-agosto",
+      "lineId": "linea-b",
+      "distanceMeters": 1410,
+      "durationSeconds": 203,
+      "estimatedTimeMinutes": 3
+    },
+    {
+      "from": "22-de-agosto",
+      "to": "las-vegas",
+      "lineId": "linea-b",
+      "distanceMeters": 919,
+      "durationSeconds": 125,
+      "estimatedTimeMinutes": 2
+    },
+    {
+      "from": "las-vegas",
+      "to": "universidad",
+      "lineId": "linea-b",
+      "distanceMeters": 1537,
+      "durationSeconds": 242,
+      "estimatedTimeMinutes": 4
+    },
+    {
+      "from": "universidad",
+      "to": "naranjal",
+      "lineId": "linea-b",
+      "distanceMeters": 2700,
+      "durationSeconds": 505,
+      "estimatedTimeMinutes": 8
+    },
+    {
+      "from": "caqueta",
+      "to": "2-de-mayo",
+      "lineId": "linea-b",
+      "distanceMeters": 1596,
+      "durationSeconds": 191,
+      "estimatedTimeMinutes": 3
+    },
+    {
+      "from": "2-de-mayo",
+      "to": "quilca",
+      "lineId": "linea-b",
+      "distanceMeters": 458,
+      "durationSeconds": 67,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "quilca",
+      "to": "espana",
+      "lineId": "linea-b",
+      "distanceMeters": 1177,
+      "durationSeconds": 322,
+      "estimatedTimeMinutes": 5
+    },
+    {
+      "from": "espana",
+      "to": "central",
+      "lineId": "linea-b",
+      "distanceMeters": 943,
+      "durationSeconds": 318,
+      "estimatedTimeMinutes": 5
+    },
+    {
+      "from": "central",
+      "to": "estadio-nacional",
+      "lineId": "linea-c",
+      "distanceMeters": 1311,
+      "durationSeconds": 88,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "estadio-nacional",
+      "to": "mexico",
+      "lineId": "linea-c",
+      "distanceMeters": 957,
+      "durationSeconds": 57,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "mexico",
+      "to": "canada",
+      "lineId": "linea-c",
+      "distanceMeters": 673,
+      "durationSeconds": 48,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "canada",
+      "to": "javier-prado",
+      "lineId": "linea-c",
+      "distanceMeters": 942,
+      "durationSeconds": 120,
+      "estimatedTimeMinutes": 2
+    },
+    {
+      "from": "javier-prado",
+      "to": "canaval-y-moreyra",
+      "lineId": "linea-c",
+      "distanceMeters": 761,
+      "durationSeconds": 68,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "canaval-y-moreyra",
+      "to": "aramburu",
+      "lineId": "linea-c",
+      "distanceMeters": 834,
+      "durationSeconds": 52,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "aramburu",
+      "to": "domingo-orue",
+      "lineId": "linea-c",
+      "distanceMeters": 1833,
+      "durationSeconds": 318,
+      "estimatedTimeMinutes": 5
+    },
+    {
+      "from": "domingo-orue",
+      "to": "angamos",
+      "lineId": "linea-c",
+      "distanceMeters": 2627,
+      "durationSeconds": 392,
+      "estimatedTimeMinutes": 7
+    },
+    {
+      "from": "angamos",
+      "to": "ricardo-palma",
+      "lineId": "linea-c",
+      "distanceMeters": 2999,
+      "durationSeconds": 330,
+      "estimatedTimeMinutes": 6
+    },
+    {
+      "from": "ricardo-palma",
+      "to": "benavides",
+      "lineId": "linea-c",
+      "distanceMeters": 779,
+      "durationSeconds": 47,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "benavides",
+      "to": "28-de-julio",
+      "lineId": "linea-c",
+      "distanceMeters": 500,
+      "durationSeconds": 28,
+      "estimatedTimeMinutes": 0
+    },
+    {
+      "from": "28-de-julio",
+      "to": "plaza-de-flores",
+      "lineId": "linea-c",
+      "distanceMeters": 918,
+      "durationSeconds": 72,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "plaza-de-flores",
+      "to": "balta",
+      "lineId": "linea-c",
+      "distanceMeters": 1044,
+      "durationSeconds": 314,
+      "estimatedTimeMinutes": 5
+    },
+    {
+      "from": "balta",
+      "to": "bulevar",
+      "lineId": "linea-c",
+      "distanceMeters": 3088,
+      "durationSeconds": 747,
+      "estimatedTimeMinutes": 12
+    },
+    {
+      "from": "bulevar",
+      "to": "estadio-union",
+      "lineId": "linea-c",
+      "distanceMeters": 2033,
+      "durationSeconds": 503,
+      "estimatedTimeMinutes": 8
+    },
+    {
+      "from": "estadio-union",
+      "to": "escuela-militar",
+      "lineId": "linea-c",
+      "distanceMeters": 1303,
+      "durationSeconds": 190,
+      "estimatedTimeMinutes": 3
+    },
+    {
+      "from": "escuela-militar",
+      "to": "teran",
+      "lineId": "linea-c",
+      "distanceMeters": 2409,
+      "durationSeconds": 323,
+      "estimatedTimeMinutes": 5
+    },
+    {
+      "from": "teran",
+      "to": "rosario-de-villa",
+      "lineId": "linea-c",
+      "distanceMeters": 557,
+      "durationSeconds": 52,
+      "estimatedTimeMinutes": 1
+    },
+    {
+      "from": "rosario-de-villa",
+      "to": "matellini",
+      "lineId": "linea-c",
+      "distanceMeters": 1612,
+      "durationSeconds": 423,
+      "estimatedTimeMinutes": 7
+    }
+  ]
+}
