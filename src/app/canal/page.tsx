@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useChannel } from '@portalsdk/react'
 import { getFeedPosts, togglePostReaction, getUserUUID } from '../../lib/supabase/api'
+import { supabase } from '../../lib/supabase/client'
 import { PostCard } from './PostCard'
 import { CommentSheet } from './CommentSheet'
 
@@ -36,6 +37,11 @@ export function CanalPage() {
 
   useEffect(() => {
     getFeedPosts().then(setPosts).catch(console.error)
+    // Trigger generate-feed cada 5 min
+    const interval = setInterval(() => {
+      supabase.functions.invoke('generate-feed', { method: 'POST', body: {} }).catch(() => {})
+    }, 5 * 60 * 1000)
+    return () => clearInterval(interval)
   }, [])
 
   const handleReact = useCallback(async (postId: string, type: string) => {
