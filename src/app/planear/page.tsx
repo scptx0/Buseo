@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { X, Check } from 'lucide-react'
 
 import { nearestStation, searchRoutes, stationName } from '../../lib/rutas'
 import { stations } from '../../lib/mockData'
@@ -84,19 +85,14 @@ export function PlanearPage() {
       <div className="saved-screen">
         <header className="route-detail__header">
           <button type="button" className="topbar__back" onClick={() => navigate(-1)} aria-label="Cerrar">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
+            <X size={16} strokeWidth={2.5} />
           </button>
           <span className="route-detail__title">Ruta guardada</span>
         </header>
 
         <div className="saved-screen__content">
           <div className="saved-screen__icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
+            <Check size={48} strokeWidth={2.5} />
           </div>
           <h2 className="saved-screen__title">¡Ruta activa!</h2>
           <p className="saved-screen__text">
