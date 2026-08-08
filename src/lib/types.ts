@@ -115,3 +115,40 @@ export interface NearestStationResult {
   distanceMeters: number
   isInsidePolygon: boolean
 }
+
+// ---- Tipos de Supabase (Fase 2) ----
+
+export interface StationApi {
+  id: number
+  name: string
+  lat: number
+  lng: number
+}
+
+export interface RouteNodeApi {
+  stationId: number
+  stationName: string
+  stopOrder: number
+  durationSeconds: number
+  distanceMeters: number
+}
+
+export interface RouteStepApi {
+  lineId: number
+  lineName: string
+  direction: string
+  fromStop: number
+  toStop: number
+  nodes: RouteNodeApi[]
+}
+
+export interface RouteApi {
+  id: string
+  lineName: string
+  lineId: number
+  direction: string
+  etaMin: number
+  transfers: number
+  steps: RouteStepApi[]
+  alerts: Alert[]
+}

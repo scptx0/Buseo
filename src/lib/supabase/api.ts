@@ -1,8 +1,8 @@
 import { supabase } from './client'
-import type { Station, PlannedRoute } from '../types'
+import type { StationApi, RouteApi } from '../types'
 
-export async function fetchStations(): Promise<Station[]> {
-  const { data, error } = await supabase.functions.invoke<Station[]>('stations', {
+export async function fetchStations(): Promise<StationApi[]> {
+  const { data, error } = await supabase.functions.invoke<StationApi[]>('stations', {
     method: 'GET',
   })
 
@@ -13,8 +13,8 @@ export async function fetchStations(): Promise<Station[]> {
 export async function searchRoutes(
   origin: number,
   dest: number,
-): Promise<PlannedRoute[]> {
-  const { data, error } = await supabase.functions.invoke<PlannedRoute[]>(
+): Promise<RouteApi[]> {
+  const { data, error } = await supabase.functions.invoke<RouteApi[]>(
     'planear-buscar',
     {
       method: 'POST',
@@ -47,4 +47,14 @@ export async function startTrip(params: {
 
   if (error) throw new Error(error.message)
   return data ?? { success: false, routeId: '' }
+}
+
+export function getUserUUID(): string {
+  const key = 'buseo:user-uuid'
+  let uuid = localStorage.getItem(key)
+  if (!uuid) {
+    uuid = crypto.randomUUID()
+    localStorage.setItem(key, uuid)
+  }
+  return uuid
 }
