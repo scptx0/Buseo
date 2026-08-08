@@ -28,10 +28,15 @@ Quedan como *seam* documentado para una futura versión (ver "Fase 4" más abajo
 
 | Paso | Descripción | Estado |
 |------|-------------|--------|
-| W0 | Setup del repo para el MVP (deps, rutas base, inicio de UI) | ☐ |
-| W1 | Portón de entrada GPS (`LocationGate`) + ubicación + estación más cercana | ☐ |
-| W2 | Planear ruta: buscar origen/destino, lista por tiempo, activar | ☐ |
+| W0 | Setup del repo para el MVP (deps, rutas base, inicio de UI) | ☑ |
+| W1 | Portón de entrada GPS (`LocationGate`) + ubicación + estación más cercana | ☑ |
+| W2 | Planear ruta: buscar origen/destino, lista por tiempo, activar | ☑ |
 | W3 | Línea de viaje (SVG) + mapa | ☐ |
+| W4 | Buses en tiempo real (marcadores, clustering) | ☐ |
+| W5 | Canal de reportes (lista, creación, filtros) | ☐ |
+| W6 | Pantalla de perfil + configuración de nombre | ☐ |
+| W7 | Integrar credenciales reales (maps, Supabase, Portal) | ☐ |
+| W8 | QA en celular, bug-fixing, pulido final | ☐ |
 | W4 | Tu ruta actual + avisos en vivo (estación/tramo) | ☐ |
 | W5 | Reportes de bus / estación / incidente | ☐ |
 | W6 | ¿Dónde están los buses? (seguimiento en vivo) | ☐ |
@@ -48,11 +53,11 @@ Quedan como *seam* documentado para una futura versión (ver "Fase 4" más abajo
 - ☑️ Docs: `AGENTS.md`, `SPEC.md`, `DESIGN.md`, `ARCHITECTURE.md`, `STATUS.md`, `CONTRACTS.md`.
 - ☑️ Build y typecheck verificados.
 
-### Fase 1 — Menú y Planear ruta (W0–W2) ⏳ en curso
-- ☐ Pantalla principal (saludo + acceso a los 5 módulos).
-- ☐ Portón de entrada GPS.
-- ☐ Búsqueda de origen/destino con estación más cercana.
-- ☐ Lista de rutas ordenadas por tiempo, detalle y activación.
+### Fase 1 — Menú y Planear ruta (W0–W2) ✅
+- ☑️ Pantalla principal (saludo + acceso a los 5 módulos).
+- ☑️ Portón de entrada GPS.
+- ☑️ Búsqueda de origen/destino con estación más cercana.
+- ☑️ Lista de rutas ordenadas por tiempo, detalle y activación.
 
 ### Fase 2 — Tiempo real y reportes (W3–W6)
 - ☐ Línea de viaje + mapa.
