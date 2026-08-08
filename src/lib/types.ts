@@ -43,6 +43,21 @@ export interface Route {
   transfers: number
 }
 
+export interface Alert {
+  id: string
+  type: 'delay' | 'incident' | 'closure'
+  stationId?: string
+  message: string
+}
+
+export interface PlannedRoute {
+  id: string
+  steps: Array<{ kind: 'board'; lineId: string; from: string; to: string }>
+  segments: Array<{ from: string; to: string }>
+  etaMin: number
+  alerts?: Alert[]
+}
+
 export interface ActiveRoute {
   id: string
   route: Route
