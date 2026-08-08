@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { X, Send } from 'lucide-react'
-import { getPostComments, addComment, getUserUUID, moderateReport } from '../../lib/supabase/api'
+import { X, Send, Flag } from 'lucide-react'
+import { getPostComments, addComment, getUserUUID, moderateReport, toggleCommentLike, reportComment } from '../../lib/supabase/api'
 
 interface Comment {
   id: string
@@ -13,20 +13,27 @@ interface Comment {
 interface Props {
   postId: string
   onClose: () => void
-  onToggleLike: (commentId: string) => void
 }
 
-export function CommentSheet({ postId, onClose, onToggleLike }: Props) {
+export function CommentSheet({ postId, onClose }: Props) {
   const [comments, setComments] = useState<Comment[]>([])
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [reportId, setReportId] = useState<string | null>(null)
+  const [reportMsg, setReportMsg] = useState('')
 
-  useEffect(() => {
+  const load = useCallback(() => {
     getPostComments(postId).then(setComments).catch(console.error)
   }, [postId])
 
-  const handleSend = useCallback(async () => {
+  useEffect(() => {
+    load()
+    const interval = setInterval(load, 2000)
+    return () => clearInterval(interval)
+  }, [load])
+
+  const handleSend = async () => {
     if (!text.trim() || sending) return
     setSending(true)
     setError(null)
@@ -39,11 +46,31 @@ export function CommentSheet({ postId, onClose, onToggleLike }: Props) {
       }
       await addComment(postId, getUserUUID(), text.trim())
       setText('')
-    } catch (err) {
+      load()
+    } catch {
       setError('Error al enviar el comentario.')
     }
     setSending(false)
-  }, [text, postId, sending])
+  }
+
+  const handleLike = async (commentId: string) => {
+    const r = await toggleCommentLike(commentId, getUserUUID())
+    setComments((prev) =>
+      prev.map((c) => (c.id === commentId ? { ...c, likes_count: r.count } : c)),
+    )
+  }
+
+  const handleReport = async () => {
+    if (!reportId) return
+    const r = await reportComment(reportId, getUserUUID(), reportMsg || 'Contenido inapropiado')
+    setReportId(null)
+    setReportMsg('')
+    if (r.deleted) {
+      setComments((prev) => prev.filter((c) => c.id !== reportId))
+    } else {
+      setError(`Reporte enviado. ${r.reports}/5 reportes necesarios para eliminar.`)
+    }
+  }
 
   return (
     <div className="comment-sheet">
@@ -56,6 +83,19 @@ export function CommentSheet({ postId, onClose, onToggleLike }: Props) {
         </div>
       )}
 
+      {reportId && (
+        <div className="dialog-backdrop">
+          <div className="dialog" style={{ textAlign: 'center' }}>
+            <p style={{ margin: '0 0 10px', fontWeight: 700 }}>Reportar comentario</p>
+            <textarea className="input" rows={2} value={reportMsg} onChange={(e) => setReportMsg(e.target.value)} placeholder="Razon del reporte (opcional)" style={{ resize: 'vertical', marginBottom: 12 }} />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn--ghost" onClick={() => { setReportId(null); setReportMsg('') }}>Cancelar</button>
+              <button className="btn btn--primary" onClick={handleReport}>Reportar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="comment-sheet__header">
         <span className="comment-sheet__title">{comments.length} comentarios</span>
         <button className="comment-sheet__close" onClick={onClose}><X size={20} /></button>
@@ -63,7 +103,7 @@ export function CommentSheet({ postId, onClose, onToggleLike }: Props) {
 
       <div className="comment-sheet__list">
         {comments.map((c) => (
-          <div key={c.id} className="comment-item" onDoubleClick={() => onToggleLike(c.id)}>
+          <div key={c.id} className="comment-item" onDoubleClick={() => handleLike(c.id)}>
             <div className="comment-item__avatar">{c.user_id.substring(0, 2).toUpperCase()}</div>
             <div className="comment-item__body">
               <div className="comment-item__header">
@@ -72,8 +112,11 @@ export function CommentSheet({ postId, onClose, onToggleLike }: Props) {
               </div>
               <p className="comment-item__text">{c.content}</p>
               <div className="comment-item__actions">
-                <button className="comment-item__like" onClick={() => onToggleLike(c.id)}>
+                <button className="comment-item__like" onClick={() => handleLike(c.id)}>
                   👍 {c.likes_count}
+                </button>
+                <button className="comment-item__report" onClick={() => setReportId(c.id)}>
+                  <Flag size={13} />
                 </button>
               </div>
             </div>
