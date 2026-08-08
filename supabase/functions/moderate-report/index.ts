@@ -5,7 +5,7 @@ const BEDROCK_MODEL_ID = Deno.env.get("BEDROCK_MODEL_ID") || "deepseek.v3.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, content-type",
+  "Access-Control-Allow-Headers": "authorization, content-type, x-client-info",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
