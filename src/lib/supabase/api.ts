@@ -59,3 +59,32 @@ export function getUserUUID(): string {
   }
   return uuid
 }
+
+export async function submitReport(params: {
+  userId: string
+  type: string
+  targetId: string
+  severity: string
+  description?: string
+  metadata?: Record<string, unknown>
+}): Promise<{ id: string; success: boolean }> {
+  const { data, error } = await supabase.rpc('submit_report', {
+    p_user_id: params.userId,
+    p_type: params.type,
+    p_target_id: params.targetId,
+    p_severity: params.severity,
+    p_description: params.description ?? '',
+    p_metadata: params.metadata ?? {},
+  })
+  if (error) throw new Error(error.message)
+  return (data as { id: string; success: boolean }) ?? { id: '', success: false }
+}
+
+export async function moderateReport(text: string): Promise<{ allowed: boolean; reason?: string }> {
+  const { data, error } = await supabase.functions.invoke<{ allowed: boolean; reason?: string }>(
+    'moderate-report',
+    { method: 'POST', body: { text } },
+  )
+  if (error) return { allowed: true }
+  return data ?? { allowed: true }
+}

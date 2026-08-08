@@ -31,11 +31,11 @@ export function App() {
         <LocationGate>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/reporte" element={<AuthGuard><ReportePage /></AuthGuard>} />
             <Route element={<AuthGuard><Layout /></AuthGuard>}>
               <Route path="/" element={<MenuPage />} />
               <Route path="/planear" element={<PlanearPage />} />
               <Route path="/ruta-actual" element={<RutaActualPage />} />
-              <Route path="/reporte" element={<ReportePage />} />
               <Route path="/buses" element={<BusesPage />} />
               <Route path="/canal" element={<CanalPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
