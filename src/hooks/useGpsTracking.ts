@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useChannel } from '@portalsdk/react'
-import { getActiveRoute, getUserUUID, fetchStations } from '../lib/supabase/api'
+import { getUserUUID, fetchStations } from '../lib/supabase/api'
 import type { RouteApi } from '../lib/types'
 import {
   loadPolygonCache,
@@ -24,84 +24,63 @@ interface GpsPing {
 
 const BUS_SPEED = 6
 
-export function useGpsTracking() {
-  const routeRef = useRef<RouteApi | null>(null)
+export function useGpsTracking(route: RouteApi | null) {
+  const routeRef = useRef<RouteApi | null>(route)
   const lastPosRef = useRef<{ lat: number; lng: number; speed: number | null; timestamp: number } | null>(null)
-  const prevStatusRef = useRef<GpsPing['status'] | null>(null)
+  const statusRef = useRef<GpsPing['status']>('away')
   const userIdRef = useRef('')
   const lineIdRef = useRef(0)
   const originStationRef = useRef(0)
   const readyRef = useRef(false)
 
-  const channelId = routeRef.current
-    ? `bus:line:${lineIdRef.current}:pings`
+  routeRef.current = route
+
+  const channelId = route
+    ? `bus:line:${route.steps[0]?.lineId ?? 0}:pings`
     : undefined
 
   const { status: channelStatus } = useChannel<GpsPing>({ channelId })
 
   useEffect(() => {
+    if (!route) return
     const uid = getUserUUID()
     userIdRef.current = uid
+    const firstStep = route.steps[0]
+    lineIdRef.current = firstStep.lineId
+    const originNode = firstStep.nodes.find((n) => n.stopOrder === firstStep.fromStop)
+    if (originNode) originStationRef.current = originNode.stationId
 
-    getActiveRoute(uid).then(async (route: RouteApi | null) => {
-      if (!route) return
-      routeRef.current = route
-      const firstStep = route.steps[0]
-      lineIdRef.current = firstStep.lineId
-      const originNode = firstStep.nodes.find(
-        (n) => n.stopOrder === firstStep.fromStop,
-      )
-      if (originNode) {
-        originStationRef.current = originNode.stationId
-      }
-
-      await loadPolygonCache(fetchStations)
+    loadPolygonCache(fetchStations).then(() => {
       readyRef.current = true
 
       startWatching(
         (pos) => {
           if (!readyRef.current) return
-
           const stationId = findCurrentStation(pos.lat, pos.lng)
           const speed = lastPosRef.current
             ? calcSpeed(lastPosRef.current, pos)
             : (pos.speed ?? 0)
 
           let status: GpsPing['status'] = 'away'
-
           if (stationId === originStationRef.current) {
             status = speed > BUS_SPEED ? 'on_bus' : 'waiting'
           } else {
             status = speed > BUS_SPEED ? 'on_bus' : 'away'
           }
 
-          lastPosRef.current = {
-            lat: pos.lat,
-            lng: pos.lng,
-            speed: pos.speed,
-            timestamp: pos.timestamp,
-          }
-
-          if (status !== prevStatusRef.current) {
-            prevStatusRef.current = status
-          }
+          lastPosRef.current = { lat: pos.lat, lng: pos.lng, speed: pos.speed, timestamp: pos.timestamp }
+          statusRef.current = status
         },
-        (err: GeolocationPositionError) => {
-          console.error('GPS error:', err.message)
-        },
+        (err: GeolocationPositionError) => console.error('GPS error:', err.message),
       )
     })
 
     return () => {
       stopWatching()
       readyRef.current = false
-      prevStatusRef.current = null
       lastPosRef.current = null
     }
-  }, [])
+  }, [route])
 
-  return {
-    channelStatus,
-    hasRoute: routeRef.current !== null,
-  }
+  return { status: statusRef, channelStatus }
 }
