@@ -128,7 +128,7 @@ input {
 
 .screen-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   font-weight: 600;
   line-height: 1.2;
   margin: 0 0 8px;
@@ -215,20 +215,20 @@ input {
 }
 
 .field__label {
-  font-size: 0.88rem;
+  font-size: clamp(0.7rem, 2vw, 0.85rem);
   font-weight: 600;
   color: #000;
 }
 
 .select,
 .input {
-  min-height: 56px;
+  min-height: 20px;
   width: 100%;
-  padding: 14px 16px;
+  padding: 8px 4px;
   background: var(--surface);
   border: 1px solid #999;
   border-radius: var(--radius);
-  font-size: 1rem;
+  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
   appearance: none;
 }
 
@@ -264,12 +264,13 @@ input {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-height: 48px;
-  padding: 10px 14px;
+  min-height: 36px;
+  padding: 6px 10px;
   background: var(--surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   cursor: pointer;
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
 }
 
 .radio-option input:checked+span {
@@ -281,16 +282,16 @@ input {
 /* ---- Botones ---- */
 
 .btn {
-  min-height: 48px;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 12px 18px;
+  padding: 8px 14px;
   border: none;
   border-radius: var(--radius);
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.06s ease, box-shadow 0.06s ease;
@@ -305,8 +306,8 @@ input {
   color: #fff;
   border: 2px solid var(--color-primary-deep);
   box-shadow: var(--shadow);
-  min-height: 52px;
-  font-size: 1rem;
+  min-height: 44px;
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
 }
 
 .btn--deep {
@@ -578,7 +579,7 @@ input {
   height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
 }
 
 /* ---- Planear ruta ---- */
@@ -649,7 +650,7 @@ input {
 }
 
 .planear-selects .field__label {
-  font-size: 2rem;
+  font-size: clamp(1.2rem, 2.5vw, 1rem);
 }
 
 .planear-selects-compact {
@@ -788,6 +789,8 @@ input {
 .route-detail__hero {
   padding: 28px 16px 20px;
   text-align: center;
+  width: 100%;
+  max-width: 400px;
 }
 
 .route-detail__stations {
@@ -812,8 +815,12 @@ input {
 .route-detail__stats {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 24px;
   padding: 16px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
 }
 
 .route-detail__stat {
@@ -821,6 +828,7 @@ input {
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  flex: 1;
 }
 
 .route-detail__stat-icon {
@@ -832,16 +840,20 @@ input {
   font-size: 1.3rem;
   font-weight: 600;
   color: #000;
+  text-align: center;
 }
 
 .route-detail__stat-label {
   font-size: 0.88rem;
   color: #333;
   font-weight: 600;
+  text-align: center;
 }
 
 .route-detail__timeline {
   padding: 0 16px 16px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .route-step {
@@ -850,47 +862,21 @@ input {
   min-height: 80px;
 }
 
-.route-step__marker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 24px;
-  flex-shrink: 0;
-}
-
-.route-step__dot {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.route-step__dot--start {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-.route-step__line {
-  width: 2px;
-  flex: 1;
-  background: var(--color-border);
-  margin: 4px 0;
-}
-
 .route-step__content {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
 }
 
 .route-step__header {
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: center;
 }
 
 .route-step__action {
@@ -912,6 +898,7 @@ input {
 .route-step__stations {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -937,10 +924,15 @@ input {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .route-detail__graph {
   padding: 0 16px 16px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .route-detail__footer {
@@ -950,10 +942,14 @@ input {
   position: sticky;
   bottom: 0;
   flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .btn--full {
   width: 100%;
+  max-width: 320px;
 }
 
 /* ---- Pantalla de ruta guardada ---- */
@@ -1016,6 +1012,8 @@ input {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .alert-card {
@@ -1269,13 +1267,30 @@ input {
   animation: dotPulse 1.2s ease-in-out infinite;
 }
 
-.ruta-path__dot:nth-child(1) { animation-delay: 0s; }
-.ruta-path__dot:nth-child(2) { animation-delay: 0.15s; }
-.ruta-path__dot:nth-child(3) { animation-delay: 0.3s; }
+.ruta-path__dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.ruta-path__dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.ruta-path__dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
 
 @keyframes dotPulse {
-  0%, 100% { opacity: 0.15; transform: scale(0.7); }
-  50% { opacity: 1; transform: scale(1.2); }
+
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.7);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 .ruta-stats {
