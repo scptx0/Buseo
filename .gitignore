@@ -23,3 +23,6 @@ Thumbs.db
 # Entorno de build
 *.tsbuildinfo
 node_modules/.tmp/
+
+# Supabase
+supabase/.temp/
