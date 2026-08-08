@@ -6,6 +6,10 @@ CREATE OR REPLACE FUNCTION submit_report(
 ) RETURNS jsonb LANGUAGE plpgsql AS $$
 DECLARE v_id UUID;
 BEGIN
+  INSERT INTO users (id, display_name, created_at, updated_at)
+  VALUES (p_user_id, 'Viajero', NOW(), NOW())
+  ON CONFLICT (id) DO NOTHING;
+
   v_id := gen_random_uuid();
   INSERT INTO reports (id, user_id, type, target_id, severity, description, metadata, created_at)
   VALUES (v_id, p_user_id, p_type, p_target_id, p_severity, p_description, p_metadata, NOW());
