@@ -45,7 +45,7 @@ export async function getActiveRoute(userId: string): Promise<RouteApi | null> {
 export async function finishTrip(userId: string): Promise<void> {
   await supabase
     .from('active_routes')
-    .update({ status: 'completed' })
+    .delete()
     .eq('user_id', userId)
     .eq('status', 'active')
 }
