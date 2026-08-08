@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { lines, stationById } from '../../lib/mockData'
+import { lineName } from '../../lib/rutas'
 import { pushReport } from './storage'
 
 interface Props {
@@ -14,8 +15,16 @@ export default function ReportBus({ onCancel: _onCancel, onSent }: Props) {
   const [occupancy, setOccupancy] = useState<'' | 'low' | 'medium' | 'high'>('')
   const [comment, setComment] = useState('')
 
+  const formatStationName = (raw: string) => {
+    const cleaned = raw.toLowerCase().replace(/-/g, ' ')
+    return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+  }
+
   const lineStations = lineId
-    ? lines.find((l) => l.id === lineId)?.stationIds.map((id) => ({ id, name: stationById[id]?.name ?? id })) ?? []
+    ? lines.find((l) => l.id === lineId)?.stationIds.map((id) => {
+        const raw = stationById[id]?.name
+        return { id, name: raw ? formatStationName(raw) : id }
+      }) ?? []
     : []
 
   const canSubmit = lineId && fromId && toId && occupancy
@@ -57,7 +66,7 @@ export default function ReportBus({ onCancel: _onCancel, onSent }: Props) {
             </option>
             {lines.map((l) => (
               <option key={l.id} value={l.id}>
-                {l.name}
+                {lineName(l.id)}
               </option>
             ))}
           </select>

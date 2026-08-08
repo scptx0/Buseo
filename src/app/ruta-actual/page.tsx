@@ -5,6 +5,7 @@ import { Clock, Bus, ArrowLeftRight, Route, MapPin } from 'lucide-react'
 import { fetchStations, getActiveRoute, finishTrip, getUserUUID, searchRoutes, startTrip } from '../../lib/supabase/api'
 import type { RouteApi, StationApi } from '../../lib/types'
 import { RouteGraphView, LINE_COLORS } from '../planear/RouteGraphView'
+import { lineName } from '../../lib/rutas'
 
 export function RutaActualPage() {
   const navigate = useNavigate()
@@ -33,7 +34,15 @@ export function RutaActualPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const stationName = (id: number) => stations.find((s) => s.id === id)?.name ?? String(id)
+  const formatStationName = (raw: string) => {
+    const cleaned = raw.toLowerCase().replace(/-/g, ' ')
+    return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+  }
+
+  const stationName = (id: number) => {
+    const raw = stations.find((s) => s.id === id)?.name
+    return raw ? formatStationName(raw) : String(id)
+  }
 
   async function onFinish() {
     await finishTrip(getUserUUID())
@@ -55,7 +64,7 @@ export function RutaActualPage() {
   const stationOptions = (excludeId: number | '') =>
     stations.map((s) => (
       <option key={s.id} value={s.id} disabled={s.id === excludeId}>
-        {s.name}
+        {formatStationName(s.name)}
       </option>
     ))
 
@@ -77,7 +86,7 @@ export function RutaActualPage() {
   const firstNode = firstStep?.nodes.find(n => n.stopOrder === firstStep.fromStop) ?? firstStep?.nodes[0]
   const lastStep = route.steps[route.steps.length - 1]
   const lastNode = lastStep?.nodes[lastStep.nodes.length - 1]
-  const lines = [...new Set(route.steps.map((s) => s.lineName))]
+  const lines = [...new Set(route.steps.map((s) => lineName(s.lineName)))]
 
   if (editing) {
     return (
@@ -146,7 +155,7 @@ export function RutaActualPage() {
               const color = LINE_COLORS[s.lineId] || '#888'
               return (
                 <span key={i} className="ruta-info__pill" style={{ background: color + '22', color: color }}>
-                  {s.lineName}
+                  {lineName(s.lineName)}
                 </span>
               )
             })}

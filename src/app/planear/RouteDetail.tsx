@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, ArrowDown, ArrowLeftRight, X, Clock, Bus, Circle
 
 import type { Alert, RouteApi } from '../../lib/types'
 import { RouteGraphView } from './RouteGraphView'
+import { lineName } from '../../lib/rutas'
 
 interface RouteDetailProps {
   route: RouteApi
@@ -19,7 +20,7 @@ export function RouteDetail({
   route, originId, destId, stationName, onBack, onSave,
   saved, onClose, onGoToRoute,
 }: RouteDetailProps) {
-  const lines = [...new Set(route.steps.map((s) => s.lineName))]
+  const lines = [...new Set(route.steps.map((s) => lineName(s.lineName)))]
   const alerts = route.alerts ?? []
 
   return (
@@ -88,8 +89,8 @@ export function RouteDetail({
                 <span className="route-step__action">
                   {i === 0 ? 'Sube' : 'Transbordo'}
                 </span>
-                <span className="route-step__line-name" style={{ backgroundColor: getLineColor(step.lineId) }}>
-                  {step.lineName}
+                 <span className="route-step__line-name" style={{ backgroundColor: getLineColor(step.lineId) }}>
+                  {lineName(step.lineName)}
                 </span>
               </div>
               <div className="route-step__stations">

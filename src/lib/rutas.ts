@@ -113,12 +113,27 @@ export function searchRoutes(fromId: string, toId: string): PlannedRoute[] {
   return routes
 }
 
-export function stationName(id: string): string {
-  return stationById[id]?.name ?? id
+function formatStationName(raw: string): string {
+  const cleaned = raw.toLowerCase().replace(/-/g, ' ')
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
 }
 
-export function lineName(id: string): string {
-  return lines.find((l) => l.id === id)?.name ?? id
+export function stationName(id: string): string {
+  const raw = stationById[id]?.name
+  return raw ? formatStationName(raw) : id
+}
+
+export function lineName(raw: string): string {
+  if (raw.includes(' + ')) return raw.split(' + ').map(lineName).join(' + ')
+  if (raw.startsWith('regular-')) return `Regular ${raw.split('-')[1]?.toUpperCase()}`
+  if (raw.startsWith('super-expreso')) {
+    if (raw === 'super-expreso') return 'Super Expreso'
+    const rest = raw.replace('super-expreso-', '').split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')
+    return `Super Expreso ${rest}`
+  }
+  if (raw.startsWith('expreso-')) return `Expreso ${raw.split('-')[1]}`
+  if (raw === 'lechucero') return 'Lechucero'
+  return raw
 }
 
 export function nearestStation(lat: number, lng: number): Station | undefined {

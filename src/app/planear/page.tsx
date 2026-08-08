@@ -34,8 +34,16 @@ export function PlanearPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  const formatName = (raw: string) => {
+    const cleaned = raw.toLowerCase().replace(/-/g, ' ')
+    return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+  }
+
   const stationName = useCallback(
-    (id: number) => stations.find((s) => s.id === id)?.name ?? String(id),
+    (id: number) => {
+      const raw = stations.find((s) => s.id === id)?.name
+      return raw ? formatName(raw) : String(id)
+    },
     [stations],
   )
 
@@ -114,7 +122,7 @@ export function PlanearPage() {
   const stationOptions = (excludeId: number | '') =>
     stations.map((s) => (
       <option key={s.id} value={s.id} disabled={s.id === excludeId}>
-        {s.name}
+        {formatName(s.name)}
       </option>
     ))
 

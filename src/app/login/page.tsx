@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { Bus, ArrowRight } from 'lucide-react'
 import { lines } from '../../lib/mockData'
+import { lineName } from '../../lib/rutas'
 import { saveUserProfile } from '../../lib/storage'
 
 export function LoginPage() {
@@ -98,7 +99,7 @@ export function LoginPage() {
             </option>
             {lines.map((l) => (
               <option key={l.id} value={l.id}>
-                {l.name}
+                {lineName(l.id)}
               </option>
             ))}
           </select>

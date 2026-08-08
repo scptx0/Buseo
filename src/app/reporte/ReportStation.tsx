@@ -8,6 +8,11 @@ interface Props {
   onSent: () => void
 }
 
+function formatStationName(raw: string): string {
+  const cleaned = raw.toLowerCase().replace(/-/g, ' ')
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+}
+
 export default function ReportStation({ onCancel: _onCancel, onSent }: Props) {
   const [stationId, setStationId] = useState('')
   const [severity, setSeverity] = useState<Severity | ''>('')
@@ -48,7 +53,7 @@ export default function ReportStation({ onCancel: _onCancel, onSent }: Props) {
             </option>
             {stations.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name}
+                {formatStationName(s.name)}
               </option>
             ))}
           </select>
