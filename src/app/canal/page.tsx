@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useChannel } from '@portalsdk/react'
 import { getFeedPosts, togglePostReaction, getUserUUID } from '../../lib/supabase/api'
 import { supabase } from '../../lib/supabase/client'
 import { PostCard } from './PostCard'
@@ -12,13 +13,52 @@ interface FeedPost {
   created_at: string
 }
 
+interface PortalPost {
+  title: string
+  content: string
+  tags?: string[]
+  created_at?: string
+}
+
 export function CanalPage() {
   const [posts, setPosts] = useState<FeedPost[]>([])
   const [reactions, setReactions] = useState<Record<string, Record<string, number>>>({})
   const [commentPostId, setCommentPostId] = useState<string | null>(null)
 
+  const { messages, status } = useChannel<PortalPost>({
+    channelId: 'canal:global:feed',
+    history: 0,
+  })
+
+  // Portal: nuevos posts en vivo
+  useEffect(() => {
+    if (status !== 'ready' || messages.length === 0) return
+    const fresh = messages
+      .filter((m) => !m.ephemeral)
+      .map((m) => ({
+        id: m.id,
+        title: m.content.title,
+        content: m.content.content,
+        tags: m.content.tags ?? [],
+        created_at: m.content.created_at ?? new Date().toISOString(),
+      }))
+    if (fresh.length > 0) {
+      setPosts((prev) => {
+        const ids = new Set(prev.map((p) => p.id))
+        return [...fresh.filter((p) => !ids.has(p.id)), ...prev]
+      })
+    }
+  }, [messages, status])
+
+  // Supabase: fuente de verdad y carga inicial
   const loadPosts = useCallback(() => {
-    getFeedPosts().then(setPosts).catch(console.error)
+    getFeedPosts().then((data) => {
+      setPosts((prev) => {
+        const ids = new Set(data.map((p) => p.id))
+        const kept = prev.filter((p) => !ids.has(p.id))
+        return [...data, ...kept]
+      })
+    }).catch(console.error)
   }, [])
 
   useEffect(() => {

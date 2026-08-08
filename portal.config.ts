@@ -2,7 +2,7 @@ import { defineConfig } from "@portalsdk/config";
 
 export default defineConfig({
   channels: {
-    "canal:global:posts": {
+    "canal:global:feed": {
       mode: "broadcast",
     },
   },
