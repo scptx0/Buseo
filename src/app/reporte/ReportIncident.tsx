@@ -1,17 +1,18 @@
 import { useState } from 'react'
-import { stations } from '../../lib/mockData'
 import { submitReport, moderateReport, getUserUUID } from '../../lib/supabase/api'
 
-interface Props { onCancel: () => void; onSent: () => void }
+interface StationOption { id: number; name: string }
 
-export default function ReportIncident({ onCancel: _onCancel, onSent }: Props) {
-  const [stationId, setStationId] = useState('')
+interface Props { stations: StationOption[]; onCancel: () => void; onSent: () => void; onBlocked: (reason: string) => void }
+
+export default function ReportIncident({ stations, onCancel: _onCancel, onSent, onBlocked }: Props) {
+  const [stationId, setStationId] = useState<number | ''>('')
   const [incidentType, setIncidentType] = useState<'' | 'delay' | 'incident' | 'closure'>('')
   const [description, setDescription] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
 
-  const canSubmit = stationId && incidentType && description.trim().length > 0 && !sending
+  const canSubmit = stationId !== '' && incidentType !== '' && description.trim().length > 0 && !sending
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,8 +24,7 @@ export default function ReportIncident({ onCancel: _onCancel, onSent }: Props) {
       if (description.trim()) {
         const mod = await moderateReport(description.trim())
         if (!mod.allowed) {
-          setError(mod.reason || 'Tu mensaje fue bloqueado por no cumplir con las politicas.')
-          setSending(false)
+          onBlocked(mod.reason || 'Tu mensaje no cumple con las politicas.')
           return
         }
       }
@@ -32,21 +32,21 @@ export default function ReportIncident({ onCancel: _onCancel, onSent }: Props) {
       await submitReport({
         userId: getUserUUID(),
         type: 'incident',
-        targetId: stationId,
+        targetId: String(stationId),
         severity: incidentType === 'closure' ? 'critical' : incidentType === 'incident' ? 'warning' : 'ok',
         description: description.trim(),
         metadata: { stationId, incidentType },
       })
       onSent()
-    } catch {
-      setError('Error al enviar el reporte.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al enviar el reporte.')
     } finally {
       setSending(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="report-form">
       <div className="stack">
         {error && (
           <div className="card" style={{ borderLeft: '3px solid #ef4444', background: '#fef2f2', padding: '10px 14px', fontSize: '0.88rem', color: '#991b1b', fontWeight: 600 }}>{error}</div>
@@ -54,7 +54,7 @@ export default function ReportIncident({ onCancel: _onCancel, onSent }: Props) {
 
         <div className="field">
           <label htmlFor="inc-station" className="field__label">Ubicacion</label>
-          <select id="inc-station" className="select" value={stationId} onChange={(e) => setStationId(e.target.value)} required>
+          <select id="inc-station" className="select" value={stationId} onChange={(e) => setStationId(Number(e.target.value))} required>
             <option value="" disabled>Selecciona una estacion</option>
             {stations.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
           </select>
@@ -72,9 +72,9 @@ export default function ReportIncident({ onCancel: _onCancel, onSent }: Props) {
           </div>
         </div>
 
-        <div className="field">
+        <div className="field report-comment">
           <label htmlFor="inc-desc" className="field__label">Descripcion</label>
-          <textarea id="inc-desc" className="input" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe lo ocurrido" required style={{ resize: 'vertical' }} />
+          <textarea id="inc-desc" className="input report-textarea" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe lo ocurrido" required style={{ resize: 'vertical' }} />
         </div>
       </div>
 

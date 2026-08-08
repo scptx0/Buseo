@@ -1,26 +1,27 @@
 import { useState } from 'react'
-import { lines, stationById } from '../../lib/mockData'
 import { submitReport, moderateReport, getUserUUID } from '../../lib/supabase/api'
 
+interface LineOption { id: number; name: string }
+interface StationOption { id: number; name: string }
+
 interface Props {
+  lines: LineOption[]
+  stations: StationOption[]
   onCancel: () => void
   onSent: () => void
+  onBlocked: (reason: string) => void
 }
 
-export default function ReportBus({ onCancel: _onCancel, onSent }: Props) {
-  const [lineId, setLineId] = useState('')
-  const [fromId, setFromId] = useState('')
-  const [toId, setToId] = useState('')
+export default function ReportBus({ lines, stations, onCancel: _onCancel, onSent, onBlocked }: Props) {
+  const [lineId, setLineId] = useState<number | ''>('')
+  const [fromId, setFromId] = useState<number | ''>('')
+  const [toId, setToId] = useState<number | ''>('')
   const [occupancy, setOccupancy] = useState<'' | 'low' | 'medium' | 'high'>('')
   const [comment, setComment] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
 
-  const lineStations = lineId
-    ? lines.find((l) => l.id === lineId)?.stationIds.map((id) => ({ id, name: stationById[id]?.name ?? id })) ?? []
-    : []
-
-  const canSubmit = lineId && fromId && toId && occupancy && !sending
+  const canSubmit = lineId !== '' && fromId !== '' && toId !== '' && occupancy !== '' && !sending
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,8 +33,7 @@ export default function ReportBus({ onCancel: _onCancel, onSent }: Props) {
       if (comment.trim()) {
         const mod = await moderateReport(comment.trim())
         if (!mod.allowed) {
-          setError(mod.reason || 'Tu mensaje fue bloqueado por no cumplir con las politicas.')
-          setSending(false)
+          onBlocked(mod.reason || 'Tu mensaje no cumple con las politicas.')
           return
         }
       }
@@ -41,26 +41,21 @@ export default function ReportBus({ onCancel: _onCancel, onSent }: Props) {
       await submitReport({
         userId: getUserUUID(),
         type: 'bus',
-        targetId: lineId,
+        targetId: String(lineId),
         severity: 'ok',
         description: comment.trim(),
-        metadata: {
-          lineId,
-          fromId,
-          toId,
-          occupancy,
-        },
+        metadata: { lineId, fromId, toId, occupancy },
       })
       onSent()
-    } catch {
-      setError('Error al enviar el reporte. Intenta de nuevo.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al enviar el reporte.')
     } finally {
       setSending(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="report-form">
       <div className="stack">
         {error && (
           <div className="card" style={{ borderLeft: '3px solid #ef4444', background: '#fef2f2', padding: '10px 14px', fontSize: '0.88rem', color: '#991b1b', fontWeight: 600 }}>
@@ -70,7 +65,7 @@ export default function ReportBus({ onCancel: _onCancel, onSent }: Props) {
 
         <div className="field">
           <label htmlFor="bus-line" className="field__label">Linea</label>
-          <select id="bus-line" className="select" value={lineId} onChange={(e) => { setLineId(e.target.value); setFromId(''); setToId('') }} required>
+          <select id="bus-line" className="select" value={lineId} onChange={(e) => { setLineId(Number(e.target.value)); setFromId(''); setToId('') }} required>
             <option value="" disabled>Selecciona una linea</option>
             {lines.map((l) => (<option key={l.id} value={l.id}>{l.name}</option>))}
           </select>
@@ -78,17 +73,17 @@ export default function ReportBus({ onCancel: _onCancel, onSent }: Props) {
 
         <div className="field">
           <label htmlFor="bus-from" className="field__label">Origen</label>
-          <select id="bus-from" className="select" value={fromId} onChange={(e) => setFromId(e.target.value)} required disabled={!lineId}>
+          <select id="bus-from" className="select" value={fromId} onChange={(e) => setFromId(Number(e.target.value))} required disabled={!lineId}>
             <option value="" disabled>Selecciona origen</option>
-            {lineStations.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+            {stations.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
           </select>
         </div>
 
         <div className="field">
           <label htmlFor="bus-to" className="field__label">Destino</label>
-          <select id="bus-to" className="select" value={toId} onChange={(e) => setToId(e.target.value)} required disabled={!lineId}>
+          <select id="bus-to" className="select" value={toId} onChange={(e) => setToId(Number(e.target.value))} required disabled={!lineId}>
             <option value="" disabled>Selecciona destino</option>
-            {lineStations.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+            {stations.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
           </select>
         </div>
 
@@ -104,9 +99,9 @@ export default function ReportBus({ onCancel: _onCancel, onSent }: Props) {
           </div>
         </div>
 
-        <div className="field">
+        <div className="field report-comment">
           <label htmlFor="bus-comment" className="field__label">Comentario opcional</label>
-          <textarea id="bus-comment" className="input" rows={3} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Algo mas que reportar?" style={{ resize: 'vertical' }} />
+          <textarea id="bus-comment" className="input report-textarea" rows={3} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Algo mas que reportar?" style={{ resize: 'vertical' }} />
         </div>
       </div>
 
