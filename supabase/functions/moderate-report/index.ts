@@ -8,6 +8,12 @@ const AWS_ACCESS_KEY_ID = Deno.env.get("AWS_ACCESS_KEY_ID")!;
 const AWS_SECRET_ACCESS_KEY = Deno.env.get("AWS_SECRET_ACCESS_KEY")!;
 const BEDROCK_MODEL_ID = Deno.env.get("BEDROCK_MODEL_ID") || "deepseek.r1-v1:0";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 const client = new BedrockRuntimeClient({
   region: AWS_REGION,
   credentials: {
@@ -32,10 +38,21 @@ ALLOWED
 BLOCKED: <razon breve en español explicando que regla violo>`;
 
 Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "authorization, content-type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+      },
+    });
+  }
+
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
@@ -45,14 +62,14 @@ Deno.serve(async (req: Request) => {
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   if (!body.text || !body.text.trim()) {
     return new Response(JSON.stringify({ allowed: true }), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
@@ -78,21 +95,20 @@ Deno.serve(async (req: Request) => {
     if (result.startsWith("ALLOWED")) {
       return new Response(JSON.stringify({ allowed: true }), {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const reason = result.replace(/^BLOCKED:\s*/i, "").trim();
     return new Response(
       JSON.stringify({ allowed: false, reason: reason || "Contenido no permitido" }),
-      { status: 200, headers: { "Content-Type": "application/json" } },
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
     console.error("Bedrock error:", err);
-    // Si falla Bedrock, permitir para no bloquear la app
     return new Response(JSON.stringify({ allowed: true }), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
