@@ -12,10 +12,12 @@ interface GraphPosition {
   y: number
 }
 
-const ROUTE_COLORS: Record<number, string> = {
-  17: '#ef4444',
-  18: '#3b82f6',
-  19: '#16a34a',
+export const LINE_COLORS: Record<number, string> = {
+  1: '#f43f5e', 2: '#f97316', 3: '#eab308', 4: '#84cc16',
+  5: '#22c55e', 6: '#14b8a6', 7: '#06b6d4', 8: '#0ea5e9',
+  9: '#3b82f6', 10: '#6366f1', 11: '#8b5cf6', 12: '#a855f7',
+  13: '#d946ef', 14: '#ec4899', 15: '#e11d48', 16: '#db2777',
+  17: '#ef4444', 18: '#3b82f6', 19: '#16a34a', 20: '#f59e0b',
 }
 
 const ROW_H = 64
@@ -27,7 +29,7 @@ const NODE_R_SM = 10
 const LINE_W = 3.5
 
 function getLineColor(lineId: number): string {
-  return ROUTE_COLORS[lineId] || '#8b5cf6'
+  return LINE_COLORS[lineId] || '#999'
 }
 
 export function RouteGraphView({ route }: RouteGraphViewProps) {

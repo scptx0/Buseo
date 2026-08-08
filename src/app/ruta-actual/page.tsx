@@ -4,11 +4,7 @@ import { Clock, Bus, ArrowLeftRight, Route, MapPin } from 'lucide-react'
 
 import { fetchStations, getActiveRoute, finishTrip, getUserUUID, searchRoutes, startTrip } from '../../lib/supabase/api'
 import type { RouteApi, StationApi } from '../../lib/types'
-import { RouteGraphView } from '../planear/RouteGraphView'
-
-const LINE_COLORS: Record<number, string> = {
-  17: '#ef4444', 18: '#3b82f6', 19: '#16a34a',
-}
+import { RouteGraphView, LINE_COLORS } from '../planear/RouteGraphView'
 
 export function RutaActualPage() {
   const navigate = useNavigate()
@@ -77,7 +73,8 @@ export function RutaActualPage() {
     )
   }
 
-  const firstNode = route.steps[0]?.nodes[0]
+  const firstStep = route.steps[0]
+  const firstNode = firstStep?.nodes.find(n => n.stopOrder === firstStep.fromStop) ?? firstStep?.nodes[0]
   const lastStep = route.steps[route.steps.length - 1]
   const lastNode = lastStep?.nodes[lastStep.nodes.length - 1]
   const lines = [...new Set(route.steps.map((s) => s.lineName))]
