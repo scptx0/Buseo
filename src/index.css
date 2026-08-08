@@ -16,7 +16,7 @@
   --ink: #353d5e;
   --ink-muted: #8a92ac;
   --surface: #ffffff;
-  --color-bg: #f4f8fe;
+  --color-bg: #fafcff;
   --color-bg-lavender: #faf6fe;
   --color-border: #e2ecfb;
   --color-yellow: #fbf3c7;
@@ -159,12 +159,34 @@ input {
   text-align: center;
 }
 
-.metro-center {
+/* ---- Pantalla Home ---- */
+
+.home-header {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: calc(100vh - 80px);
-  gap: 20px;
+  align-items: center;
+  gap: 4px;
+  padding: 20px 0 12px;
+}
+
+.home-logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.home-brand {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.home-greeting {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 2px;
 }
 
 .row {
@@ -418,159 +440,90 @@ input {
   padding: 32px 16px;
 }
 
-/* ---- Menú principal (metro tiles) ---- */
+/* ---- Menú principal (home tiles) ---- */
 
-.metro-grid {
+.home-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: 200px;
-  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(6, 1fr);
+  gap: 10px;
+  height: calc(100dvh - 170px);
+  min-height: 400px;
 }
 
-.metro-tile {
+.home-tile {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 16px;
-  border-radius: var(--radius);
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 2px solid #eeeeee;
   color: var(--ink);
   text-decoration: none;
-  position: relative;
+  transition: transform 0.1s ease, border-color 0.1s ease;
   overflow: hidden;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  box-shadow: var(--shadow);
 }
 
-.metro-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(60, 80, 130, 0.12);
+.home-tile:active {
+  transform: scale(0.97);
+  border-color: #d5d5d5;
 }
 
-.metro-tile:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 0 2px 8px rgba(60, 80, 130, 0.08);
+.home-tile__img {
+  width: 65%;
+  max-width: 80px;
+  max-height: 60%;
+  object-fit: contain;
+  flex-shrink: 1;
+  min-height: 0;
 }
 
-/* Tamaños de tiles */
-.metro-tile--wide {
-  grid-column: span 2;
-  grid-row: span 2;
-}
-
-/* Contorno degradado por tono */
-.metro-tile--blue {
-  border: 2px solid #0078d4;
-  background: rgba(65, 173, 255, 0.242);
-}
-
-.metro-tile--purple {
-  border: 2px solid #6b4faa;
-  background: rgba(148, 103, 255, 0.171);
-}
-
-.metro-tile--yellow {
-  border: 2px solid #d4a017;
-  background: rgba(254, 208, 93, 0.256);
-}
-
-.metro-tile--ok {
-  border: 2px solid #107c10;
-  background: rgba(145, 253, 145, 0.259);
-}
-
-.metro-tile--celeste {
-  border: 2px solid #00a4ef;
-  background: rgba(0, 164, 239, 0.06);
-}
-
-/* Relleno degradado sutil */
-.metro-tile::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.03;
-  pointer-events: none;
-  background: radial-gradient(circle at top left, currentColor, transparent 70%);
-}
-
-.metro-tile--blue::before {
-  color: #0078d4;
-}
-
-.metro-tile--purple::before {
-  color: #6b4faa;
-}
-
-.metro-tile--yellow::before {
-  color: #d4a017;
-}
-
-.metro-tile--ok::before {
-  color: #107c10;
-}
-
-.metro-tile--celeste::before {
-  color: #00a4ef;
-}
-
-.metro-tile__icon {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 44px;
-  height: 44px;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.metro-tile--wide .metro-tile__icon {
-  width: 125px;
-  height: 125px;
-  padding: 16px;
-  top: 20px;
-  right: 20px;
-  border-radius: 14px;
-}
-
-.metro-tile--blue .metro-tile__icon {
-  color: #0078d4;
-  background: rgba(0, 120, 212, 0.18);
-}
-
-.metro-tile--purple .metro-tile__icon {
-  color: #6b4faa;
-  background: rgba(107, 79, 170, 0.18);
-}
-
-.metro-tile--yellow .metro-tile__icon {
-  color: #d4a017;
-  background: rgba(212, 160, 23, 0.18);
-}
-
-.metro-tile--ok .metro-tile__icon {
-  color: #107c10;
-  background: rgba(16, 124, 16, 0.18);
-}
-
-.metro-tile--celeste .metro-tile__icon {
-  color: #00a4ef;
-  background: rgba(0, 164, 239, 0.18);
-}
-
-.metro-tile__title {
+.home-tile__label {
   font-weight: 600;
-  font-size: 1.1rem;
-  line-height: 1.3;
-  position: relative;
-  z-index: 1;
+  font-size: 0.72rem;
+  text-align: center;
+  line-height: 1.2;
+  flex-shrink: 0;
+  color: var(--ink);
 }
 
-.metro-tile__title {
-  font-weight: 600;
-  font-size: 1.1rem;
-  line-height: 1.3;
-  position: relative;
-  z-index: 1;
+.home-tile--planear {
+  grid-column: 1;
+  grid-row: 1 / 4;
+}
+
+.home-tile--ruta {
+  grid-column: 1;
+  grid-row: 4 / 7;
+}
+
+.home-tile--buses {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.home-tile--reporte {
+  grid-column: 2;
+  grid-row: 3 / 5;
+}
+
+.home-tile--canal {
+  grid-column: 2;
+  grid-row: 5 / 7;
+}
+
+.home-tile--planear .home-tile__img,
+.home-tile--ruta .home-tile__img {
+  width: 72%;
+  max-width: 100px;
+}
+
+.home-tile--planear .home-tile__label,
+.home-tile--ruta .home-tile__label {
+  font-size: 0.78rem;
 }
 
 /* Responsive: 2 columnas en móvil */
@@ -1223,19 +1176,6 @@ input {
 .report-card__desc {
   font-size: 0.85rem;
   color: var(--ink-muted);
-}
-
-/* Responsive: 2 columnas en móvil */
-@media (max-width: 500px) {
-  .metro-grid {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 160px;
-  }
-
-  .metro-tile--wide {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
