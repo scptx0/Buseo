@@ -4,7 +4,7 @@ import ReportBus from './ReportBus'
 import ReportStation from './ReportStation'
 import ReportIncident from './ReportIncident'
 
-export default function ReportePage() {
+export function ReportePage() {
   const [mode, setMode] = useState<0 | 1 | 2 | 3>(0)
   const [success, setSuccess] = useState(false)
 
@@ -36,7 +36,7 @@ export default function ReportePage() {
           <div className="report-grid">
             <button className="report-card" onClick={() => selectCard(1)}>
               <div className="report-card__icon" style={{ background: '#d9eafd', color: '#5f7ec9' }}>
-                <Bus size={36} />
+                <Bus size={70} />
               </div>
               <div className="report-card__info">
                 <div className="report-card__title">Estado del bus</div>
@@ -46,7 +46,7 @@ export default function ReportePage() {
 
             <button className="report-card" onClick={() => selectCard(2)}>
               <div className="report-card__icon" style={{ background: '#ece5fb', color: '#6b4faa' }}>
-                <MapPin size={36} />
+                <MapPin size={70} />
               </div>
               <div className="report-card__info">
                 <div className="report-card__title">Estado de estación</div>
@@ -56,7 +56,7 @@ export default function ReportePage() {
 
             <button className="report-card" onClick={() => selectCard(3)}>
               <div className="report-card__icon" style={{ background: '#fbf3c7', color: '#d4a017' }}>
-                <AlertTriangle size={36} />
+                <AlertTriangle size={70} />
               </div>
               <div className="report-card__info">
                 <div className="report-card__title">Incidente</div>
@@ -75,5 +75,3 @@ export default function ReportePage() {
     </div>
   )
 }
-
-export { ReportePage }

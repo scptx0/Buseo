@@ -1452,7 +1452,7 @@ input {
 
 .report-title {
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: 3.5rem;
   font-weight: 700;
   text-align: center;
   margin: 20px 0 16px;
@@ -1463,8 +1463,11 @@ input {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   padding: 0 0 12px;
+  max-width: 400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .report-card {
@@ -1473,10 +1476,10 @@ input {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 24px;
+  gap: 10px;
+  padding: 18px;
   background: var(--surface);
-  border: 1px solid #999;
+  border: 2px solid #444;
   border-radius: var(--radius);
   cursor: pointer;
   text-align: center;
@@ -1487,12 +1490,12 @@ input {
 
 .report-card:active {
   transform: scale(0.98);
-  border-color: #777;
+  border-color: #222;
 }
 
 .report-card__icon {
-  width: 56px;
-  height: 56px;
+  width: 120px;
+  height: 120px;
   border-radius: 14px;
   display: flex;
   align-items: center;
@@ -1509,14 +1512,15 @@ input {
 
 .report-card__title {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 2rem;
   color: #000;
 }
 
 .report-card__desc {
-  font-size: 0.85rem;
-  color: var(--ink-muted);
-  max-width: 260px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #444;
+  max-width: 300px;
 }
 
 /* ---- Donde estan los buses ---- */
