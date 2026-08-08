@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useHeaderTitle } from './HeaderTitleContext'
 
 const TITLES: Array<{ match: string; title: string }> = [
   { match: '/planear', title: 'Planear ruta' },
@@ -11,19 +12,9 @@ const TITLES: Array<{ match: string; title: string }> = [
 export function Header() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const { title: dynamicTitle } = useHeaderTitle()
   if (pathname === '/') return null
   const conf = TITLES.find((t) => pathname.startsWith(t.match))
-
-  if (!conf) {
-    return (
-      <header className="topbar">
-        <span className="topbar__mark">
-          <span className="topbar__logo" aria-hidden />
-          Buseo
-        </span>
-      </header>
-    )
-  }
 
   return (
     <header className="topbar">
@@ -38,7 +29,7 @@ export function Header() {
           <path d="M12 19l-7-7 7-7" />
         </svg>
       </button>
-      <span className="topbar__mark">{conf.title}</span>
+      <span className="topbar__mark">{dynamicTitle ?? conf?.title ?? 'Buseo'}</span>
     </header>
   )
 }

@@ -128,7 +128,7 @@ input {
 
 .screen-title {
   font-family: var(--font-display);
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 600;
   line-height: 1.2;
   margin: 0 0 8px;
@@ -136,8 +136,7 @@ input {
 
 .screen-caption {
   color: var(--ink-muted);
-  font-size: 0.95rem;
-  margin: 0 0 24px;
+  font-size: 1.1rem;
 }
 
 /* ---- Bloque base ---- */
@@ -147,7 +146,7 @@ input {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 16px;
+  padding: 20px;
 }
 
 .stack {
@@ -215,20 +214,20 @@ input {
 }
 
 .field__label {
-  font-size: clamp(0.7rem, 2vw, 0.85rem);
+  font-size: 1.1rem;
   font-weight: 600;
   color: #000;
 }
 
 .select,
 .input {
-  min-height: 20px;
+  min-height: 28px;
   width: 100%;
-  padding: 8px 4px;
+  padding: 2px 6px;
   background: var(--surface);
   border: 1px solid #999;
   border-radius: var(--radius);
-  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+  font-size: 0.8rem;
   appearance: none;
 }
 
@@ -319,6 +318,8 @@ input {
   background: transparent;
   border: 1px solid var(--color-border);
   color: var(--ink);
+  font-size: 1.1rem;
+  font-weight: 3;
 }
 
 .btn--danger {
@@ -587,7 +588,10 @@ input {
 .planear-page {
   display: flex;
   flex-direction: column;
-  min-height: calc(100dvh - 100px);
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 60px;
+  padding-bottom: 10px;
 }
 
 .planear-page--select {
@@ -596,6 +600,7 @@ input {
 
 .planear-header {
   flex-shrink: 0;
+  text-align: center;
 }
 
 .planear-title {
@@ -612,14 +617,14 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 12px;
+  margin: 12px;
+  gap: 20px;
 }
 
 .planear-path__station {
   font-family: var(--font-display);
-  font-size: 1.8rem;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 40;
   color: #000;
 }
 
@@ -646,11 +651,11 @@ input {
   width: 100%;
   display: grid;
   gap: 28px;
-  padding: 32px 0;
+  padding: 32px 60px;
 }
 
 .planear-selects .field__label {
-  font-size: clamp(1.2rem, 2.5vw, 1rem);
+  font-size: 1.1rem;
 }
 
 .planear-selects-compact {
@@ -669,7 +674,7 @@ input {
   flex-direction: column;
   justify-content: center;
   gap: 10px;
-  padding-bottom: 16px;
+  padding: 20px 0;
 }
 
 .planear-bridge {
@@ -682,15 +687,15 @@ input {
 }
 
 .select--lg {
-  min-height: 96px;
-  font-size: 1.15rem;
-  padding: 26px 20px;
+  min-height: 50px;
+  font-size: 1.1rem;
+  padding: 4px 10px;
 }
 
 .select--sm {
-  min-height: 44px;
-  font-size: 0.88rem;
-  padding: 10px 12px;
+  min-height: 30px;
+  font-size: 1.1rem;
+  padding: 2px 8px;
 }
 
 /* ---- Planear ruta (old items) ---- */
@@ -797,7 +802,8 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 5px;
+  padding: 0px 15px
 }
 
 .route-detail__station {
@@ -816,8 +822,8 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 24px;
-  padding: 16px;
+  gap: 20px;
+  padding: 16px 40px;
   width: 100%;
   max-width: 400px;
   text-align: center;
@@ -851,7 +857,8 @@ input {
 }
 
 .route-detail__timeline {
-  padding: 0 16px 16px;
+  padding: 0 16px;
+  margin: 0 0 16px;
   width: 100%;
   max-width: 400px;
 }
@@ -866,10 +873,13 @@ input {
   flex: 1;
   display: flex;
   flex-direction: column;
+  margin: 5px 5px;
   gap: 8px;
   align-items: center;
   text-align: center;
   justify-content: center;
+  background-color: color-mix(in srgb, var(--color-bg), black 5%);
+  border-radius: 12px;
 }
 
 .route-step__header {
@@ -927,6 +937,7 @@ input {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 30px;
 }
 
 .route-detail__graph {
