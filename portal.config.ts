@@ -4,6 +4,11 @@ export default defineConfig({
   channels: {
     "canal:global:feed": {
       mode: "broadcast",
+      anonymous: true,
+      permissions: {
+        subscribe: "anyone",
+        publish: "anyone",
+      },
     },
   },
 });
