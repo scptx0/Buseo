@@ -4,7 +4,7 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_URL = (Deno.env.get("SUPABASE_URL") || "").replace(/\/rest\/v1\/?$/, "");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const BEDROCK_MODEL_ID = Deno.env.get("BEDROCK_MODEL_ID") || "deepseek.v3.2";
 const AWS_REGION = Deno.env.get("AWS_REGION")!;
@@ -63,17 +63,16 @@ Deno.serve(async (req: Request) => {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  // 1. Obtener clusters de reportes
   const { data: clusters, error } = await supabase.rpc("get_report_clusters", { p_min_reports: 4, p_window_hours: 4 });
-  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-  if (!clusters || clusters.length === 0) return new Response(JSON.stringify({ message: "No clusters found" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  if (error) return new Response(JSON.stringify({ error: error.message, step: "rpc" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  if (!clusters || clusters.length === 0) return new Response(JSON.stringify({ generated: 0, reason: "no-clusters" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-  const results: Array<{ post_id: string; title: string }> = [];
+  const results: Array<{ post_id?: string; title?: string }> = [];
 
   for (const cluster of (clusters as ClusterRow[])) {
-    // 2. Generar resumen con Bedrock
     const descriptions = cluster.sample_descriptions.filter(Boolean).slice(0, 5).join("; ");
-    const prompt = `Eres un asistente del Metropolitano de Lima. ${cluster.count} usuarios reportaron "${cluster.report_type}" en ${cluster.target_type === 'bus' ? 'la linea ' + cluster.target_id : 'la estacion ' + cluster.target_id}. Comentarios de usuarios: "${descriptions}". Genera un aviso breve en JSON: {"title":"...", "content":"...", "tags":["..."], "severity":"info|warning|critical"}. Max 60 chars titulo, 2-3 lineas contenido.`;
+    const targetName = cluster.target_type === 'bus' ? 'la linea ' + cluster.target_id : 'la estacion ' + cluster.target_id;
+    const prompt = `Eres un asistente del Metropolitano de Lima. ${cluster.count} usuarios reportaron problemas en ${targetName}. Comentarios: "${descriptions}". Genera un aviso breve en JSON: {"title":"titulo max 60 chars","content":"2-3 lineas informativas","tags":["#tag1"],"severity":"info|warning|critical"}. Solo responde con el JSON.`;
 
     try {
       const resp = await bedrockInvoke(JSON.stringify({
@@ -82,10 +81,16 @@ Deno.serve(async (req: Request) => {
       })) as { choices?: Array<{ message?: { content?: string } }> };
 
       const raw = resp.choices?.[0]?.message?.content || "";
-      const json = JSON.parse(raw);
+      if (!raw) continue;
+
+      let clean = raw.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
+      if (!clean.startsWith("{")) {
+        const match = clean.match(/\{[\s\S]*\}/);
+        clean = match ? match[0] : clean;
+      }
+      const json = JSON.parse(clean);
       if (!json.title || !json.content) continue;
 
-      // 3. Insertar en feed_posts
       const { data: post, error: postErr } = await supabase
         .from("feed_posts")
         .insert({ title: json.title, content: json.content, tags: json.tags || [], created_at: new Date().toISOString() })
