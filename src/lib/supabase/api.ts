@@ -50,11 +50,12 @@ export async function finishTrip(userId: string): Promise<void> {
     .eq('status', 'active')
 }
 
-export async function getUserUUID(): Promise<string> {
-  const { data } = await supabase.auth.getUser()
-  if (data.user) return data.user.id
-
-  const { data: signUp, error } = await supabase.auth.signInAnonymously()
-  if (error) throw new Error(error.message)
-  return signUp.user?.id ?? ''
+export function getUserUUID(): string {
+  const key = 'buseo:user-uuid'
+  let uuid = localStorage.getItem(key)
+  if (!uuid) {
+    uuid = crypto.randomUUID()
+    localStorage.setItem(key, uuid)
+  }
+  return uuid
 }
