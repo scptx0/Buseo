@@ -13,10 +13,12 @@ import { getRouteHistory, pushToRouteHistory } from '../../lib/storage'
 import { useGeo } from '../entrada/LocationGate'
 import { RouteDetail } from './RouteDetail'
 import { RouteListItem } from './RouteListItem'
+import { useHeaderTitle } from '../../components/HeaderTitleContext'
 
 export function PlanearPage() {
   const { position } = useGeo()
   const navigate = useNavigate()
+  const { setTitle } = useHeaderTitle()
   const [stations, setStations] = useState<StationApi[]>([])
   const [loading, setLoading] = useState(true)
   const [originId, setOriginId] = useState<number | ''>('')
@@ -48,13 +50,6 @@ export function PlanearPage() {
   )
 
   useEffect(() => {
-    if (saved) {
-      const t = setTimeout(() => navigate('/'), 2500)
-      return () => clearTimeout(t)
-    }
-  }, [saved, navigate])
-
-  useEffect(() => {
     if (!position || originId !== '' || stations.length === 0) return
     // Buscar estación más cercana del usuario
     let nearest: StationApi | null = null
@@ -68,6 +63,22 @@ export function PlanearPage() {
     }
     if (nearest && minDist < 0.02) setOriginId(nearest.id)
   }, [position, originId, stations])
+
+  useEffect(() => {
+    if (routes.length === 0) {
+      setTitle(null)
+      return
+    }
+    setTitle(`${stationName(Number(originId))} → ${stationName(Number(destId))}`)
+  }, [routes.length, originId, destId, stationName, setTitle])
+
+  useEffect(() => {
+    if (routes.length === 0) return
+    window.history.pushState({ planearResults: true }, '')
+    const handler = () => { setRoutes([]); setSelected(null) }
+    window.addEventListener('popstate', handler)
+    return () => window.removeEventListener('popstate', handler)
+  }, [routes.length])
 
   async function onSearch() {
     if (originId === '' || destId === '' || originId === destId) return
@@ -184,49 +195,9 @@ export function PlanearPage() {
     return (
       <div className="planear-page">
         <div className="planear-header">
-          <h1 className="planear-title">Resultados</h1>
-          <div className="planear-path">
-            <span className="planear-path__station">{stationName(Number(originId))}</span>
-            <div className="planear-path__line">
-              <span className="planear-path__dot" />
-              <span className="planear-path__dot" />
-              <span className="planear-path__dot" />
-              <span className="planear-path__dot" />
-              <span className="planear-path__dot" />
-            </div>
-            <span className="planear-path__station">{stationName(Number(destId))}</span>
-          </div>
-          <div className="planear-selects">
-            <div className="field">
-              <label className="field__label" htmlFor="origin">Estación 1 (origen)</label>
-              <select
-                id="origin"
-                className="select select--lg"
-                value={originId}
-                onChange={(e) => setOriginId(Number(e.target.value))}
-                required
-              >
-                <option value="" disabled>Elige una estación</option>
-                {stationOptions(destId)}
-              </select>
-            </div>
-            <div className="field">
-              <label className="field__label" htmlFor="dest">Estación 2 (destino)</label>
-              <select
-                id="dest"
-                className="select select--lg"
-                value={destId}
-                onChange={(e) => setDestId(Number(e.target.value))}
-                required
-              >
-                <option value="" disabled>Elige una estación</option>
-                {stationOptions(originId)}
-              </select>
-            </div>
-          </div>
+          <h1 className="screen-title">Resultados</h1>
+          <p className="screen-caption text-center">Estas son tus rutas encontradas</p>
         </div>
-
-        <p className="planear-bridge">Estas son tus rutas encontradas</p>
 
         <div className="planear-results">
           {routes.map((route) => (
@@ -237,17 +208,6 @@ export function PlanearPage() {
               onSelect={() => onSelect(route)}
             />
           ))}
-        </div>
-
-        <div className="cta-bar">
-          <button
-            className="btn btn--primary"
-            disabled={originId === '' || destId === '' || originId === destId || searching}
-            onClick={onSearch}
-            style={{ maxWidth: '100%' }}
-          >
-            {searching ? 'Buscando...' : 'Buscar rutas'}
-          </button>
         </div>
       </div>
     )
@@ -298,6 +258,16 @@ export function PlanearPage() {
         </div>
       </div>
 
+      <div className="cta-bar">
+        <button
+          className="btn btn--primary"
+          disabled={originId === '' || destId === '' || originId === destId || searching}
+          onClick={onSearch}
+        >
+          {searching ? 'Buscando...' : 'Buscar rutas'}
+        </button>
+      </div>
+
       {recent.length > 0 && (
         <section className="card stack">
           <span className="field__label">Últimas rutas</span>
@@ -313,16 +283,6 @@ export function PlanearPage() {
           ))}
         </section>
       )}
-
-      <div className="cta-bar">
-        <button
-          className="btn btn--primary"
-          disabled={originId === '' || destId === '' || originId === destId || searching}
-          onClick={onSearch}
-        >
-          {searching ? 'Buscando...' : 'Buscar rutas'}
-        </button>
-      </div>
     </div>
   )
 }
