@@ -53,7 +53,7 @@ el repo IDs de proyecto/entorno ni claves.
 Ver `@docs/ARCHITECTURE.md` para la propuesta técnica completa. Principios:
 
 - Persistencia: Supabase PostgreSQL + PostGIS.
-- Alta frecuencia de escritura: DynamoDB (rumas GPS, reportes en caliente).
+- Alta frecuencia de escritura: Supabase PostgreSQL (ubicaciones GPS, reportes en caliente, con limpieza vía pg_cron).
 - Distribución en vivo: Portal (canales broadcast + inbox por usuario).
 - Inteligencia: AWS Bedrock (Agrupación de reportes, filtro anti-falsos-positivos).
 - Mapas geoespaciales: Turf.js (buffer de corredores, punto-en-polígono).
