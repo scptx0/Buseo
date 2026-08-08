@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { X, Check } from 'lucide-react'
+import { X, Check, Loader2 } from 'lucide-react'
 
-import { nearestStation, searchRoutes, stationName } from '../../lib/rutas'
-import { stations } from '../../lib/mockData'
-import type { PlannedRoute } from '../../lib/types'
+import type { StationApi, RouteApi } from '../../lib/types'
 import {
-  getRouteHistory,
-  pushToRouteHistory,
-  saveActiveRoute,
-  type StoredRoute,
-} from '../../lib/storage'
+  fetchStations,
+  searchRoutes as apiSearchRoutes,
+  startTrip,
+  getUserUUID,
+} from '../../lib/supabase/api'
+import { getRouteHistory, pushToRouteHistory } from '../../lib/storage'
 import { useGeo } from '../entrada/LocationGate'
 import { RouteDetail } from './RouteDetail'
 import { RouteListItem } from './RouteListItem'
@@ -18,13 +17,27 @@ import { RouteListItem } from './RouteListItem'
 export function PlanearPage() {
   const { position } = useGeo()
   const navigate = useNavigate()
-  const [originId, setOriginId] = useState('')
-  const [destId, setDestId] = useState('')
-  const [routes, setRoutes] = useState<PlannedRoute[]>([])
-  const [selected, setSelected] = useState<PlannedRoute | null>(null)
-  const [saved, setSaved] = useState<StoredRoute | null>(null)
+  const [stations, setStations] = useState<StationApi[]>([])
+  const [loading, setLoading] = useState(true)
+  const [originId, setOriginId] = useState<number | ''>('')
+  const [destId, setDestId] = useState<number | ''>('')
+  const [routes, setRoutes] = useState<RouteApi[]>([])
+  const [selected, setSelected] = useState<RouteApi | null>(null)
+  const [saved, setSaved] = useState(false)
+  const [savedText, setSavedText] = useState('')
+  const [searching, setSearching] = useState(false)
 
-  const recent = getRouteHistory()
+  useEffect(() => {
+    fetchStations()
+      .then(setStations)
+      .catch((e) => console.error('Error cargando estaciones:', e))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const stationName = useCallback(
+    (id: number) => stations.find((s) => s.id === id)?.name ?? String(id),
+    [stations],
+  )
 
   useEffect(() => {
     if (saved) {
@@ -34,48 +47,87 @@ export function PlanearPage() {
   }, [saved, navigate])
 
   useEffect(() => {
-    if (!position || originId) return
-    const nearest = nearestStation(position.lat, position.lng)
-    if (nearest) setOriginId(nearest.id)
-  }, [position, originId])
+    if (!position || originId !== '' || stations.length === 0) return
+    // Buscar estación más cercana del usuario
+    let nearest: StationApi | null = null
+    let minDist = Infinity
+    for (const s of stations) {
+      const d = Math.hypot(s.lat - position.lat, s.lng - position.lng)
+      if (d < minDist) {
+        minDist = d
+        nearest = s
+      }
+    }
+    if (nearest && minDist < 0.02) setOriginId(nearest.id)
+  }, [position, originId, stations])
 
-  function onSearch() {
-    if (originId && destId && originId !== destId) {
-      const result = searchRoutes(originId, destId)
+  async function onSearch() {
+    if (originId === '' || destId === '' || originId === destId) return
+    setSearching(true)
+    try {
+      const result = await apiSearchRoutes(originId, destId)
       setRoutes(result)
       setSelected(null)
+    } catch (e) {
+      console.error('Error buscando rutas:', e)
+    } finally {
+      setSearching(false)
     }
   }
 
-  function onRecent(r: StoredRoute) {
+  function onRecent(r: { from: number; to: number }) {
     setOriginId(r.from)
     setDestId(r.to)
-    const result = searchRoutes(r.from, r.to)
-    setRoutes(result)
+    apiSearchRoutes(r.from, r.to).then(setRoutes).catch(console.error)
     setSelected(null)
   }
 
-  function onSelect(route: PlannedRoute) {
+  function onSelect(route: RouteApi) {
     setSelected(route)
   }
 
-  function confirmSave() {
-    if (!selected) return
-    persist({ from: originId, to: destId, routeId: selected.id })
+  async function confirmSave() {
+    if (!selected || originId === '' || destId === '') return
+    try {
+      await startTrip({
+        userId: getUserUUID(),
+        origin: Number(originId),
+        dest: Number(destId),
+        steps: selected.steps,
+      })
+      pushToRouteHistory({
+        from: String(originId),
+        to: String(destId),
+        routeId: selected.id,
+      })
+      setSavedText(
+        `De ${stationName(Number(originId))} a ${stationName(Number(destId))}`,
+      )
+      setSaved(true)
+    } catch (e) {
+      console.error('Error iniciando viaje:', e)
+    }
   }
 
-  function persist(route: StoredRoute) {
-    saveActiveRoute(route)
-    pushToRouteHistory(route)
-    setSaved(route)
-  }
+  const recent = getRouteHistory()
 
-  const stationOptions = (excludeId: string) =>
+  const stationOptions = (excludeId: number | '') =>
     stations.map((s) => (
       <option key={s.id} value={s.id} disabled={s.id === excludeId}>
         {s.name}
       </option>
     ))
+
+  if (loading) {
+    return (
+      <div className="planear-page planear-page--select">
+        <div className="text-center" style={{ padding: 60 }}>
+          <Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} />
+          <p className="screen-caption" style={{ marginTop: 16 }}>Cargando estaciones...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (saved) {
     return (
@@ -92,9 +144,7 @@ export function PlanearPage() {
             <Check size={56} strokeWidth={2.5} />
           </div>
           <h2 className="saved-screen__title">Tu ruta ha sido iniciada!</h2>
-          <p className="saved-screen__text">
-            De <b>{stationName(saved.from)}</b> a <b>{stationName(saved.to)}</b>.
-          </p>
+          <p className="saved-screen__text">{savedText}.</p>
           <p className="saved-screen__hint">
             Serás redirigido al inicio en unos segundos.
           </p>
@@ -113,8 +163,9 @@ export function PlanearPage() {
     return (
       <RouteDetail
         route={selected}
-        originId={originId}
-        destId={destId}
+        originId={Number(originId)}
+        destId={Number(destId)}
+        stationName={stationName}
         onBack={() => setSelected(null)}
         onSave={confirmSave}
       />
@@ -127,7 +178,7 @@ export function PlanearPage() {
         <div className="planear-header">
           <h1 className="planear-title">Resultados</h1>
           <div className="planear-path">
-            <span className="planear-path__station">{stationName(originId)}</span>
+            <span className="planear-path__station">{stationName(Number(originId))}</span>
             <div className="planear-path__line">
               <span className="planear-path__dot" />
               <span className="planear-path__dot" />
@@ -135,7 +186,7 @@ export function PlanearPage() {
               <span className="planear-path__dot" />
               <span className="planear-path__dot" />
             </div>
-            <span className="planear-path__station">{stationName(destId)}</span>
+            <span className="planear-path__station">{stationName(Number(destId))}</span>
           </div>
           <div className="planear-selects">
             <div className="field">
@@ -144,7 +195,8 @@ export function PlanearPage() {
                 id="origin"
                 className="select select--lg"
                 value={originId}
-                onChange={(e) => setOriginId(e.target.value)}
+                onChange={(e) => setOriginId(Number(e.target.value))}
+                required
               >
                 <option value="" disabled>Elige una estación</option>
                 {stationOptions(destId)}
@@ -156,7 +208,8 @@ export function PlanearPage() {
                 id="dest"
                 className="select select--lg"
                 value={destId}
-                onChange={(e) => setDestId(e.target.value)}
+                onChange={(e) => setDestId(Number(e.target.value))}
+                required
               >
                 <option value="" disabled>Elige una estación</option>
                 {stationOptions(originId)}
@@ -169,21 +222,25 @@ export function PlanearPage() {
 
         <div className="planear-results">
           {routes.map((route) => (
-            <RouteListItem key={route.id} route={route} onSelect={() => onSelect(route)} />
+            <RouteListItem
+              key={route.id}
+              route={route}
+              stationName={stationName}
+              onSelect={() => onSelect(route)}
+            />
           ))}
         </div>
 
         <div className="cta-bar" style={{ position: 'static', padding: '0 0 16px', background: 'none' }}>
           <button
             className="btn btn--primary"
-            disabled={!originId || !destId || originId === destId}
+            disabled={originId === '' || destId === '' || originId === destId || searching}
             onClick={onSearch}
             style={{ maxWidth: '100%' }}
           >
-            Buscar rutas
+            {searching ? 'Buscando...' : 'Buscar rutas'}
           </button>
         </div>
-
       </div>
     )
   }
@@ -204,7 +261,7 @@ export function PlanearPage() {
             id="origin"
             className="select select--lg"
             value={originId}
-            onChange={(e) => setOriginId(e.target.value)}
+            onChange={(e) => setOriginId(Number(e.target.value))}
             required
           >
             <option value="" disabled>
@@ -222,7 +279,7 @@ export function PlanearPage() {
             id="dest"
             className="select select--lg"
             value={destId}
-            onChange={(e) => setDestId(e.target.value)}
+            onChange={(e) => setDestId(Number(e.target.value))}
             required
           >
             <option value="" disabled>
@@ -241,9 +298,9 @@ export function PlanearPage() {
               key={`${r.from}-${r.to}`}
               type="button"
               className="btn btn--ghost"
-              onClick={() => onRecent(r)}
+              onClick={() => onRecent({ from: Number(r.from), to: Number(r.to) })}
             >
-              {stationName(r.from)} → {stationName(r.to)}
+              {stationName(Number(r.from))} → {stationName(Number(r.to))}
             </button>
           ))}
         </section>
@@ -252,10 +309,10 @@ export function PlanearPage() {
       <div className="cta-bar">
         <button
           className="btn btn--primary"
-          disabled={!originId || !destId || originId === destId}
+          disabled={originId === '' || destId === '' || originId === destId || searching}
           onClick={onSearch}
         >
-          Buscar rutas
+          {searching ? 'Buscando...' : 'Buscar rutas'}
         </button>
       </div>
     </div>
