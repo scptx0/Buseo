@@ -1,100 +1,101 @@
-import { useState } from 'react'
-import { ArrowLeft, Bus, MapPin, AlertTriangle, CheckCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowLeft, Bus, MapPin, AlertTriangle, CheckCircle, XCircle } from 'lucide-react'
+import { supabase } from '../../lib/supabase/client'
 import ReportBus from './ReportBus'
 import ReportStation from './ReportStation'
 import ReportIncident from './ReportIncident'
 
-export default function ReportePage() {
+interface LineOption { id: number; name: string }
+interface StationOption { id: number; name: string }
+
+export function ReportePage() {
   const [mode, setMode] = useState<0 | 1 | 2 | 3>(0)
-  const [success, setSuccess] = useState(false)
+  const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null)
+  const [lines, setLines] = useState<LineOption[]>([])
+  const [stations, setStations] = useState<StationOption[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const handleSent = () => {
-    setSuccess(true)
-  }
+  useEffect(() => {
+    Promise.all([
+      supabase.from('lines').select('id, name').order('name').then(r => r.data as LineOption[] ?? []),
+      supabase.from('stations').select('id, name').order('name').then(r => r.data as StationOption[] ?? []),
+    ]).then(([l, s]) => { setLines(l); setStations(s) }).finally(() => setLoading(false))
+  }, [])
 
-  const goBack = () => {
-    setMode(0)
-    setSuccess(false)
-  }
+  const handleSent = () => { setResult({ ok: true, msg: 'Gracias por contribuir con la comunidad.' }) }
+  const handleBlocked = (reason: string) => { setResult({ ok: false, msg: reason }) }
+  const goBack = () => { setMode(0); setResult(null) }
+  const selectCard = (m: 1 | 2 | 3) => { setMode(m); setResult(null) }
 
-  const selectCard = (m: 1 | 2 | 3) => {
-    setMode(m)
-    setSuccess(false)
-  }
+  if (loading) return <div className="empty"><p>Cargando...</p></div>
 
   return (
     <div className="app-shell">
-      <div className="topbar">
-        {mode !== 0 && !success && (
-          <button className="topbar__back" onClick={goBack} aria-label="Volver">
-            <ArrowLeft size={20} />
-          </button>
-        )}
-        <h1 className="screen-title" style={{ margin: 0 }}>
-          Reporte
-        </h1>
+      <div className="topbar" style={{ marginBottom: 0 }}>
+        <button className="topbar__back" onClick={() => mode === 0 ? window.history.back() : goBack()} aria-label="Volver">
+          <ArrowLeft size={20} />
+        </button>
+        <span className="topbar__mark">Reporte</span>
       </div>
 
-      {success ? (
-        <div className="text-center" style={{ paddingTop: 40 }}>
-          <CheckCircle size={64} style={{ color: '#107c10', marginBottom: 16 }} />
-          <h2 className="screen-title">Reporte enviado</h2>
-          <p className="screen-caption">Gracias por contribuir con la comunidad.</p>
-          <button className="btn btn--primary" onClick={goBack}>
-            Volver
-          </button>
+      {result && (
+        <div className="dialog-backdrop">
+          <div className="dialog" style={{ textAlign: 'center' }}>
+            {result.ok
+              ? <CheckCircle size={48} style={{ color: '#16a34a', marginBottom: 12 }} />
+              : <XCircle size={48} style={{ color: '#ef4444', marginBottom: 12 }} />
+            }
+            <h2 style={{ margin: '0 0 6px', fontSize: '1.1rem', fontWeight: 700 }}>
+              {result.ok ? 'Reporte enviado' : 'Reporte rechazado'}
+            </h2>
+            <p style={{ margin: '0 0 16px', fontSize: '0.9rem', color: '#555', lineHeight: 1.4 }}>{result.msg}</p>
+            <button className="btn btn--primary" onClick={goBack}>Aceptar</button>
+          </div>
         </div>
-      ) : mode === 0 ? (
-        <div className="report-selector">
-          <button className="report-card" onClick={() => selectCard(1)}>
-            <div
-              className="report-card__icon"
-              style={{ background: 'var(--color-celeste)', color: 'var(--color-primary-deep)' }}
-            >
-              <Bus size={24} />
-            </div>
-            <div className="report-card__info">
-              <div className="report-card__title">Estado del bus</div>
-              <div className="report-card__desc">Cuéntanos cómo va tu bus (ocupación, demoras).</div>
-            </div>
-          </button>
+      )}
 
-          <button className="report-card" onClick={() => selectCard(2)}>
-            <div
-              className="report-card__icon"
-              style={{ background: 'var(--color-purple)', color: '#6b4faa' }}
-            >
-              <MapPin size={24} />
-            </div>
-            <div className="report-card__info">
-              <div className="report-card__title">Estado de estación</div>
-              <div className="report-card__desc">Reporta colas, estado de puertas, limpieza.</div>
-            </div>
-          </button>
+      {mode === 0 ? (
+        <div className="report-page">
+          <h1 className="report-title">Quieres hacer un reporte?</h1>
+          <div className="report-grid">
+            <button className="report-card" onClick={() => selectCard(1)}>
+              <div className="report-card__icon" style={{ background: '#d9eafd', color: '#5f7ec9' }}>
+                <Bus size={70} />
+              </div>
+              <div className="report-card__info">
+                <div className="report-card__title">Estado del bus</div>
+                <div className="report-card__desc">Cuentanos como va tu bus.</div>
+              </div>
+            </button>
 
-          <button className="report-card" onClick={() => selectCard(3)}>
-            <div
-              className="report-card__icon"
-              style={{ background: 'var(--color-yellow)', color: '#d4a017' }}
-            >
-              <AlertTriangle size={24} />
-            </div>
-            <div className="report-card__info">
-              <div className="report-card__title">Incidente</div>
-              <div className="report-card__desc">Averías, seguridad, o emergencias en tramo o estación.</div>
-            </div>
-          </button>
+            <button className="report-card" onClick={() => selectCard(2)}>
+              <div className="report-card__icon" style={{ background: '#ece5fb', color: '#6b4faa' }}>
+                <MapPin size={70} />
+              </div>
+              <div className="report-card__info">
+                <div className="report-card__title">Estado de estacion</div>
+                <div className="report-card__desc">Reporta colas, estado de puertas.</div>
+              </div>
+            </button>
+
+            <button className="report-card" onClick={() => selectCard(3)}>
+              <div className="report-card__icon" style={{ background: '#fbf3c7', color: '#d4a017' }}>
+                <AlertTriangle size={70} />
+              </div>
+              <div className="report-card__info">
+                <div className="report-card__title">Incidente</div>
+                <div className="report-card__desc">Averias, seguridad o emergencias.</div>
+              </div>
+            </button>
+          </div>
         </div>
       ) : mode === 1 ? (
-        <ReportBus onCancel={goBack} onSent={handleSent} />
+        <ReportBus lines={lines} stations={stations} onCancel={goBack} onSent={handleSent} onBlocked={handleBlocked} />
       ) : mode === 2 ? (
-        <ReportStation onCancel={goBack} onSent={handleSent} />
+        <ReportStation stations={stations} onCancel={goBack} onSent={handleSent} onBlocked={handleBlocked} />
       ) : (
-        <ReportIncident onCancel={goBack} onSent={handleSent} />
+        <ReportIncident stations={stations} onCancel={goBack} onSent={handleSent} onBlocked={handleBlocked} />
       )}
     </div>
   )
 }
-
-export { ReportePage }
-

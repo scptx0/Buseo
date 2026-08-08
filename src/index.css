@@ -1470,35 +1470,59 @@ input {
 
 /* ---- Reporte selector ---- */
 
-.report-selector {
-  display: grid;
-  gap: 12px;
+.report-page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 64px);
+}
+
+.report-title {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 20px 0 16px;
+  color: #000;
+}
+
+.report-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 0 12px;
+  max-width: 400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .report-card {
+  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 16px;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px;
   background: var(--surface);
-  border: 1px solid var(--color-border);
+  border: 2px solid #444;
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   width: 100%;
   color: var(--ink);
-  transition: border-color 0.1s ease;
+  transition: border-color 0.1s ease, transform 0.1s ease;
 }
 
-.report-card:hover {
-  border-color: var(--color-primary);
+.report-card:active {
+  transform: scale(0.98);
+  border-color: #222;
 }
 
 .report-card__icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 120px;
+  height: 120px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1508,17 +1532,50 @@ input {
 .report-card__info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 4px;
 }
 
 .report-card__title {
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #000;
 }
 
 .report-card__desc {
-  font-size: 0.85rem;
-  color: var(--ink-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #444;
+  max-width: 300px;
+}
+
+.report-form {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 120px);
+}
+
+.report-form .stack {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-form .field:not(.report-comment) {
+  flex-shrink: 0;
+}
+
+.report-comment {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+}
+
+.report-textarea {
+  flex: 1;
+  min-height: 80px;
 }
 
 /* ---- Donde estan los buses ---- */
