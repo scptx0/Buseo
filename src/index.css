@@ -1523,6 +1523,35 @@ input {
   max-width: 300px;
 }
 
+.report-form {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 120px);
+}
+
+.report-form .stack {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-form .field:not(.report-comment) {
+  flex-shrink: 0;
+}
+
+.report-comment {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+}
+
+.report-textarea {
+  flex: 1;
+  min-height: 80px;
+}
+
 /* ---- Donde estan los buses ---- */
 
 .buses-page {
