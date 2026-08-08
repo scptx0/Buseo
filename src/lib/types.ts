@@ -123,6 +123,7 @@ export interface StationApi {
   name: string
   lat: number
   lng: number
+  polygon?: [number, number][]
 }
 
 export interface RouteNodeApi {

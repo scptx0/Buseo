@@ -10,6 +10,7 @@ import { ReportePage } from './app/reporte/page'
 import { RutaActualPage } from './app/ruta-actual/page'
 import { Layout } from './components/Layout'
 import { HeaderTitleProvider } from './components/HeaderTitleContext'
+import { BuseoPortalProvider } from './lib/portal/client'
 import { hasUserProfile } from './lib/storage'
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -26,23 +27,25 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
 export function App() {
   return (
-    <HashRouter>
-      <HeaderTitleProvider>
-        <LocationGate>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route element={<AuthGuard><Layout /></AuthGuard>}>
-              <Route path="/" element={<MenuPage />} />
-              <Route path="/planear" element={<PlanearPage />} />
-              <Route path="/ruta-actual" element={<RutaActualPage />} />
-              <Route path="/reporte" element={<ReportePage />} />
-              <Route path="/buses" element={<BusesPage />} />
-              <Route path="/canal" element={<CanalPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </LocationGate>
-      </HeaderTitleProvider>
-    </HashRouter>
+    <BuseoPortalProvider>
+      <HashRouter>
+        <HeaderTitleProvider>
+          <LocationGate>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route element={<AuthGuard><Layout /></AuthGuard>}>
+                <Route path="/" element={<MenuPage />} />
+                <Route path="/planear" element={<PlanearPage />} />
+                <Route path="/ruta-actual" element={<RutaActualPage />} />
+                <Route path="/reporte" element={<ReportePage />} />
+                <Route path="/buses" element={<BusesPage />} />
+                <Route path="/canal" element={<CanalPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
+          </LocationGate>
+        </HeaderTitleProvider>
+      </HashRouter>
+    </BuseoPortalProvider>
   )
 }

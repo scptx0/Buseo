@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Clock, Bus, ArrowLeftRight, Route, MapPin } from 'lucide-react'
+import { Clock, Bus, ArrowLeftRight, Route, MapPin, Navigation } from 'lucide-react'
 
 import { fetchStations, getActiveRoute, finishTrip, getUserUUID, searchRoutes, startTrip } from '../../lib/supabase/api'
 import type { RouteApi, StationApi } from '../../lib/types'
 import { RouteGraphView, LINE_COLORS } from '../planear/RouteGraphView'
 import { lineName } from '../../lib/rutas'
+import { useGpsTracking } from '../../hooks/useGpsTracking'
+
+const STATUS_LABEL: Record<string, { text: string; color: string }> = {
+  waiting: { text: 'Esperando bus', color: '#f59e0b' },
+  on_bus: { text: 'En camino', color: '#16a34a' },
+  away: { text: 'Fuera de ruta', color: '#999' },
+}
 
 export function RutaActualPage() {
   const navigate = useNavigate()
@@ -15,6 +22,8 @@ export function RutaActualPage() {
   const [editing, setEditing] = useState(false)
   const [editOrigin, setEditOrigin] = useState<number | ''>('')
   const [editDest, setEditDest] = useState<number | ''>('')
+
+  const { status } = useGpsTracking(route)
 
   useEffect(() => {
     const uuid = getUserUUID()
@@ -146,6 +155,12 @@ export function RutaActualPage() {
           <div className="ruta-stats__item">
             <Route size={20} strokeWidth={2} />
             <span>{route.direction === 'sur' ? 'Sur' : 'Norte'}</span>
+          </div>
+          <div className="ruta-stats__item">
+            <Navigation size={20} strokeWidth={2} />
+            <span style={{ color: (STATUS_LABEL[status.current] ?? STATUS_LABEL.away).color }}>
+              {STATUS_LABEL[status.current]?.text ?? 'Fuera de ruta'}
+            </span>
           </div>
         </div>
 
