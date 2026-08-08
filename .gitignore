@@ -28,3 +28,5 @@ node_modules/.tmp/
 data/
 bitacoras/
 docs/report_db.md
+# Supabase
+supabase/.temp/
