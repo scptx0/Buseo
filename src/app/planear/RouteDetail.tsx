@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, ArrowDown, ArrowLeftRight, X, Clock, Bus, Circle
 import { lineName, stationName } from '../../lib/rutas'
 import { stationById } from '../../lib/mockData'
 import type { Alert, PlannedRoute } from '../../lib/types'
+import { RouteGraphView } from './RouteGraphView'
 
 interface RouteDetailProps {
   route: PlannedRoute
@@ -25,11 +26,11 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
       <header className="route-detail__header">
         {saved ? (
           <button type="button" className="topbar__back" onClick={onClose} aria-label="Cerrar">
-            <X size={16} strokeWidth={2.5} />
+            <X size={21} strokeWidth={2.5} />
           </button>
         ) : (
           <button type="button" className="topbar__back" onClick={onBack} aria-label="Volver">
-            <ArrowLeft size={16} strokeWidth={2.5} />
+            <ArrowLeft size={21} strokeWidth={2.5} />
           </button>
         )}
         <span className="route-detail__title">Detalle de ruta</span>
@@ -38,24 +39,24 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
       <div className="route-detail__hero">
         <div className="route-detail__stations">
           <span className="route-detail__station">{stationName(originId)}</span>
-          <ArrowRight className="route-detail__arrow" size={20} strokeWidth={2} />
+          <ArrowRight className="route-detail__arrow" size={26} strokeWidth={2} />
           <span className="route-detail__station">{stationName(destId)}</span>
         </div>
       </div>
 
       <div className="route-detail__stats">
         <div className="route-detail__stat">
-          <Clock className="route-detail__stat-icon" size={18} strokeWidth={2} />
+          <Clock className="route-detail__stat-icon" size={24} strokeWidth={2} />
           <span className="route-detail__stat-value">{route.etaMin} min</span>
           <span className="route-detail__stat-label">Tiempo</span>
         </div>
         <div className="route-detail__stat">
-          <Bus className="route-detail__stat-icon" size={18} strokeWidth={2} />
+          <Bus className="route-detail__stat-icon" size={24} strokeWidth={2} />
           <span className="route-detail__stat-value">{lines.length}</span>
           <span className="route-detail__stat-label">{lines.length === 1 ? 'Línea' : 'Líneas'}</span>
         </div>
         <div className="route-detail__stat">
-          <ArrowLeftRight className="route-detail__stat-icon" size={18} strokeWidth={2} />
+          <ArrowLeftRight className="route-detail__stat-icon" size={24} strokeWidth={2} />
           <span className="route-detail__stat-value">{transfers}</span>
           <span className="route-detail__stat-label">{transfers === 0 ? 'Directo' : transfers === 1 ? 'Transbordo' : 'Transbordos'}</span>
         </div>
@@ -74,7 +75,7 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
           <div key={i} className="route-step">
             <div className="route-step__marker">
               <div className="route-step__dot route-step__dot--start">
-                <CircleDot size={14} strokeWidth={2.5} />
+                <CircleDot size={18} strokeWidth={2.5} />
               </div>
               {i < route.steps.length - 1 && <div className="route-step__line" />}
             </div>
@@ -89,18 +90,22 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
               </div>
               <div className="route-step__stations">
                 <div className="route-step__station">
-                  <CircleDot size={12} fill="currentColor" />
+                  <CircleDot size={16} fill="currentColor" />
                   <span>{stationName(step.from)}</span>
                 </div>
-                <ArrowDown className="route-step__arrow" size={14} strokeWidth={2} />
+                <ArrowDown className="route-step__arrow" size={18} strokeWidth={2} />
                 <div className="route-step__station">
-                  <CircleDot size={12} fill="currentColor" />
+                  <CircleDot size={16} fill="currentColor" />
                   <span>{stationName(step.to)}</span>
                 </div>
               </div>
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="route-detail__graph">
+        <RouteGraphView routes={[route]} />
       </div>
 
       <div className="route-detail__footer">
@@ -110,7 +115,7 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
           </button>
         ) : (
           <button className="btn btn--primary btn--full" onClick={onSave}>
-            Guardar ruta
+            Iniciar viaje
           </button>
         )}
       </div>
@@ -129,9 +134,9 @@ function AlertCard({ alert }: { alert: Alert }) {
   return (
     <div className="alert-card">
       <div className="alert-card__icon">
-        {alert.type === 'delay' && <Clock size={18} strokeWidth={2} />}
-        {alert.type === 'incident' && <AlertTriangle size={18} strokeWidth={2} />}
-        {alert.type === 'closure' && <XCircle size={18} strokeWidth={2} />}
+        {alert.type === 'delay' && <Clock size={24} strokeWidth={2} />}
+        {alert.type === 'incident' && <AlertTriangle size={24} strokeWidth={2} />}
+        {alert.type === 'closure' && <XCircle size={24} strokeWidth={2} />}
       </div>
       <div className="alert-card__content">
         <span className="alert-card__type">{typeLabel[alert.type]}</span>

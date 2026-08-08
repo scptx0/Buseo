@@ -6,7 +6,6 @@ import { nearestStation, searchRoutes, stationName } from '../../lib/rutas'
 import { stations } from '../../lib/mockData'
 import type { PlannedRoute } from '../../lib/types'
 import {
-  getActiveRoute,
   getRouteHistory,
   pushToRouteHistory,
   saveActiveRoute,
@@ -23,11 +22,16 @@ export function PlanearPage() {
   const [destId, setDestId] = useState('')
   const [routes, setRoutes] = useState<PlannedRoute[]>([])
   const [selected, setSelected] = useState<PlannedRoute | null>(null)
-  const [pending, setPending] = useState<StoredRoute | null>(null)
   const [saved, setSaved] = useState<StoredRoute | null>(null)
-  const [confirmSwap, setConfirmSwap] = useState(false)
 
   const recent = getRouteHistory()
+
+  useEffect(() => {
+    if (saved) {
+      const t = setTimeout(() => navigate('/'), 2500)
+      return () => clearTimeout(t)
+    }
+  }, [saved, navigate])
 
   useEffect(() => {
     if (!position || originId) return
@@ -57,14 +61,7 @@ export function PlanearPage() {
 
   function confirmSave() {
     if (!selected) return
-    const next = { from: originId, to: destId, routeId: selected.id }
-    const active = getActiveRoute()
-    if (active && !(active.from === next.from && active.to === next.to)) {
-      setPending(next)
-      setConfirmSwap(true)
-      return
-    }
-    persist(next)
+    persist({ from: originId, to: destId, routeId: selected.id })
   }
 
   function persist(route: StoredRoute) {
@@ -84,28 +81,28 @@ export function PlanearPage() {
     return (
       <div className="saved-screen">
         <header className="route-detail__header">
-          <button type="button" className="topbar__back" onClick={() => navigate(-1)} aria-label="Cerrar">
-            <X size={16} strokeWidth={2.5} />
+          <button type="button" className="topbar__back" onClick={() => navigate('/')} aria-label="Cerrar">
+            <X size={21} strokeWidth={2.5} />
           </button>
-          <span className="route-detail__title">Ruta guardada</span>
+          <span className="route-detail__title">Viaje iniciado</span>
         </header>
 
         <div className="saved-screen__content">
-          <div className="saved-screen__icon">
-            <Check size={48} strokeWidth={2.5} />
+          <div className="saved-screen__icon" style={{ background: 'rgba(34,197,94,0.15)', color: '#16a34a' }}>
+            <Check size={56} strokeWidth={2.5} />
           </div>
-          <h2 className="saved-screen__title">¡Ruta activa!</h2>
+          <h2 className="saved-screen__title">Tu ruta ha sido iniciada!</h2>
           <p className="saved-screen__text">
-            Tu ruta de <b>{stationName(saved.from)}</b> a <b>{stationName(saved.to)}</b> quedó guardada.
+            De <b>{stationName(saved.from)}</b> a <b>{stationName(saved.to)}</b>.
           </p>
           <p className="saved-screen__hint">
-            Se desactivará cuando llegues a tu destino.
+            Serás redirigido al inicio en unos segundos.
           </p>
         </div>
 
         <div className="route-detail__footer">
-          <button className="btn btn--primary btn--full" onClick={() => navigate('/ruta-actual')}>
-            Ver tu ruta
+          <button className="btn btn--primary btn--full" onClick={() => navigate('/')}>
+            Ir al inicio
           </button>
         </div>
       </div>
@@ -124,48 +121,119 @@ export function PlanearPage() {
     )
   }
 
+  if (routes.length > 0) {
+    return (
+      <div className="planear-page">
+        <div className="planear-header">
+          <h1 className="planear-title">Resultados</h1>
+          <div className="planear-path">
+            <span className="planear-path__station">{stationName(originId)}</span>
+            <div className="planear-path__line">
+              <span className="planear-path__dot" />
+              <span className="planear-path__dot" />
+              <span className="planear-path__dot" />
+              <span className="planear-path__dot" />
+              <span className="planear-path__dot" />
+            </div>
+            <span className="planear-path__station">{stationName(destId)}</span>
+          </div>
+          <div className="planear-selects">
+            <div className="field">
+              <label className="field__label" htmlFor="origin">Estación 1 (origen)</label>
+              <select
+                id="origin"
+                className="select select--lg"
+                value={originId}
+                onChange={(e) => setOriginId(e.target.value)}
+              >
+                <option value="" disabled>Elige una estación</option>
+                {stationOptions(destId)}
+              </select>
+            </div>
+            <div className="field">
+              <label className="field__label" htmlFor="dest">Estación 2 (destino)</label>
+              <select
+                id="dest"
+                className="select select--lg"
+                value={destId}
+                onChange={(e) => setDestId(e.target.value)}
+              >
+                <option value="" disabled>Elige una estación</option>
+                {stationOptions(originId)}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <p className="planear-bridge">Estas son tus rutas encontradas</p>
+
+        <div className="planear-results">
+          {routes.map((route) => (
+            <RouteListItem key={route.id} route={route} onSelect={() => onSelect(route)} />
+          ))}
+        </div>
+
+        <div className="cta-bar" style={{ position: 'static', padding: '0 0 16px', background: 'none' }}>
+          <button
+            className="btn btn--primary"
+            disabled={!originId || !destId || originId === destId}
+            onClick={onSearch}
+            style={{ maxWidth: '100%' }}
+          >
+            Buscar rutas
+          </button>
+        </div>
+
+      </div>
+    )
+  }
+
   return (
-    <div className="stack">
-      <h1 className="screen-title text-center">¿A dónde vamos?</h1>
-      <p className="screen-caption text-center">Elige tu origen y tu destino en el Metropolitano.</p>
-
-      <div className="field">
-        <label className="field__label" htmlFor="origin">
-          Estación 1 (origen)
-        </label>
-        <select
-          id="origin"
-          className="select"
-          value={originId}
-          onChange={(e) => setOriginId(e.target.value)}
-          required
-        >
-          <option value="" disabled>
-            Elige una estación
-          </option>
-          {stationOptions(destId)}
-        </select>
+    <div className="planear-page planear-page--select">
+      <div className="planear-header">
+        <h1 className="screen-title text-center">¿A dónde vamos?</h1>
+        <p className="screen-caption text-center">Elige tu origen y tu destino en el Metropolitano.</p>
       </div>
 
-      <div className="field">
-        <label className="field__label" htmlFor="dest">
-          Estación 2 (destino)
-        </label>
-        <select
-          id="dest"
-          className="select"
-          value={destId}
-          onChange={(e) => setDestId(e.target.value)}
-          required
-        >
-          <option value="" disabled>
-            Elige una estación
-          </option>
-          {stationOptions(originId)}
-        </select>
+      <div className="planear-selects">
+        <div className="field">
+          <label className="field__label" htmlFor="origin">
+            Estación 1 (origen)
+          </label>
+          <select
+            id="origin"
+            className="select select--lg"
+            value={originId}
+            onChange={(e) => setOriginId(e.target.value)}
+            required
+          >
+            <option value="" disabled>
+              Elige una estación
+            </option>
+            {stationOptions(destId)}
+          </select>
+        </div>
+
+        <div className="field">
+          <label className="field__label" htmlFor="dest">
+            Estación 2 (destino)
+          </label>
+          <select
+            id="dest"
+            className="select select--lg"
+            value={destId}
+            onChange={(e) => setDestId(e.target.value)}
+            required
+          >
+            <option value="" disabled>
+              Elige una estación
+            </option>
+            {stationOptions(originId)}
+          </select>
+        </div>
       </div>
 
-      {routes.length === 0 && recent.length > 0 && (
+      {recent.length > 0 && (
         <section className="card stack">
           <span className="field__label">Últimas rutas</span>
           {recent.map((r) => (
@@ -190,44 +258,6 @@ export function PlanearPage() {
           Buscar rutas
         </button>
       </div>
-
-      {routes.length > 0 && (
-        <section className="stack">
-          <h2 className="screen-title text-center">Resultados</h2>
-          <p className="screen-caption text-center">
-            {stationName(originId)} → {stationName(destId)}
-          </p>
-          {routes.map((route) => (
-            <RouteListItem key={route.id} route={route} onSelect={() => onSelect(route)} />
-          ))}
-        </section>
-      )}
-
-      {confirmSwap && pending && (
-        <div className="dialog-backdrop" onClick={() => setConfirmSwap(false)}>
-          <section className="dialog" role="alertdialog" aria-labelledby="swap-title">
-            <h2 id="swap-title">Cambiar de ruta</h2>
-            <p>
-              Ya tienes una ruta activa de {stationName(pending.from)} a {stationName(pending.to)}.
-              ¿La desactivamos y guardamos la nueva?
-            </p>
-            <div className="stack">
-              <button
-                className="btn btn--primary"
-                onClick={() => {
-                  persist(pending)
-                  setConfirmSwap(false)
-                }}
-              >
-                Sí, usar la nueva
-              </button>
-              <button className="btn btn--ghost" onClick={() => setConfirmSwap(false)}>
-                Cancelar
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
     </div>
   )
 }
