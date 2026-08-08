@@ -107,7 +107,7 @@ RETURNS TABLE(
 $$;
 
 -- Funcion: generar post IA desde reportes agrupados
-CREATE OR REPLACE FUNCTION get_report_clusters(p_min_reports INT DEFAULT 4, p_window_hours INT DEFAULT 4)
+CREATE OR REPLACE FUNCTION get_report_clusters(p_min_reports INT DEFAULT 2, p_window_hours INT DEFAULT 4, p_dedup_minutes INT DEFAULT 30)
 RETURNS TABLE(
   target_type TEXT, target_id TEXT, report_type TEXT,
   count BIGINT, sample_descriptions TEXT[]
@@ -116,8 +116,13 @@ RETURNS TABLE(
     'station' as target_type, target_id, type as report_type,
     COUNT(*) as count,
     array_agg(description ORDER BY created_at DESC) FILTER (WHERE description != '') as sample_descriptions
-  FROM reports
-  WHERE created_at > NOW() - (p_window_hours || ' hours')::INTERVAL
+  FROM reports r
+  WHERE r.created_at > NOW() - (p_window_hours || ' hours')::INTERVAL
+    AND NOT EXISTS (
+      SELECT 1 FROM feed_posts fp
+      WHERE fp.created_at > NOW() - (p_dedup_minutes || ' minutes')::INTERVAL
+        AND (fp.content ILIKE '%' || r.target_id || '%' OR fp.tags @> ARRAY[r.target_id])
+    )
   GROUP BY target_id, type
   HAVING COUNT(*) >= p_min_reports
   UNION ALL
@@ -125,8 +130,13 @@ RETURNS TABLE(
     'bus', metadata->>'lineId', type,
     COUNT(*),
     array_agg(description ORDER BY created_at DESC) FILTER (WHERE description != '')
-  FROM reports
-  WHERE created_at > NOW() - (p_window_hours || ' hours')::INTERVAL AND metadata ? 'lineId'
+  FROM reports r
+  WHERE r.created_at > NOW() - (p_window_hours || ' hours')::INTERVAL AND r.metadata ? 'lineId'
+    AND NOT EXISTS (
+      SELECT 1 FROM feed_posts fp
+      WHERE fp.created_at > NOW() - (p_dedup_minutes || ' minutes')::INTERVAL
+        AND (fp.content ILIKE '%' || (r.metadata->>'lineId') || '%' OR fp.tags @> ARRAY[r.metadata->>'lineId'])
+    )
   GROUP BY metadata->>'lineId', type
   HAVING COUNT(*) >= p_min_reports;
 $$;
