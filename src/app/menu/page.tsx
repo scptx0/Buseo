@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { MapPin, Building2, Plane } from 'lucide-react'
 
 import { getUserName } from '../../lib/storage'
 import logoBuseo from '../../../iconos/logo_buseo.png'
@@ -19,13 +20,18 @@ const RIGHT_TILES = [
   { to: '/canal', img: iconoCanal, label: 'Canal', cls: 'home-tile--canal' },
 ]
 
+const FAVORITES = [
+  { to: '/planear', icon: MapPin, label: 'Parque de las Leyendas' },
+  { to: '/planear', icon: Building2, label: 'Estación Central' },
+  { to: '/planear', icon: Plane, label: 'Aeropuerto' },
+]
+
 export function MenuPage() {
   const name = getUserName()
   return (
-    <div>
+    <div className="home-page">
       <header className="home-header">
         <img className="home-logo" src={logoBuseo} alt="Buseo" />
-        <span className="home-brand">Buseo</span>
         <span className="home-greeting">
           Hola{name ? `, ${name}` : ''}
         </span>
@@ -45,6 +51,18 @@ export function MenuPage() {
           </Link>
         ))}
       </nav>
+
+      <section className="home-favorites">
+        <span className="home-favorites__label">Tus rutas preferidas</span>
+        <div className="home-fav-list">
+          {FAVORITES.map((f) => (
+            <Link key={f.label} className="home-fav-route" to={f.to}>
+              <f.icon className="home-fav-route__icon" size={22} strokeWidth={1.5} />
+              <span>{f.label}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   )
 }
