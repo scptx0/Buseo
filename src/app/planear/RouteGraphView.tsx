@@ -12,10 +12,12 @@ interface GraphPosition {
   y: number
 }
 
-const ROUTE_COLORS: Record<number, string> = {
-  17: '#ef4444',
-  18: '#3b82f6',
-  19: '#16a34a',
+export const LINE_COLORS: Record<number, string> = {
+  1: '#f43f5e', 2: '#f97316', 3: '#eab308', 4: '#84cc16',
+  5: '#22c55e', 6: '#14b8a6', 7: '#06b6d4', 8: '#0ea5e9',
+  9: '#3b82f6', 10: '#6366f1', 11: '#8b5cf6', 12: '#a855f7',
+  13: '#d946ef', 14: '#ec4899', 15: '#e11d48', 16: '#db2777',
+  17: '#ef4444', 18: '#3b82f6', 19: '#16a34a', 20: '#f59e0b',
 }
 
 const ROW_H = 64
@@ -23,10 +25,11 @@ const LEFT_PAD = 70
 const TOP_PAD = 30
 const NODE_R = 14
 const NODE_R_LG = 20
+const NODE_R_SM = 10
 const LINE_W = 3.5
 
 function getLineColor(lineId: number): string {
-  return ROUTE_COLORS[lineId] || '#8b5cf6'
+  return LINE_COLORS[lineId] || '#999'
 }
 
 export function RouteGraphView({ route }: RouteGraphViewProps) {
@@ -43,18 +46,17 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
 
       for (let i = 0; i < step.nodes.length; i++) {
         const n = step.nodes[i]
-        const isFirst = i === 0
+        const isPrev = n.stopOrder < step.fromStop
+        const isOrigin = n.stopOrder === step.fromStop
         const isLast = i === step.nodes.length - 1
         const isFirstStep = step === route.steps[0]
         const isLastStep = step === route.steps[route.steps.length - 1]
 
-        const kind = isFirst && isFirstStep
-          ? 'origin'
-          : (isFirst && !isFirstStep) || (isLast && !isLastStep)
-            ? 'transfer'
-            : isLast && isLastStep
-              ? 'destination'
-              : 'intermediate'
+        const kind = isPrev ? 'prev'
+          : isOrigin && isFirstStep ? 'origin'
+          : (!isFirstStep && isOrigin) || (isLast && !isLastStep) ? 'transfer'
+          : isLast && isLastStep ? 'destination'
+          : 'intermediate'
 
         allNodes.push({ node: n, kind, lineId: step.lineId, row })
         row++
@@ -81,10 +83,12 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
 
   function getRadius(kind: string): number {
     if (kind === 'origin' || kind === 'destination') return NODE_R_LG
+    if (kind === 'prev') return NODE_R_SM
     return NODE_R
   }
 
   function getNodeColor(kind: string): string {
+    if (kind === 'prev') return '#aaa'
     if (kind === 'origin') return '#f59e0b'
     if (kind === 'destination') return '#16a34a'
     if (kind === 'transfer') return '#8b5cf6'
@@ -92,6 +96,7 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
   }
 
   function getLabelColor(kind: string): string {
+    if (kind === 'prev') return '#bbb'
     if (kind === 'origin') return '#d97706'
     return '#000'
   }
