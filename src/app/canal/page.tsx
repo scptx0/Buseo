@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useChannel } from '@portalsdk/react'
 import { getFeedPosts, togglePostReaction, getUserUUID } from '../../lib/supabase/api'
 import { supabase } from '../../lib/supabase/client'
 import { PostCard } from './PostCard'
@@ -13,27 +12,13 @@ interface FeedPost {
   created_at: string
 }
 
-interface PortalPost {
-  id: string
-  title: string
-  content: string
-  tags: string[]
-  created_at: string
-}
-
 export function CanalPage() {
   const [posts, setPosts] = useState<FeedPost[]>([])
   const [reactions, setReactions] = useState<Record<string, Record<string, number>>>({})
   const [commentPostId, setCommentPostId] = useState<string | null>(null)
 
-  useChannel<PortalPost>({
-    channelId: 'canal:global:posts',
-    history: 0,
-    onMessage: (msg) => {
-      if (msg.ephemeral) return
-      setPosts((prev) => [{ id: msg.id, title: msg.content.title, content: msg.content.content, tags: msg.content.tags ?? [], created_at: msg.content.created_at ?? new Date().toISOString() }, ...prev])
-    },
-  })
+  // Portal integration pendiente de portal.config.ts deploy
+  // Por ahora usa solo Supabase: getFeedPosts() + setInterval generate-feed
 
   useEffect(() => {
     getFeedPosts().then(setPosts).catch(console.error)
