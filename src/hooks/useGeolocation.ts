@@ -1,97 +1,87 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import type { UserLocation } from '../lib/types.ts'
 
-export type GeoStatus = 'unsupported' | 'prompt' | 'granted' | 'denied'
+type PermissionState = 'loading' | 'granted' | 'denied' | 'prompt'
 
-export interface GeoPosition {
-  lat: number
-  lng: number
-  accuracy: number
+interface UseGeolocationResult {
+  location: UserLocation | null
+  error: string | null
+  permission: PermissionState
 }
 
-export interface GeoState {
-  status: GeoStatus
-  position: GeoPosition | null
-}
+export function useGeolocation(): UseGeolocationResult {
+  const [location, setLocation] = useState<UserLocation | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [permission, setPermission] = useState<PermissionState>('loading')
+  const watchId = useRef<number | null>(null)
 
-type GeoWatch = { clear: () => void }
-
-function startWatch(onPosition: (p: GeoPosition) => void, onDenied: () => void): GeoWatch {
-  const id = navigator.geolocation.watchPosition(
-    (pos) => {
-      onPosition({
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        accuracy: pos.coords.accuracy,
-      })
-    },
-    (err) => {
-      if (err.code === err.PERMISSION_DENIED) onDenied()
-    },
-    { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
-  )
-  return { clear: () => navigator.geolocation.clearWatch(id) }
-}
-
-export function useGeolocation(): { state: GeoState; retry: () => void } {
-  const [state, setState] = useState<GeoState>({ status: 'prompt', position: null })
-  const watchRef = useRef<GeoWatch | null>(null)
-  const permissionRef = useRef<PermissionStatus | null>(null)
-
-  const stop = useCallback(() => {
-    watchRef.current?.clear()
-    watchRef.current = null
-  }, [])
-
-  const start = useCallback(() => {
-    if (!('geolocation' in navigator)) {
-      setState({ status: 'unsupported', position: null })
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setError('Geolocalización no disponible en este navegador')
+      setPermission('denied')
       return
     }
-    if (watchRef.current) return
-    watchRef.current = startWatch(
-      (p) => setState({ status: 'granted', position: p }),
-      () => setState((s) => ({ ...s, status: 'denied' })),
+
+    navigator.permissions
+      .query({ name: 'geolocation' })
+      .then((result) => {
+        if (result.state === 'denied') {
+          setError('Permiso de ubicación denegado')
+          setPermission('denied')
+          return
+        }
+        setPermission(result.state as PermissionState)
+
+        result.addEventListener('change', () => {
+          setPermission(result.state as PermissionState)
+        })
+      })
+      .catch(() => {
+        setPermission('prompt')
+      })
+
+    watchId.current = navigator.geolocation.watchPosition(
+      (position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          speed: position.coords.speed,
+          heading: position.coords.heading,
+          timestamp: position.timestamp,
+        })
+        setError(null)
+        setPermission('granted')
+      },
+      (err) => {
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            setError('Permiso de ubicación denegado')
+            setPermission('denied')
+            break
+          case err.POSITION_UNAVAILABLE:
+            setError('Ubicación no disponible')
+            break
+          case err.TIMEOUT:
+            setError('Tiempo de espera agotado al obtener ubicación')
+            break
+          default:
+            setError(err.message)
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 5000,
+      },
     )
+
+    return () => {
+      if (watchId.current !== null) {
+        navigator.geolocation.clearWatch(watchId.current)
+      }
+    }
   }, [])
 
-  useEffect(() => {
-    start()
-    return stop
-  }, [start, stop])
-
-  useEffect(() => {
-    if (!('permissions' in navigator)) return
-    let cancelled = false
-    void navigator.permissions
-      .query({ name: 'geolocation' as PermissionName })
-      .then((p) => {
-        if (cancelled) return
-        permissionRef.current = p
-        p.onchange = () => {
-          if (p.state === 'granted') {
-            start()
-          } else if (p.state === 'denied') {
-            stop()
-            setState((s) => ({ ...s, status: 'denied' }))
-          } else {
-            start()
-          }
-        }
-      })
-      .catch(() => undefined)
-    return () => {
-      cancelled = true
-      const p = permissionRef.current
-      if (p) p.onchange = null
-      permissionRef.current = null
-    }
-  }, [start, stop])
-
-  const retry = useCallback(() => {
-    stop()
-    setState((s) => ({ ...s, status: 'prompt' }))
-    start()
-  }, [start, stop])
-
-  return { state, retry }
+  return { location, error, permission }
 }
