@@ -37,6 +37,7 @@ export function RouteDetail({
         <span className="route-detail__title">Detalle de ruta</span>
       </header>
 
+      <div className="route-detail__body">
       <div className="route-detail__hero">
         <div className="route-detail__stations">
           <span className="route-detail__station">{stationName(originId)}</span>
@@ -109,6 +110,7 @@ export function RouteDetail({
 
       <div className="route-detail__graph">
         <RouteGraphView route={route} />
+      </div>
       </div>
 
       <div className="route-detail__footer">

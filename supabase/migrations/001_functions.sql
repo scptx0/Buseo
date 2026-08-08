@@ -54,7 +54,7 @@ AS $$
   FROM line_stops ls
   JOIN segments s ON s.from_station = ls.station_id
                   AND s.to_station = (
-                    SELECT ls2.station_id
+                    SELECT MAX(ls2.station_id)
                     FROM line_stops ls2
                     WHERE ls2.line_id = ls.line_id
                       AND ls2.direction = ls.direction
@@ -86,7 +86,7 @@ RETURNS TABLE(
 LANGUAGE sql
 STABLE
 AS $$
-  SELECT
+  SELECT DISTINCT ON (ls.stop_order)
     ls.station_id,
     st.name,
     ls.stop_order,
@@ -98,13 +98,13 @@ AS $$
                                AND ls_next.direction = ls.direction
                                AND ls_next.stop_order = ls.stop_order + 1
   LEFT JOIN segments seg ON seg.from_station = ls.station_id
-                         AND seg.to_station = ls_next.station_id
+                         AND seg.to_station = COALESCE(ls_next.station_id, ls.station_id)
                          AND seg.line_id = ls.line_id
   WHERE ls.line_id = p_line_id
     AND ls.direction = p_direction
     AND ls.stop_order >= p_from_order
     AND ls.stop_order <= p_to_order
-  ORDER BY ls.stop_order;
+  ORDER BY ls.stop_order, ls.station_id;
 $$;
 
 -- ============================================================

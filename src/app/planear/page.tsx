@@ -231,7 +231,7 @@ export function PlanearPage() {
           ))}
         </div>
 
-        <div className="cta-bar" style={{ position: 'static', padding: '0 0 16px', background: 'none' }}>
+        <div className="cta-bar">
           <button
             className="btn btn--primary"
             disabled={originId === '' || destId === '' || originId === destId || searching}
