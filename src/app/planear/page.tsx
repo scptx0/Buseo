@@ -73,12 +73,12 @@ export function PlanearPage() {
   }, [routes.length, originId, destId, stationName, setTitle])
 
   useEffect(() => {
-    if (routes.length === 0) return
+    if (routes.length === 0 || saved) return
     window.history.pushState({ planearResults: true }, '')
     const handler = () => { setRoutes([]); setSelected(null) }
     window.addEventListener('popstate', handler)
     return () => window.removeEventListener('popstate', handler)
-  }, [routes.length])
+  }, [routes.length, saved])
 
   async function onSearch() {
     if (originId === '' || destId === '' || originId === destId) return
@@ -164,9 +164,6 @@ export function PlanearPage() {
           </div>
           <h2 className="saved-screen__title">Tu ruta ha sido iniciada!</h2>
           <p className="saved-screen__text">{savedText}.</p>
-          <p className="saved-screen__hint">
-            Serás redirigido al inicio en unos segundos.
-          </p>
         </div>
 
         <div className="route-detail__footer">
