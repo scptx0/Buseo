@@ -11,6 +11,7 @@ const TITLES: Array<{ match: string; title: string }> = [
 export function Header() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  if (pathname === '/') return null
   const conf = TITLES.find((t) => pathname.startsWith(t.match))
 
   if (!conf) {

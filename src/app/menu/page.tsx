@@ -1,39 +1,46 @@
 import { Link } from 'react-router-dom'
 
 import { getUserName } from '../../lib/storage'
-import { BusIcon, MapIcon, AlertIcon, PinIcon, FeedIcon } from './MenuIcons'
+import logoBuseo from '../../../iconos/logo_buseo.png'
+import iconoPlanear from '../../../iconos/icono_metrop.png'
+import iconoTuRuta from '../../../iconos/icono_tu_ruta.png'
+import iconoBuses from '../../../iconos/icono_localizar_buss.png'
+import iconoReporte from '../../../iconos/icono_aviso.png'
+import iconoCanal from '../../../iconos/icono_canal.png'
 
-interface ModuleTile {
-  to: string
-  tone: string
-  Icon: React.ComponentType<{ className?: string }>
-  title: string
-}
+const LEFT_TILES = [
+  { to: '/planear', img: iconoPlanear, label: 'Planear ruta', cls: 'home-tile--planear' },
+  { to: '/ruta-actual', img: iconoTuRuta, label: 'Tu ruta actual', cls: 'home-tile--ruta' },
+]
 
-const MODULES: ModuleTile[] = [
-  { to: '/planear', tone: 'blue', Icon: BusIcon, title: 'Planear ruta' },
-  { to: '/ruta-actual', tone: 'purple', Icon: MapIcon, title: 'Tu ruta actual' },
-  { to: '/reporte', tone: 'yellow', Icon: AlertIcon, title: 'Reporte' },
-  { to: '/buses', tone: 'ok', Icon: PinIcon, title: '¿Dónde están los buses?' },
-  { to: '/canal', tone: 'celeste', Icon: FeedIcon, title: 'Canal' },
+const RIGHT_TILES = [
+  { to: '/buses', img: iconoBuses, label: '¿Dónde están los buses?', cls: 'home-tile--buses' },
+  { to: '/reporte', img: iconoReporte, label: 'Reporte', cls: 'home-tile--reporte' },
+  { to: '/canal', img: iconoCanal, label: 'Canal', cls: 'home-tile--canal' },
 ]
 
 export function MenuPage() {
+  const name = getUserName()
   return (
-    <div className="metro-center">
-      <div>
-        <h1 className="screen-title">Hola {getUserName()}</h1>
-        <p className="screen-caption">¿Hacia dónde viajas hoy?</p>
-      </div>
-      <nav className="metro-grid" aria-label="Módulos">
-        {MODULES.map((m, i) => (
-          <Link
-            key={m.to}
-            className={`metro-tile metro-tile--${m.tone} ${i === 0 ? 'metro-tile--wide' : ''}`}
-            to={m.to}
-          >
-            <m.Icon className="metro-tile__icon" />
-            <span className="metro-tile__title">{m.title}</span>
+    <div className="home-page">
+      <header className="home-header">
+        <img className="home-logo" src={logoBuseo} alt="Buseo" />
+        <span className="home-greeting">
+          Hola{name ? `, ${name}` : ''}
+        </span>
+      </header>
+
+      <nav className="home-grid" aria-label="Módulos">
+        {LEFT_TILES.map((t) => (
+          <Link key={t.to} className={`home-tile ${t.cls}`} to={t.to}>
+            <img className="home-tile__img" src={t.img} alt={t.label} />
+            <span className="home-tile__label">{t.label}</span>
+          </Link>
+        ))}
+        {RIGHT_TILES.map((t) => (
+          <Link key={t.to} className={`home-tile ${t.cls}`} to={t.to}>
+            <img className="home-tile__img" src={t.img} alt={t.label} />
+            <span className="home-tile__label">{t.label}</span>
           </Link>
         ))}
       </nav>

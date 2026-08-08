@@ -9,7 +9,7 @@
 | **Tiempo real** | Portal (`@portalsdk/react` / `@portalsdk/admin`) | Canales broadcast, inbox per-user, infraestructura de eventos en vivo |
 | **IA** | AWS Bedrock (modelo por definir; candidato DeepSeek v3.2) | Agrupación de reportes, filtrado de falsos positivos, generación de resúmenes |
 | **Base de datos operativa** | PostgreSQL + PostGIS (Supabase) | Datos estructurados: estaciones, corredores, rutas, usuarios, reportes consolidados |
-| **Base de datos de alta velocidad** | Amazon DynamoDB | Posiciones GPS en bruto, estados temporales de buses, reportes en caliente antes de procesar |
+| **Base de datos operativa (alta frecuencia)** | Supabase PostgreSQL + pg_cron | Posiciones GPS en bruto, estados temporales de buses, reportes en caliente con limpieza programada |
 | **Mapas y rutas** | Google Maps JavaScript API + Routes API | Renderizado, polylines, cálculo de tiempos estimados |
 | **Geoespacial** | Turf.js | Buffer de corredores, punto-en-polígono, cálculos de proximidad y vector de movimiento |
 | **Hosting** | Vercel (frontend) + Supabase (backend) | Despliegue serverless, escalado automático |
@@ -20,11 +20,10 @@
 
 El sistema opera en tres planos diferenciados:
 
-- **Plano de persistencia:** Supabase PostgreSQL como fuente de verdad para estaciones, corredores, rutas, usuarios e incidentes consolidados.
-- **Plano de alta frecuencia:** DynamoDB absorbe el volumen de escrituras de ubicación GPS y reportes instantáneos sin bloquear PostgreSQL.
+- **Plano de persistencia:** Supabase PostgreSQL como fuente de verdad para todos los datos: estaciones, corredores, rutas, usuarios, reportes, ubicaciones GPS e incidentes consolidados.
 - **Plano de tiempo real:** Portal recibe publicaciones desde Supabase Edge Functions y las distribuye a clientes conectados vía canales e inbox.
 
-El frontend se suscribe directamente a Portal para recibir eventos en vivo, mientras que consulta Supabase vía REST/GraphQL para operaciones CRUD y datos estáticos. Las Edge Functions de Supabase actúan como orquestadoras: validan reglas de negocio, invocan AWS Bedrock, escriben en DynamoDB cuando el volumen lo amerita, y publican resultados a Portal.
+El frontend se suscribe directamente a Portal para recibir eventos en vivo, mientras que consulta Supabase vía REST/GraphQL para operaciones CRUD y datos estáticos. Las Edge Functions de Supabase actúan como orquestadoras: validan reglas de negocio, invocan AWS Bedrock, escriben en PostgreSQL, y publican resultados a Portal.
 
 ---
 
@@ -63,31 +62,42 @@ Reemplazan un backend tradicional. Se despliegan en Supabase y se invocan desde 
 | `/routes/search` | GET | Calcula rutas posibles origen-destino con transbordos |
 | `/routes/activate` | POST | Activa ruta, valida que no exista otra activa |
 | `/routes/deactivate` | DELETE | Desactiva ruta manual o automáticamente |
-| `/reports/bus` | POST | Recibe reporte de bus, escribe en DynamoDB + PostgreSQL |
+| `/reports/bus` | POST | Recibe reporte de bus, escribe en PostgreSQL |
 | `/reports/station` | POST | Recibe reporte de estación, valida polígono PostGIS |
 | `/reports/incident` | POST | Recibe incidente de tramo, inicia pipeline de IA |
-| `/buses/aggregate` | POST | Orquesta agregación de posiciones desde DynamoDB |
+| `/buses/aggregate` | POST | Orquesta agregación de posiciones desde PostgreSQL |
 | `/feed/generate` | POST | Invoca Bedrock para generar resumen de incidentes agrupados |
 | `/moderation/report` | POST | Registra reporte de comentario, evalúa umbral de bloqueo |
 
 ---
 
-## 4. DynamoDB — Datos de Alta Velocidad
+## 4. PostgreSQL — Datos de Alta Frecuencia
 
-DynamoDB complementa PostgreSQL en escenarios de escritura masiva y datos efímeros.
+Para datos efímeros y de alta escritura (ubicaciones GPS, reportes en caliente) se usan tablas PostgreSQL con
+limpieza automática vía `pg_cron`. Esto evita la complejidad de una segunda base de datos y mantiene toda
+la lógica en un solo motor.
 
-| Tabla | Clave de partición | Clave de orden | Atributos | TTL |
-|-------|-------------------|----------------|-----------|-----|
-| `user_locations` | `user_id` | `timestamp` | `lat`, `lng`, `speed`, `route_id` | 24 horas |
-| `bus_reports_raw` | `line_id` | `timestamp` | `user_id`, `occupancy`, `lat`, `lng` | 1 hora |
-| `station_reports_raw` | `station_id` | `timestamp` | `user_id`, `queue_level`, `occupancy`, `comment` | 6 horas |
-| `bus_inferred_positions` | `line_id` | `bus_id` | `lat`, `lng`, `occupancy_avg`, `confidence`, `last_update` | 30 minutos |
+| Tabla | Columnas clave | Limpieza |
+|-------|---------------|----------|
+| `user_locations` | `user_id`, `timestamp`, `lat`, `lng`, `speed`, `route_id` (nullable) | `pg_cron` cada hora: borrar filas con más de 24 horas |
+| `bus_reports_raw` | `line_id`, `timestamp`, `user_id`, `occupancy`, `lat`, `lng` | `pg_cron` cada 15 min: borrar filas con más de 1 hora |
+| `station_reports_raw` | `station_id`, `timestamp`, `user_id`, `queue_level`, `occupancy`, `comment` | `pg_cron` cada hora: borrar filas con más de 6 horas |
+| `bus_inferred_positions` | `line_id`, `bus_id`, `lat`, `lng`, `occupancy_avg`, `confidence`, `last_update` | `pg_cron` cada 15 min: borrar filas con más de 30 minutos sin actualizar |
 
 **Patrón de uso:**
 1. El frontend envía ubicación cada 5-10 segundos a una Edge Function.
-2. La Edge Function escribe en DynamoDB (baja latencia, sin bloquear PostgreSQL).
-3. Un proceso periódico (Edge Function programada o trigger) lee ventanas de tiempo de DynamoDB, infiere posiciones de buses, y publica el resultado en Portal.
-4. TTL elimina automáticamente datos obsoletos.
+2. La Edge Function escribe en `user_locations` (PostgreSQL).
+3. Un `pg_cron` periódico o una Edge Function programada lee ventanas de tiempo de `user_locations`,
+   infiere posiciones de buses, escribe en `bus_inferred_positions` y publica el resultado en Portal.
+4. `pg_cron` limpia automáticamente datos obsoletos según los intervalos definidos.
+
+**Índices recomendados:**
+- `user_locations(user_id, timestamp)` — búsqueda por usuario y ventana de tiempo.
+- `user_locations(timestamp)` — soporte para limpieza programada.
+- `bus_reports_raw(line_id, timestamp)` — agregación por línea.
+- `station_reports_raw(station_id, timestamp)` — agregación por estación.
+- `bus_inferred_positions(line_id, last_update)` — consulta de buses activos.
+
 
 ---
 
@@ -101,7 +111,7 @@ Portal es el único canal de distribución de eventos en vivo. No se usa Supabas
 |-------|--------|---------------|---------------|---------|
 | Reportes por estación | `station:{station_id}` | Edge Function (tras validación) | Usuarios con ruta activa que pasa por la estación | `{ type, severity, summary, timestamp }` |
 | Reportes por tramo | `segment:{a}:{b}` | Edge Function | Usuarios en ruta activa dentro del tramo | `{ incident_summary, delay_minutes }` |
-| Posiciones de buses | `buses:{line_id}` | Edge Function (agregación DynamoDB) | Módulo "¿Dónde están los buses?" | `{ bus_id, lat, lng, occupancy, eta_next_station }` |
+| Posiciones de buses | `buses:{line_id}` | Edge Function (agregación PostgreSQL) | Módulo "¿Dónde están los buses?" | `{ bus_id, lat, lng, occupancy, eta_next_station }` |
 | Estado de línea | `line:{line_id}:status` | Edge Function | Planear ruta, Tu ruta actual | `{ incidents[], delays[], updated_at }` |
 | Feed global | `feed:global` | Edge Function (post generado por IA) | Módulo Canal | `{ post_id, summary, tags }` |
 
@@ -146,7 +156,7 @@ un modelo de menor latencia.
 
 ```
 Reporte crudo (frontend)
-    → DynamoDB (almacenamiento temporal)
+    → PostgreSQL (almacenamiento en tabla raw)
     → Edge Function (recolecta ventana de tiempo)
     → Bedrock (agrupación + filtrado)
     → PostgreSQL (incidente consolidado guardado)
@@ -226,7 +236,7 @@ Los polígonos de estaciones y corredores se cargan una vez desde Supabase y se 
 1. Usuario envía reporte desde frontend.
 2. Edge Function valida autenticación y datos mínimos.
 3. Bedrock clasifica el texto: si es `irrelevante`, se descarta con feedback al usuario.
-4. Si es válido, se escribe en `reports_incident` (PostgreSQL) y `station_reports_raw` (DynamoDB).
+4. Si es válido, se escribe en `reports_incident` (PostgreSQL).
 5. Edge Function evalúa si hay reportes similares recientes en el mismo tramo/estación.
 6. Si se alcanza umbral, invoca Bedrock para agrupar y generar resumen.
 7. Resultado guardado en `aggregated_incidents`.
@@ -237,8 +247,8 @@ Los polígonos de estaciones y corredores se cargan una vez desde Supabase y se 
 
 1. Usarios con ruta activa envían ubicación periódicamente.
 2. Edge Function recibe lat/lng, valida que esté dentro de un corredor (`segments.corridor` PostGIS).
-3. Escribe en DynamoDB `user_locations`.
-4. Proceso de agregación (cada 10-30s) lee ventana de DynamoDB, filtra por `line_id`.
+3. Escribe en PostgreSQL `user_locations`.
+4. Proceso de agregación (cada 10-30s) lee ventana de PostgreSQL `user_locations`, filtra por `line_id`.
 5. Bedrock infiere si reportes cercanos corresponden al mismo bus o a varios.
 6. Posiciones inferidas publicadas en canal `buses:{line_id}`.
 7. Frontend suscrito a ese canal actualiza marcadores en tiempo real.
@@ -260,7 +270,7 @@ Los polígonos de estaciones y corredores se cargan una vez desde Supabase y se 
 - Módulo "Tu ruta actual": nodos, tramos, marcador de usuario.
 - Conexión a canales Portal para reportes por estación y tramo.
 - Formularios de reporte (bus, estación, incidente).
-- Escritura en DynamoDB para datos de alta frecuencia.
+- Escritura en PostgreSQL para datos de alta frecuencia.
 - Módulo "¿Dónde están los buses?" con suscripción a canales de posición.
 
 ### Fase 3 — Inteligencia y Corredores
@@ -268,14 +278,14 @@ Los polígonos de estaciones y corredores se cargan una vez desde Supabase y se 
 - Almacenar corredores en PostGIS (`segments.corridor`).
 - Lógica de detección de abordaje con máquina de estados.
 - Integración AWS Bedrock: filtro de falsos positivos y agrupación de reportes.
-- Agregación de posiciones de buses desde DynamoDB.
+- Agregación de posiciones de buses desde PostgreSQL `user_locations`.
 - Desactivación automática de ruta al llegar a destino.
 
 ### Fase 4 — Canal y Moderación
 - Feed del Canal con posts generados por Bedrock.
 - Comentarios jerárquicos y reacciones.
 - Sistema de moderación: reportes de comentarios, bloqueos temporales.
-- Flush automatizado de reportes antiguos (DynamoDB TTL + PostgreSQL cron).
+- Flush automatizado de reportes antiguos (pg_cron en PostgreSQL).
 - Notificaciones push via Portal inbox.
 
 ---
@@ -285,7 +295,7 @@ Los polígonos de estaciones y corredores se cargan una vez desde Supabase y se 
 ### Ventajas de esta arquitectura
 
 - **Supabase reduce operación:** Auth, base de datos, funciones serverless y seguridad (RLS) en una sola plataforma. No se gestiona infraestructura de servidores ni conexiones a PostgreSQL.
-- **DynamoDB desacopla la carga de escritura:** Las ubicaciones GPS y reportes instantáneos no impactan el rendimiento de PostgreSQL. TTL automatiza la limpieza.
+- **PostgreSQL con pg_cron maneja datos de alta frecuencia:** Las ubicaciones GPS y reportes instantáneos se escriben en tablas dedicadas con índices optimizados. pg_cron automatiza la limpieza periódica de datos efímeros sin intervención manual.
 - **Bedrock ofrece modelos enterprise sin gestionar infraestructura de IA:** el modelo elegido
   (candidato DeepSeek v3.2) maneja bien el razonamiento sobre texto en español para agrupar reportes.
 - **Portal mantiene el stack de tiempo real simple:** Sin WebSockets propios, sin gestión de reconexiones ni escalado de sockets.
@@ -294,9 +304,9 @@ Los polígonos de estaciones y corredores se cargan una vez desde Supabase y se 
 
 - **Costo de Bedrock:** La agrupación de reportes cada pocos minutos genera invocaciones constantes. Para el MVP, puede acumularse un lote de reportes antes de invocar el modelo, reduciendo costo.
 - **Latencia de Edge Functions + Bedrock:** El filtrado en tiempo real de reportes individuales puede añadir 500ms-2s. Para el MVP, el filtro puede aplicarse en batch cada 30-60 segundos en lugar de síncrono por reporte.
-- **DynamoDB desde Supabase Edge Functions:** Requiere configurar IAM Role o credenciales AWS en variables de entorno de Supabase. Es un patrón estándar pero requiere atención a permisos.
+- **pg_cron para limpieza de datos:** Las tablas de alta frecuencia (`user_locations`, `bus_reports_raw`, `station_reports_raw`) usan `pg_cron` para borrar filas antiguas en intervalos definidos, manteniendo la base limpia sin intervención manual.
 - **PostGIS en Supabase:** Soportado nativamente. Las consultas de `booleanPointInPolygon` y nearest neighbor deben indexarse con `GIST` para mantener latencia baja en producción.
 
 ### Conclusión
 
-La arquitectura es viable y escala sin fricciones mayores. Supabase cubre el 80% de las necesidades de backend tradicional. DynamoDB actúa como cola operativa para datos efímeros de alta velocidad. AWS Bedrock aporta la capa de inteligencia sin requerir infraestructura propia de modelos. Portal permanece como el eje central de la experiencia en tiempo real, exactamente como el proyecto lo requiere.
+La arquitectura es viable y escala sin fricciones mayores. Supabase cubre el 100% de las necesidades de backend: base de datos, autenticación, funciones serverless, seguridad RLS y limpieza programada con pg_cron. AWS Bedrock aporta la capa de inteligencia sin requerir infraestructura propia de modelos. Portal permanece como el eje central de la experiencia en tiempo real, exactamente como el proyecto lo requiere.

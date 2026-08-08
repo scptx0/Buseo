@@ -1,5 +1,7 @@
+import { AlertTriangle, ChevronRight } from 'lucide-react'
+
 import { lineName, stationName } from '../../lib/rutas'
-import type { PlannedRoute } from '../../lib/mockData'
+import type { PlannedRoute } from '../../lib/types'
 
 interface RouteListItemProps {
   route: PlannedRoute
@@ -10,23 +12,23 @@ export function RouteListItem({ route, onSelect }: RouteListItemProps) {
   const lines = route.steps.map((s) => lineName(s.lineId)).join(' → ')
   const first = route.steps[0].from
   const last = route.steps[route.steps.length - 1].to
-  const hasAlerts = route.alerts && route.alerts.length > 0
+  const alerts = route.alerts ?? []
+  const hasCritical = alerts.some((a) => a.type === 'closure')
+  const hasWarning = alerts.some((a) => a.type === 'incident' || a.type === 'delay')
+  const toneClass = hasCritical ? 'route-item--critical' : hasWarning ? 'route-item--warning' : 'route-item--clean'
 
   return (
-    <button type="button" className="route-item" onClick={onSelect}>
+    <button type="button" className={`route-item ${toneClass}`} onClick={onSelect}>
       <span className="route-item__lines">{lines}</span>
       <span className="route-item__path">
         {stationName(first)} → {stationName(last)}
       </span>
       <span className="route-item__meta">
         <b className="mono">{route.etaMin} min</b>
-        {hasAlerts ? (
+        {alerts.length > 0 ? (
           <span className="route-item__alert">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
-              <path d="M12 9v4m0 4h.01" />
-            </svg>
-            <span>{route.alerts?.length} {route.alerts?.length === 1 ? 'alerta' : 'alertas'}</span>
+            <AlertTriangle size={14} />
+            <span>{alerts.length} {alerts.length === 1 ? 'alerta' : 'alertas'}</span>
           </span>
         ) : (
           <span className="status-pill status-pill--ok">
@@ -35,7 +37,7 @@ export function RouteListItem({ route, onSelect }: RouteListItemProps) {
           </span>
         )}
         <span className="route-item__arrow" aria-hidden>
-          ›
+          <ChevronRight size={18} />
         </span>
       </span>
     </button>

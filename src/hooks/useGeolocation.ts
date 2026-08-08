@@ -1,72 +1,47 @@
-import { useState, useEffect, useRef } from 'react'
-import type { UserLocation } from '../lib/types.ts'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import type { UserLocation } from '../lib/types'
 
-type PermissionState = 'loading' | 'granted' | 'denied' | 'prompt'
+export type GeoPosition = UserLocation
 
-interface UseGeolocationResult {
-  location: UserLocation | null
-  error: string | null
-  permission: PermissionState
+export type GeoStatus = 'prompt' | 'granted' | 'denied' | 'unsupported'
+
+export interface GeoState {
+  status: GeoStatus
+  position: GeoPosition | null
 }
 
-export function useGeolocation(): UseGeolocationResult {
-  const [location, setLocation] = useState<UserLocation | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [permission, setPermission] = useState<PermissionState>('loading')
+export function useGeolocation(): { state: GeoState; retry: () => void } {
+  const [status, setStatus] = useState<GeoStatus>('prompt')
+  const [position, setPosition] = useState<GeoPosition | null>(null)
   const watchId = useRef<number | null>(null)
 
-  useEffect(() => {
+  const startWatching = useCallback(() => {
     if (!navigator.geolocation) {
-      setError('Geolocalización no disponible en este navegador')
-      setPermission('denied')
+      setStatus('unsupported')
       return
     }
 
-    navigator.permissions
-      .query({ name: 'geolocation' })
-      .then((result) => {
-        if (result.state === 'denied') {
-          setError('Permiso de ubicación denegado')
-          setPermission('denied')
-          return
-        }
-        setPermission(result.state as PermissionState)
-
-        result.addEventListener('change', () => {
-          setPermission(result.state as PermissionState)
-        })
-      })
-      .catch(() => {
-        setPermission('prompt')
-      })
+    if (watchId.current !== null) {
+      navigator.geolocation.clearWatch(watchId.current)
+    }
 
     watchId.current = navigator.geolocation.watchPosition(
-      (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-          speed: position.coords.speed,
-          heading: position.coords.heading,
-          timestamp: position.timestamp,
+      (pos) => {
+        setPosition({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          speed: pos.coords.speed,
+          heading: pos.coords.heading,
+          timestamp: pos.timestamp,
         })
-        setError(null)
-        setPermission('granted')
+        setStatus('granted')
       },
       (err) => {
-        switch (err.code) {
-          case err.PERMISSION_DENIED:
-            setError('Permiso de ubicación denegado')
-            setPermission('denied')
-            break
-          case err.POSITION_UNAVAILABLE:
-            setError('Ubicación no disponible')
-            break
-          case err.TIMEOUT:
-            setError('Tiempo de espera agotado al obtener ubicación')
-            break
-          default:
-            setError(err.message)
+        if (err.code === err.PERMISSION_DENIED) {
+          setStatus('denied')
+        } else {
+          setStatus('unsupported')
         }
       },
       {
@@ -75,13 +50,40 @@ export function useGeolocation(): UseGeolocationResult {
         maximumAge: 5000,
       },
     )
+  }, [])
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setStatus('unsupported')
+      return
+    }
+
+    navigator.permissions
+      .query({ name: 'geolocation' })
+      .then((result) => {
+        if (result.state === 'denied') {
+          setStatus('denied')
+          return
+        }
+        if (result.state === 'granted') {
+          startWatching()
+        }
+      })
+      .catch(() => {
+        startWatching()
+      })
 
     return () => {
       if (watchId.current !== null) {
         navigator.geolocation.clearWatch(watchId.current)
       }
     }
-  }, [])
+  }, [startWatching])
 
-  return { location, error, permission }
+  const retry = useCallback(() => {
+    setStatus('prompt')
+    startWatching()
+  }, [startWatching])
+
+  return { state: { status, position }, retry }
 }

@@ -7,12 +7,12 @@ import {
   stations,
   travelMin,
   mockAlerts,
-  type PlannedRoute,
-  type RouteStep,
-  type Station,
 } from './mockData'
+import type { PlannedRoute, Station } from './types'
 
 const TRANSFER_PENALTY_MIN = 3
+
+type RouteStep = { kind: 'board'; lineId: string; from: string; to: string }
 
 function legStats(
   lineId: string,
@@ -114,7 +114,7 @@ export function searchRoutes(fromId: string, toId: string): PlannedRoute[] {
 }
 
 export function stationName(id: string): string {
-  return stationById(id)?.name ?? id
+  return stationById[id]?.name ?? id
 }
 
 export function lineName(id: string): string {
