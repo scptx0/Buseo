@@ -23,6 +23,7 @@ const LEFT_PAD = 70
 const TOP_PAD = 30
 const NODE_R = 14
 const NODE_R_LG = 20
+const NODE_R_SM = 10
 const LINE_W = 3.5
 
 function getLineColor(lineId: number): string {
@@ -43,18 +44,17 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
 
       for (let i = 0; i < step.nodes.length; i++) {
         const n = step.nodes[i]
-        const isFirst = i === 0
+        const isPrev = n.stopOrder < step.fromStop
+        const isOrigin = n.stopOrder === step.fromStop
         const isLast = i === step.nodes.length - 1
         const isFirstStep = step === route.steps[0]
         const isLastStep = step === route.steps[route.steps.length - 1]
 
-        const kind = isFirst && isFirstStep
-          ? 'origin'
-          : (isFirst && !isFirstStep) || (isLast && !isLastStep)
-            ? 'transfer'
-            : isLast && isLastStep
-              ? 'destination'
-              : 'intermediate'
+        const kind = isPrev ? 'prev'
+          : isOrigin && isFirstStep ? 'origin'
+          : (!isFirstStep && isOrigin) || (isLast && !isLastStep) ? 'transfer'
+          : isLast && isLastStep ? 'destination'
+          : 'intermediate'
 
         allNodes.push({ node: n, kind, lineId: step.lineId, row })
         row++
@@ -81,10 +81,12 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
 
   function getRadius(kind: string): number {
     if (kind === 'origin' || kind === 'destination') return NODE_R_LG
+    if (kind === 'prev') return NODE_R_SM
     return NODE_R
   }
 
   function getNodeColor(kind: string): string {
+    if (kind === 'prev') return '#aaa'
     if (kind === 'origin') return '#f59e0b'
     if (kind === 'destination') return '#16a34a'
     if (kind === 'transfer') return '#8b5cf6'
@@ -92,6 +94,7 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
   }
 
   function getLabelColor(kind: string): string {
+    if (kind === 'prev') return '#bbb'
     if (kind === 'origin') return '#d97706'
     return '#000'
   }
