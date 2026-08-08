@@ -90,7 +90,7 @@ export function PlanearPage() {
     if (!selected || originId === '' || destId === '') return
     try {
       await startTrip({
-        userId: await getUserUUID(),
+        userId: getUserUUID(),
         origin: Number(originId),
         dest: Number(destId),
         steps: selected,
