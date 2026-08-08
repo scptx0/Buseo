@@ -1,6 +1,7 @@
 import { AlertTriangle, ChevronRight } from 'lucide-react'
 
 import type { RouteApi } from '../../lib/types'
+import { lineName } from '../../lib/rutas'
 
 interface RouteListItemProps {
   route: RouteApi
@@ -19,7 +20,7 @@ export function RouteListItem({ route, stationName, onSelect }: RouteListItemPro
 
   return (
     <button type="button" className={`route-item ${toneClass}`} onClick={onSelect}>
-      <span className="route-item__lines">{route.lineName}</span>
+      <span className="route-item__lines">{lineName(route.lineName)}</span>
       <span className="route-item__path">
         {firstNode ? stationName(firstNode.stationId) : '?'} →{' '}
         {lastNode ? stationName(lastNode.stationId) : '?'}

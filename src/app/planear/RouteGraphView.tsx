@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
-import type { RouteApi } from '../../lib/types'
-import type { RouteNodeApi } from '../../lib/types'
+import type { RouteApi, RouteNodeApi } from '../../lib/types'
+import { lineName } from '../../lib/rutas'
 
 interface RouteGraphViewProps {
   route: RouteApi
@@ -33,16 +33,18 @@ function getLineColor(lineId: number): string {
 }
 
 export function RouteGraphView({ route }: RouteGraphViewProps) {
-  const { nodes, edges, width, height, lineColorMap } = useMemo(() => {
+  const { nodes, edges, width, height, lineColorMap, lineNameMap } = useMemo(() => {
     const allNodes: Array<{ node: RouteNodeApi; kind: string; lineId: number; row: number }> = []
     const edgeList: Array<{ from: GraphPosition; to: GraphPosition; lineId: number }> = []
     const colorMap = new Map<number, string>()
+    const nameMap = new Map<number, string>()
 
     let row = 0
 
     for (const step of route.steps) {
       const color = getLineColor(step.lineId)
       colorMap.set(step.lineId, color)
+      nameMap.set(step.lineId, step.lineName)
 
       for (let i = 0; i < step.nodes.length; i++) {
         const n = step.nodes[i]
@@ -76,7 +78,7 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
     const w = LEFT_PAD + 200
     const h = TOP_PAD + (totalRows - 1) * ROW_H + 50
 
-    return { nodes: allNodes, edges: edgeList, width: w, height: h, lineColorMap: colorMap }
+    return { nodes: allNodes, edges: edgeList, width: w, height: h, lineColorMap: colorMap, lineNameMap: nameMap }
   }, [route])
 
   if (route.steps.length === 0) return null
@@ -167,7 +169,7 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
                 fontWeight={isOrigin ? 700 : 600}
                 fontFamily="system-ui, sans-serif"
               >
-                {node.stationName}
+                 {node.stationName.toLowerCase().replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase())}
               </text>
             </g>
           )
@@ -179,7 +181,7 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
           {Array.from(lineColorMap.entries()).map(([lid, color]) => (
             <div key={lid} className="route-graph-legend__item">
               <span className="route-graph-legend__dot" style={{ backgroundColor: color }} />
-              <span>{route.steps.find((s) => s.lineId === lid)?.lineName ?? `Línea ${lid}`}</span>
+               <span>{lineName(lineNameMap.get(lid) ?? String(lid))}</span>
             </div>
           ))}
         </div>

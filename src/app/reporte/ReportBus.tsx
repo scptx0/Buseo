@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { submitReport, moderateReport, getUserUUID } from '../../lib/supabase/api'
+import { lineName } from '../../lib/rutas'
 
 interface LineOption { id: number; name: string }
 interface StationOption { id: number; name: string }
@@ -10,6 +11,11 @@ interface Props {
   onCancel: () => void
   onSent: () => void
   onBlocked: (reason: string) => void
+}
+
+function formatStationName(raw: string): string {
+  const cleaned = raw.toLowerCase().replace(/-/g, ' ')
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
 }
 
 export default function ReportBus({ lines, stations, onCancel: _onCancel, onSent, onBlocked }: Props) {
@@ -64,10 +70,28 @@ export default function ReportBus({ lines, stations, onCancel: _onCancel, onSent
         )}
 
         <div className="field">
-          <label htmlFor="bus-line" className="field__label">Linea</label>
-          <select id="bus-line" className="select" value={lineId} onChange={(e) => { setLineId(Number(e.target.value)); setFromId(''); setToId('') }} required>
-            <option value="" disabled>Selecciona una linea</option>
-            {lines.map((l) => (<option key={l.id} value={l.id}>{l.name}</option>))}
+          <label htmlFor="bus-line" className="field__label">
+            Línea
+          </label>
+          <select
+            id="bus-line"
+            className="select"
+            value={lineId}
+            onChange={(e) => {
+              setLineId(Number(e.target.value))
+              setFromId('')
+              setToId('')
+            }}
+            required
+          >
+            <option value="" disabled>
+              Selecciona una línea
+            </option>
+            {lines.map((l) => (
+              <option key={l.id} value={l.id}>
+                {lineName(l.name)}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -75,7 +99,7 @@ export default function ReportBus({ lines, stations, onCancel: _onCancel, onSent
           <label htmlFor="bus-from" className="field__label">Origen</label>
           <select id="bus-from" className="select" value={fromId} onChange={(e) => setFromId(Number(e.target.value))} required disabled={!lineId}>
             <option value="" disabled>Selecciona origen</option>
-            {stations.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+            {stations.map((s) => (<option key={s.id} value={s.id}>{formatStationName(s.name)}</option>))}
           </select>
         </div>
 
@@ -83,7 +107,7 @@ export default function ReportBus({ lines, stations, onCancel: _onCancel, onSent
           <label htmlFor="bus-to" className="field__label">Destino</label>
           <select id="bus-to" className="select" value={toId} onChange={(e) => setToId(Number(e.target.value))} required disabled={!lineId}>
             <option value="" disabled>Selecciona destino</option>
-            {stations.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+            {stations.map((s) => (<option key={s.id} value={s.id}>{formatStationName(s.name)}</option>))}
           </select>
         </div>
 

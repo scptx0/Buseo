@@ -1,7 +1,8 @@
-import { ArrowLeft, ArrowRight, ArrowDown, ArrowLeftRight, X, Clock, Bus, CircleDot, AlertTriangle, XCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowDown, ArrowLeftRight, X, Clock, Bus, AlertTriangle, XCircle } from 'lucide-react'
 
 import type { Alert, RouteApi } from '../../lib/types'
 import { RouteGraphView } from './RouteGraphView'
+import { lineName } from '../../lib/rutas'
 
 interface RouteDetailProps {
   route: RouteApi
@@ -19,7 +20,7 @@ export function RouteDetail({
   route, originId, destId, stationName, onBack, onSave,
   saved, onClose, onGoToRoute,
 }: RouteDetailProps) {
-  const lines = [...new Set(route.steps.map((s) => s.lineName))]
+  const lines = [...new Set(route.steps.map((s) => lineName(s.lineName)))]
   const alerts = route.alerts ?? []
 
   return (
@@ -77,29 +78,21 @@ export function RouteDetail({
       <div className="route-detail__timeline">
         {route.steps.map((step, i) => (
           <div key={i} className="route-step">
-            <div className="route-step__marker">
-              <div className="route-step__dot route-step__dot--start">
-                <CircleDot size={18} strokeWidth={2.5} />
-              </div>
-              {i < route.steps.length - 1 && <div className="route-step__line" />}
-            </div>
             <div className="route-step__content">
               <div className="route-step__header">
                 <span className="route-step__action">
                   {i === 0 ? 'Sube' : 'Transbordo'}
                 </span>
-                <span className="route-step__line-name" style={{ backgroundColor: getLineColor(step.lineId) }}>
-                  {step.lineName}
+                 <span className="route-step__line-name" style={{ backgroundColor: getLineColor(step.lineId) }}>
+                  {lineName(step.lineName)}
                 </span>
               </div>
               <div className="route-step__stations">
                 <div className="route-step__station">
-                  <CircleDot size={16} fill="currentColor" />
                   <span>{stationName(step.nodes[0]?.stationId ?? 0)}</span>
                 </div>
                 <ArrowDown className="route-step__arrow" size={18} strokeWidth={2} />
                 <div className="route-step__station">
-                  <CircleDot size={16} fill="currentColor" />
                   <span>{stationName(step.nodes[step.nodes.length - 1]?.stationId ?? 0)}</span>
                 </div>
               </div>

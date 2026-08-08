@@ -3,7 +3,17 @@ import { submitReport, moderateReport, getUserUUID } from '../../lib/supabase/ap
 
 interface StationOption { id: number; name: string }
 
-interface Props { stations: StationOption[]; onCancel: () => void; onSent: () => void; onBlocked: (reason: string) => void }
+interface Props {
+  stations: StationOption[]
+  onCancel: () => void
+  onSent: () => void
+  onBlocked: (reason: string) => void
+}
+
+function formatStationName(raw: string): string {
+  const cleaned = raw.toLowerCase().replace(/-/g, ' ')
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+}
 
 export default function ReportIncident({ stations, onCancel: _onCancel, onSent, onBlocked }: Props) {
   const [stationId, setStationId] = useState<number | ''>('')
@@ -53,10 +63,24 @@ export default function ReportIncident({ stations, onCancel: _onCancel, onSent, 
         )}
 
         <div className="field">
-          <label htmlFor="inc-station" className="field__label">Ubicacion</label>
-          <select id="inc-station" className="select" value={stationId} onChange={(e) => setStationId(Number(e.target.value))} required>
-            <option value="" disabled>Selecciona una estacion</option>
-            {stations.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+          <label htmlFor="inc-station" className="field__label">
+            Ubicación
+          </label>
+          <select
+            id="inc-station"
+            className="select"
+            value={stationId}
+            onChange={(e) => setStationId(Number(e.target.value))}
+            required
+          >
+            <option value="" disabled>
+              Selecciona una estación
+            </option>
+            {stations.map((s) => (
+              <option key={s.id} value={s.id}>
+                {formatStationName(s.name)}
+              </option>
+            ))}
           </select>
         </div>
 

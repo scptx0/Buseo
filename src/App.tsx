@@ -9,6 +9,7 @@ import { PlanearPage } from './app/planear/page'
 import { ReportePage } from './app/reporte/page'
 import { RutaActualPage } from './app/ruta-actual/page'
 import { Layout } from './components/Layout'
+import { HeaderTitleProvider } from './components/HeaderTitleContext'
 import { BuseoPortalProvider } from './lib/portal/client'
 import { hasUserProfile } from './lib/storage'
 
@@ -28,20 +29,22 @@ export function App() {
   return (
     <BuseoPortalProvider>
       <HashRouter>
-        <LocationGate>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/reporte" element={<AuthGuard><ReportePage /></AuthGuard>} />
-            <Route element={<AuthGuard><Layout /></AuthGuard>}>
-              <Route path="/" element={<MenuPage />} />
-              <Route path="/planear" element={<PlanearPage />} />
-              <Route path="/ruta-actual" element={<RutaActualPage />} />
-              <Route path="/buses" element={<BusesPage />} />
-              <Route path="/canal" element={<CanalPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </LocationGate>
+        <HeaderTitleProvider>
+          <LocationGate>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/reporte" element={<AuthGuard><ReportePage /></AuthGuard>} />
+              <Route element={<AuthGuard><Layout /></AuthGuard>}>
+                <Route path="/" element={<MenuPage />} />
+                <Route path="/planear" element={<PlanearPage />} />
+                <Route path="/ruta-actual" element={<RutaActualPage />} />
+                <Route path="/buses" element={<BusesPage />} />
+                <Route path="/canal" element={<CanalPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
+          </LocationGate>
+        </HeaderTitleProvider>
       </HashRouter>
     </BuseoPortalProvider>
   )
