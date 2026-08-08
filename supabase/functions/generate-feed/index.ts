@@ -63,7 +63,7 @@ Deno.serve(async (req: Request) => {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  const { data: clusters, error } = await supabase.rpc("get_report_clusters", { p_min_reports: 2, p_window_hours: 4, p_dedup_minutes: 30 });
+  const { data: clusters, error } = await supabase.rpc("get_report_clusters", { p_min_reports: 2, p_window_hours: 0.5, p_dedup_minutes: 30 });
   if (error) return new Response(JSON.stringify({ error: error.message, step: "rpc" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   if (!clusters || clusters.length === 0) return new Response(JSON.stringify({ generated: 0, reason: "no-clusters" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 

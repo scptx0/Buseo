@@ -107,7 +107,7 @@ RETURNS TABLE(
 $$;
 
 -- Funcion: generar post IA desde reportes agrupados
-CREATE OR REPLACE FUNCTION get_report_clusters(p_min_reports INT DEFAULT 2, p_window_hours INT DEFAULT 4, p_dedup_minutes INT DEFAULT 30)
+CREATE OR REPLACE FUNCTION get_report_clusters(p_min_reports INT DEFAULT 2, p_window_hours FLOAT DEFAULT 0.5, p_dedup_minutes INT DEFAULT 30)
 RETURNS TABLE(
   target_type TEXT, target_id TEXT, report_type TEXT,
   count BIGINT, sample_descriptions TEXT[]
