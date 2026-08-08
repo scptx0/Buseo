@@ -119,6 +119,7 @@ DECLARE
   nodes jsonb;
   route_json jsonb;
   sig TEXT;
+  v_from INT;
 BEGIN
   IF p_origin = p_dest THEN RETURN routes; END IF;
 
@@ -134,12 +135,13 @@ BEGIN
   LOOP
     route_eta := segment_eta(rec.line_id, rec.direction, rec.origin_order, rec.dest_order);
     IF route_eta > 0 THEN
+      v_from := GREATEST(0, rec.origin_order - 2);
       SELECT jsonb_agg(jsonb_build_object(
         'stationId', rn.station_id, 'stationName', rn.station_name,
         'stopOrder', rn.stop_order, 'durationSeconds', rn.duration_seconds,
         'distanceMeters', rn.distance_meters
       ) ORDER BY rn.stop_order) INTO nodes
-      FROM get_route_nodes(rec.line_id, rec.direction, rec.origin_order, rec.dest_order) rn;
+      FROM get_route_nodes(rec.line_id, rec.direction, v_from, rec.dest_order) rn;
       sig := rec.line_id::text || '|' || rec.direction;
       route_json := jsonb_build_object(
         'id', gen_random_uuid()::text, 'lineName', rec.line_name, 'lineId', rec.line_id,
@@ -176,12 +178,13 @@ BEGIN
     route_eta := rec.eta_calc;
     IF route_eta > 0 THEN
       sig := rec.line1_id::text || '|' || rec.line2_id::text || '|' || rec.dir1 || '|' || rec.dir2;
+      v_from := GREATEST(0, rec.origin_order - 2);
       SELECT jsonb_agg(jsonb_build_object(
         'stationId', rn.station_id, 'stationName', rn.station_name,
         'stopOrder', rn.stop_order, 'durationSeconds', rn.duration_seconds,
         'distanceMeters', rn.distance_meters
       ) ORDER BY rn.stop_order) INTO nodes
-      FROM get_route_nodes(rec.line1_id, rec.dir1, rec.origin_order, rec.transfer_order1) rn;
+      FROM get_route_nodes(rec.line1_id, rec.dir1, v_from, rec.transfer_order1) rn;
       route_json := jsonb_build_object(
         'id', gen_random_uuid()::text,
         'lineName', rec.line1_name || ' + ' || rec.line2_name,
