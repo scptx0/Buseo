@@ -12,9 +12,8 @@ export function RutaActualPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getUserUUID().then((uuid) =>
-      Promise.all([getActiveRoute(uuid), fetchStations()])
-    )
+    const uuid = getUserUUID()
+    Promise.all([getActiveRoute(uuid), fetchStations()])
       .then(([r, s]) => {
         setRoute(r)
         setStations(s)
@@ -26,7 +25,7 @@ export function RutaActualPage() {
   const stationName = (id: number) => stations.find((s) => s.id === id)?.name ?? String(id)
 
   async function onFinish() {
-    await finishTrip(await getUserUUID())
+    await finishTrip(getUserUUID())
     navigate('/')
   }
 
