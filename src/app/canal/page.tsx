@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useChannel } from '@portalsdk/react'
 import { getFeedPosts, togglePostReaction, getUserUUID } from '../../lib/supabase/api'
 import { supabase } from '../../lib/supabase/client'
 import { PostCard } from './PostCard'
@@ -13,43 +12,23 @@ interface FeedPost {
   created_at: string
 }
 
-interface CanalMessage {
-  title: string
-  content: string
-  tags: string[]
-  created_at: string
-}
-
 export function CanalPage() {
   const [posts, setPosts] = useState<FeedPost[]>([])
   const [reactions, setReactions] = useState<Record<string, Record<string, number>>>({})
   const [commentPostId, setCommentPostId] = useState<string | null>(null)
 
-  const { messages } = useChannel<CanalMessage>({
-    channelId: 'canal:global:posts',
-    history: 0,
-  })
-
-  useEffect(() => {
-    const newPosts = messages
-      .filter((m) => !m.ephemeral)
-      .map((m) => ({ id: m.id, title: m.content.title, content: m.content.content, tags: m.content.tags ?? [], created_at: m.content.created_at ?? new Date().toISOString() }))
-    if (newPosts.length > 0) {
-      setPosts((prev) => {
-        const existing = new Set(prev.map((p) => p.id))
-        const fresh = newPosts.filter((p) => !existing.has(p.id))
-        return [...fresh, ...prev]
-      })
-    }
-  }, [messages])
-
-  useEffect(() => {
+  const loadPosts = useCallback(() => {
     getFeedPosts().then(setPosts).catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    loadPosts()
     const interval = setInterval(() => {
       supabase.functions.invoke('generate-feed', { method: 'POST', body: {} }).catch(() => {})
-    }, 5 * 60 * 1000)
+      loadPosts()
+    }, 30 * 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [loadPosts])
 
   const handleReact = useCallback(async (postId: string, type: string) => {
     const counts = await togglePostReaction(postId, getUserUUID(), type)

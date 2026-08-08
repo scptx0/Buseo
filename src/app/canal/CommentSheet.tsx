@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { X, Send } from 'lucide-react'
-import { getPostComments, addComment, getUserUUID } from '../../lib/supabase/api'
+import { getPostComments, addComment, getUserUUID, moderateReport } from '../../lib/supabase/api'
 
 interface Comment {
   id: string
@@ -20,6 +20,7 @@ export function CommentSheet({ postId, onClose, onToggleLike }: Props) {
   const [comments, setComments] = useState<Comment[]>([])
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     getPostComments(postId).then(setComments).catch(console.error)
@@ -28,15 +29,33 @@ export function CommentSheet({ postId, onClose, onToggleLike }: Props) {
   const handleSend = useCallback(async () => {
     if (!text.trim() || sending) return
     setSending(true)
+    setError(null)
     try {
+      const mod = await moderateReport(text.trim())
+      if (!mod.allowed) {
+        setError(mod.reason || 'Tu mensaje no cumple con las politicas.')
+        setSending(false)
+        return
+      }
       await addComment(postId, getUserUUID(), text.trim())
       setText('')
-    } catch { /* ignore */ }
+    } catch (err) {
+      setError('Error al enviar el comentario.')
+    }
     setSending(false)
   }, [text, postId, sending])
 
   return (
     <div className="comment-sheet">
+      {error && (
+        <div className="dialog-backdrop" onClick={() => setError(null)}>
+          <div className="dialog" style={{ textAlign: 'center' }}>
+            <p style={{ margin: '0 0 12px', fontSize: '0.95rem', fontWeight: 600, color: '#000' }}>{error}</p>
+            <button className="btn btn--primary" onClick={() => setError(null)}>Aceptar</button>
+          </div>
+        </div>
+      )}
+
       <div className="comment-sheet__header">
         <span className="comment-sheet__title">{comments.length} comentarios</span>
         <button className="comment-sheet__close" onClick={onClose}><X size={20} /></button>
