@@ -151,6 +151,7 @@ BEGIN
   LOOP
     route_eta := segment_eta(rec.line_id, rec.direction, rec.origin_order, rec.dest_order);
 
+    IF route_eta > 0 THEN
     -- Nodos del tramo
     SELECT jsonb_agg(jsonb_build_object(
       'stationId', rn.station_id,
@@ -182,6 +183,7 @@ BEGIN
     );
 
     routes := routes || route_json;
+    END IF;
   END LOOP;
 
   -- ============================================================
@@ -219,6 +221,7 @@ BEGIN
     route_eta := segment_eta(rec.line1_id, rec.dir1, rec.origin_order, rec.transfer_order1)
                + segment_eta(rec.line2_id, rec.dir2, rec.transfer_order2, rec.dest_order);
 
+    IF route_eta > 0 THEN
     -- Nodos del primer tramo
     SELECT jsonb_agg(jsonb_build_object(
       'stationId', rn.station_id,
@@ -267,6 +270,7 @@ BEGIN
     );
 
     routes := routes || route_json;
+    END IF;
   END LOOP;
 
   -- Ordenar por ETA
