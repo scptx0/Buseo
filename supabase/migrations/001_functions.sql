@@ -148,6 +148,7 @@ BEGIN
     JOIN lines l ON l.id = ls_o.line_id
     WHERE ls_o.station_id = p_origin
       AND ls_o.stop_order < ls_d.stop_order
+      AND EXISTS (SELECT 1 FROM segments WHERE line_id = l.id)
   LOOP
     route_eta := segment_eta(rec.line_id, rec.direction, rec.origin_order, rec.dest_order);
 
@@ -216,6 +217,8 @@ BEGIN
     JOIN lines l2 ON l2.id = ls_t2.line_id
     WHERE ls_o.station_id = p_origin
       AND ls_o.line_id <> ls_t2.line_id
+      AND EXISTS (SELECT 1 FROM segments WHERE line_id = l1.id)
+      AND EXISTS (SELECT 1 FROM segments WHERE line_id = l2.id)
     ORDER BY l1.id, l2.id
   LOOP
     route_eta := segment_eta(rec.line1_id, rec.dir1, rec.origin_order, rec.transfer_order1)
