@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { MapPin } from 'lucide-react'
 import { supabase } from '../../lib/supabase/client'
 import type { StationApi } from '../../lib/types'
 import { RouteSnake } from './RouteSnake'
@@ -22,6 +21,7 @@ export function BusesPage() {
   const [direction, setDirection] = useState('')
   const [stations, setStations] = useState<StationApi[]>([])
   const [loading, setLoading] = useState(true)
+  const [everSelected, setEverSelected] = useState(false)
 
   useEffect(() => {
     void supabase
@@ -64,49 +64,91 @@ export function BusesPage() {
     setStations([])
   }
 
+  function handleDirectionChange(d: string) {
+    setDirection(d)
+    setEverSelected(true)
+  }
+
   if (loading) return <div className="empty"><p>Cargando...</p></div>
 
-  return (
-    <div className="stack">
-      <h1 className="screen-title text-center">Donde estan los buses?</h1>
-      <p className="screen-caption text-center">Elegi una linea para ver su recorrido completo.</p>
+  if (!everSelected) {
+    return (
+      <div className="planear-page planear-page--select">
+        <div className="planear-header">
+          <h1 className="screen-title text-center">Donde estan los buses?</h1>
+          <p className="screen-caption text-center">Elegi una linea y direccion para ver su recorrido.</p>
+        </div>
+        <div className="planear-selects">
+          <div className="field">
+            <label className="field__label" htmlFor="bus-line">Linea</label>
+            <select
+              id="bus-line"
+              className="select select--lg"
+              value={lineId}
+              onChange={(e) => handleLineChange(Number(e.target.value))}
+            >
+              <option value="" disabled>Selecciona una linea</option>
+              {lines.map((l) => (
+                <option key={l.id} value={l.id}>{l.name}</option>
+              ))}
+            </select>
+          </div>
 
-      <div className="field">
-        <label className="field__label" htmlFor="bus-line">Linea</label>
-        <select
-          id="bus-line"
-          className="select"
-          value={lineId}
-          onChange={(e) => handleLineChange(Number(e.target.value))}
-        >
-          <option value="" disabled>Selecciona una linea</option>
-          {lines.map((l) => (
-            <option key={l.id} value={l.id}>{l.name}</option>
-          ))}
-        </select>
+          <div className="field">
+            <label className="field__label" htmlFor="bus-dir">Direccion</label>
+            <select
+              id="bus-dir"
+              className="select select--lg"
+              value={direction}
+              onChange={(e) => handleDirectionChange(e.target.value)}
+              disabled={lineId === ''}
+            >
+              <option value="" disabled>Selecciona direccion</option>
+              {directions.map((d) => (
+                <option key={d} value={d}>{d === 'norte' ? 'Norte' : 'Sur'}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
+    )
+  }
 
-      {directions.length > 0 && (
+  return (
+    <div className="buses-page">
+      <h1 className="screen-title text-center">Donde estan los buses?</h1>
+      <p className="screen-caption text-center">{selectedLine?.name} · {direction === 'norte' ? 'Norte' : 'Sur'}</p>
+
+      <div className="planear-selects-compact">
         <div className="field">
-          <label className="field__label" htmlFor="bus-dir">Direccion</label>
           <select
-            id="bus-dir"
+            className="select"
+            value={lineId}
+            onChange={(e) => handleLineChange(Number(e.target.value))}
+          >
+            <option value="" disabled>Linea</option>
+            {lines.map((l) => (
+              <option key={l.id} value={l.id}>{l.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="field">
+          <select
             className="select"
             value={direction}
-            onChange={(e) => setDirection(e.target.value)}
+            onChange={(e) => handleDirectionChange(e.target.value)}
           >
-            <option value="" disabled>Selecciona direccion</option>
+            <option value="" disabled>Dir</option>
             {directions.map((d) => (
               <option key={d} value={d}>{d === 'norte' ? 'Norte' : 'Sur'}</option>
             ))}
           </select>
         </div>
-      )}
+      </div>
 
       {stations.length > 0 && (
         <div className="snake-container">
           <div className="snake-header">
-            <MapPin size={16} />
             <span>{stations.length} estaciones</span>
           </div>
           <RouteSnake stations={stations} />
