@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { X, Send } from 'lucide-react'
 import { getPostComments, addComment, getUserUUID } from '../../lib/supabase/api'
-import { useChannel } from '@portalsdk/react'
 
 interface Comment {
   id: string
@@ -22,32 +21,9 @@ export function CommentSheet({ postId, onClose, onToggleLike }: Props) {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
 
-  const { messages } = useChannel<Comment>({
-    channelId: `canal:global:posts:${postId}:comments`,
-    history: 0,
-  })
-
   useEffect(() => {
     getPostComments(postId).then(setComments).catch(console.error)
   }, [postId])
-
-  // New comments from Portal append at the top
-  useEffect(() => {
-    if (messages.length === 0) return
-    const newComments = messages.map((m) => ({
-      id: m.id,
-      user_id: m.content.user_id,
-      content: m.content.content,
-      likes_count: m.content.likes_count ?? 0,
-      created_at: m.content.created_at ?? new Date().toISOString(),
-    }))
-    setComments((prev) => {
-      const existing = new Set(prev.map((c) => c.id))
-      const fresh = newComments.filter((c) => !existing.has(c.id))
-      // Sort by likes desc
-      return [...fresh, ...prev].sort((a, b) => b.likes_count - a.likes_count)
-    })
-  }, [messages])
 
   const handleSend = useCallback(async () => {
     if (!text.trim() || sending) return
