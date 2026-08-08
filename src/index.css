@@ -933,15 +933,23 @@ input {
   color: #333;
 }
 
+.route-detail__body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .route-detail__graph {
   padding: 0 16px 16px;
 }
 
 .route-detail__footer {
   padding: 16px;
-  margin-top: auto;
-  background: var(--surface);
+  background: var(--color-bg);
   border-top: 1px solid var(--color-border);
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
 }
 
 .btn--full {

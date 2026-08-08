@@ -1,14 +1,13 @@
 import { ArrowLeft, ArrowRight, ArrowDown, ArrowLeftRight, X, Clock, Bus, CircleDot, AlertTriangle, XCircle } from 'lucide-react'
 
-import { lineName, stationName } from '../../lib/rutas'
-import { stationById } from '../../lib/mockData'
-import type { Alert, PlannedRoute } from '../../lib/types'
+import type { Alert, RouteApi } from '../../lib/types'
 import { RouteGraphView } from './RouteGraphView'
 
 interface RouteDetailProps {
-  route: PlannedRoute
-  originId: string
-  destId: string
+  route: RouteApi
+  originId: number
+  destId: number
+  stationName: (id: number) => string
   onBack: () => void
   onSave: () => void
   saved?: boolean
@@ -16,9 +15,11 @@ interface RouteDetailProps {
   onGoToRoute?: () => void
 }
 
-export function RouteDetail({ route, originId, destId, onBack, onSave, saved, onClose, onGoToRoute }: RouteDetailProps) {
-  const lines = [...new Set(route.steps.map((s) => s.lineId))]
-  const transfers = route.steps.length - 1
+export function RouteDetail({
+  route, originId, destId, stationName, onBack, onSave,
+  saved, onClose, onGoToRoute,
+}: RouteDetailProps) {
+  const lines = [...new Set(route.steps.map((s) => s.lineName))]
   const alerts = route.alerts ?? []
 
   return (
@@ -36,6 +37,7 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
         <span className="route-detail__title">Detalle de ruta</span>
       </header>
 
+      <div className="route-detail__body">
       <div className="route-detail__hero">
         <div className="route-detail__stations">
           <span className="route-detail__station">{stationName(originId)}</span>
@@ -57,15 +59,17 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
         </div>
         <div className="route-detail__stat">
           <ArrowLeftRight className="route-detail__stat-icon" size={24} strokeWidth={2} />
-          <span className="route-detail__stat-value">{transfers}</span>
-          <span className="route-detail__stat-label">{transfers === 0 ? 'Directo' : transfers === 1 ? 'Transbordo' : 'Transbordos'}</span>
+          <span className="route-detail__stat-value">{route.transfers}</span>
+          <span className="route-detail__stat-label">
+            {route.transfers === 0 ? 'Directo' : route.transfers === 1 ? 'Transbordo' : 'Transbordos'}
+          </span>
         </div>
       </div>
 
       {alerts.length > 0 && (
         <div className="route-alerts">
           {alerts.map((alert) => (
-            <AlertCard key={alert.id} alert={alert} />
+            <AlertCard key={alert.id} alert={alert} stationName={stationName} />
           ))}
         </div>
       )}
@@ -85,18 +89,18 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
                   {i === 0 ? 'Sube' : 'Transbordo'}
                 </span>
                 <span className="route-step__line-name" style={{ backgroundColor: getLineColor(step.lineId) }}>
-                  {lineName(step.lineId)}
+                  {step.lineName}
                 </span>
               </div>
               <div className="route-step__stations">
                 <div className="route-step__station">
                   <CircleDot size={16} fill="currentColor" />
-                  <span>{stationName(step.from)}</span>
+                  <span>{stationName(step.nodes[0]?.stationId ?? 0)}</span>
                 </div>
                 <ArrowDown className="route-step__arrow" size={18} strokeWidth={2} />
                 <div className="route-step__station">
                   <CircleDot size={16} fill="currentColor" />
-                  <span>{stationName(step.to)}</span>
+                  <span>{stationName(step.nodes[step.nodes.length - 1]?.stationId ?? 0)}</span>
                 </div>
               </div>
             </div>
@@ -105,7 +109,8 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
       </div>
 
       <div className="route-detail__graph">
-        <RouteGraphView routes={[route]} />
+        <RouteGraphView route={route} />
+      </div>
       </div>
 
       <div className="route-detail__footer">
@@ -123,13 +128,8 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
   )
 }
 
-function AlertCard({ alert }: { alert: Alert }) {
-  const station = alert.stationId ? stationById[alert.stationId] : null
-  const typeLabel = {
-    delay: 'Demora',
-    incident: 'Incidente',
-    closure: 'Cierre',
-  }
+function AlertCard({ alert, stationName }: { alert: Alert; stationName: (id: number) => string }) {
+  const typeLabel = { delay: 'Demora', incident: 'Incidente', closure: 'Cierre' }
 
   return (
     <div className="alert-card">
@@ -140,20 +140,14 @@ function AlertCard({ alert }: { alert: Alert }) {
       </div>
       <div className="alert-card__content">
         <span className="alert-card__type">{typeLabel[alert.type]}</span>
-        {station && <span className="alert-card__station">{station.name}</span>}
+        {alert.stationId && <span className="alert-card__station">{stationName(Number(alert.stationId))}</span>}
         <p className="alert-card__message">{alert.message}</p>
       </div>
     </div>
   )
 }
 
-function getLineColor(lineId: string): string {
-  const colors: Record<string, string> = {
-    '1': '#0078d4',
-    '2': '#6b4faa',
-    '3': '#107c10',
-    '4': '#d4a017',
-    '5': '#00a4ef',
-  }
+function getLineColor(lineId: number): string {
+  const colors: Record<number, string> = { 17: '#0078d4', 18: '#6b4faa', 19: '#107c10' }
   return colors[lineId] || '#8a92ac'
 }

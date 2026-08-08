@@ -24,5 +24,9 @@ Thumbs.db
 *.tsbuildinfo
 node_modules/.tmp/
 
+# Datos generados (no versionar)
+data/
+bitacoras/
+docs/report_db.md
 # Supabase
 supabase/.temp/
