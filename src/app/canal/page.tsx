@@ -107,7 +107,6 @@ export function CanalPage() {
         <CommentSheet
           postId={commentPostId}
           onClose={() => setCommentPostId(null)}
-          onToggleLike={() => {}}
         />
       )}
     </>
