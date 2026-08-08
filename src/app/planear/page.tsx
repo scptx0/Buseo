@@ -93,7 +93,7 @@ export function PlanearPage() {
         userId: getUserUUID(),
         origin: Number(originId),
         dest: Number(destId),
-        steps: selected.steps,
+        steps: selected,
       })
       pushToRouteHistory({
         from: String(originId),

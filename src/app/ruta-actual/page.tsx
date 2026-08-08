@@ -1,16 +1,39 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
 
-import { getActiveRoute } from '../../lib/storage'
-import { searchRoutes, stationName, lineName } from '../../lib/rutas'
-import type { PlannedRoute } from '../../lib/types'
-import { RouteGraph } from './RouteGraph'
+import { fetchStations, getActiveRoute, finishTrip, getUserUUID } from '../../lib/supabase/api'
+import type { RouteApi, StationApi } from '../../lib/types'
+import { RouteGraphView } from '../planear/RouteGraphView'
 
 export function RutaActualPage() {
   const navigate = useNavigate()
-  const active = getActiveRoute()
+  const [route, setRoute] = useState<RouteApi | null>(null)
+  const [stations, setStations] = useState<StationApi[]>([])
+  const [loading, setLoading] = useState(true)
 
-  if (!active) {
+  useEffect(() => {
+    const uuid = getUserUUID()
+    Promise.all([getActiveRoute(uuid), fetchStations()])
+      .then(([r, s]) => {
+        setRoute(r)
+        setStations(s)
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [])
+
+  const stationName = (id: number) => stations.find((s) => s.id === id)?.name ?? String(id)
+
+  async function onFinish() {
+    await finishTrip(getUserUUID())
+    navigate('/')
+  }
+
+  if (loading) {
+    return <div className="empty"><p>Cargando...</p></div>
+  }
+
+  if (!route) {
     return (
       <div className="empty">
         <h2 className="screen-title">No tienes una ruta activa</h2>
@@ -24,59 +47,26 @@ export function RutaActualPage() {
     )
   }
 
-  const results = searchRoutes(active.from, active.to)
-  const plannedRoute: PlannedRoute | null = results[0] ?? null
-
-  if (!plannedRoute) {
-    return (
-      <div className="empty">
-        <h2 className="screen-title">No se encontró la ruta</h2>
-        <p className="screen-caption">
-          No pudimos reconstruir tu ruta activa. Vuelve a planearla.
-        </p>
-        <button className="btn btn--primary" onClick={() => navigate('/planear')}>
-          Planificar ruta
-        </button>
-      </div>
-    )
-  }
-
-  const linesUsed = Array.from(
-    new Set(plannedRoute.steps.map((s) => s.lineId)),
-  ).map((id) => lineName(id))
-
-  function finishRoute() {
-    localStorage.removeItem('buseo:active-route')
-    navigate('/')
-  }
+  const firstNode = route.steps[0]?.nodes[0]
+  const lastStep = route.steps[route.steps.length - 1]
+  const lastNode = lastStep?.nodes[lastStep.nodes.length - 1]
 
   return (
     <div className="stack">
-      <div className="topbar">
-        <button
-          type="button"
-          className="topbar__back"
-          onClick={() => navigate(-1)}
-          aria-label="Volver"
-        >
-          <ArrowLeft size={20} strokeWidth={2.5} />
-        </button>
-        <span className="screen-title">Tu ruta</span>
-      </div>
-
       <div className="route-summary">
         <p className="screen-caption">
-          {stationName(active.from)} → {stationName(active.to)}
+          {firstNode ? stationName(firstNode.stationId) : '?'} →{' '}
+          {lastNode ? stationName(lastNode.stationId) : '?'}
         </p>
         <p className="screen-caption">
-          {plannedRoute.etaMin} min · {linesUsed.join(' + ')}
+          {route.etaMin} min · {route.lineName}
         </p>
       </div>
 
-      <RouteGraph route={plannedRoute} />
+      <RouteGraphView route={route} />
 
       <div className="cta-bar">
-        <button className="btn btn--primary" onClick={finishRoute}>
+        <button className="btn btn--primary" onClick={onFinish}>
           Finalizar ruta
         </button>
       </div>

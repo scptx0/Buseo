@@ -38,6 +38,28 @@ export async function startTrip(params: {
   return (data as { success: boolean; routeId: string }) ?? { success: false, routeId: '' }
 }
 
+export async function getActiveRoute(userId: string): Promise<RouteApi | null> {
+  const { data, error } = await supabase
+    .from('active_routes')
+    .select('steps')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (error || !data) return null
+  return data.steps as unknown as RouteApi
+}
+
+export async function finishTrip(userId: string): Promise<void> {
+  await supabase
+    .from('active_routes')
+    .update({ status: 'completed' })
+    .eq('user_id', userId)
+    .eq('status', 'active')
+}
+
 export function getUserUUID(): string {
   const key = 'buseo:user-uuid'
   let uuid = localStorage.getItem(key)
