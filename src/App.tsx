@@ -10,14 +10,8 @@ import { ReportePage } from './app/reporte/page'
 import { RutaActualPage } from './app/ruta-actual/page'
 import { Layout } from './components/Layout'
 import { HeaderTitleProvider } from './components/HeaderTitleContext'
-import { BuseoPortalProvider, initPortalToken } from './lib/portal/client'
+import { BuseoPortalProvider } from './lib/portal/client'
 import { hasUserProfile } from './lib/storage'
-import { useEffect } from 'react'
-
-function AppInit() {
-  useEffect(() => { initPortalToken() }, [])
-  return null
-}
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const location = useLocation()
@@ -34,7 +28,6 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 export function App() {
   return (
     <BuseoPortalProvider>
-      <AppInit />
       <HashRouter>
         <HeaderTitleProvider>
           <LocationGate>
