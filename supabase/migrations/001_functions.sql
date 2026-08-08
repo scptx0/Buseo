@@ -237,6 +237,10 @@ AS $$
 DECLARE
   v_id UUID;
 BEGIN
+  INSERT INTO users (id, display_name, created_at, updated_at)
+  VALUES (p_user_id, 'Viajero', NOW(), NOW())
+  ON CONFLICT (id) DO NOTHING;
+
   v_id := gen_random_uuid();
 
   INSERT INTO active_routes (id, user_id, origin, destination, steps, status, created_at)
