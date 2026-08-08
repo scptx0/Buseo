@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { nearestStation, searchRoutes, stationName } from '../../lib/rutas'
-import { stations, type PlannedRoute } from '../../lib/mockData'
+import { stations } from '../../lib/mockData'
+import type { PlannedRoute } from '../../lib/types'
 import {
   getActiveRoute,
   getRouteHistory,

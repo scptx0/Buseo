@@ -1,5 +1,5 @@
 import { lineName, stationName } from '../../lib/rutas'
-import type { PlannedRoute } from '../../lib/mockData'
+import type { PlannedRoute } from '../../lib/types'
 
 interface RouteListItemProps {
   route: PlannedRoute

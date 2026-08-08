@@ -1869,4 +1869,16 @@ export const segments: Segment[] = [
 ]
 
 export const stationsById = Object.fromEntries(stations.map(s => [s.id, s]))
+export const stationById = stationsById
 export const linesById = Object.fromEntries(lines.map(l => [l.id, l]))
+
+export function travelMin(fromId: string, toId: string): number {
+  const seg = segments.find((s) => s.from === fromId && s.to === toId)
+  return seg?.estimatedTimeMinutes ?? 0
+}
+
+export const mockAlerts: import('./types.ts').Alert[] = [
+  { id: 'a1', type: 'incident', stationId: 'tomas-valle', message: 'Congestion en anden' },
+]
+
+export type { Alert, PlannedRoute, Station } from './types.ts'

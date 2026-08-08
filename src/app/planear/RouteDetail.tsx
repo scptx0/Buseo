@@ -1,5 +1,6 @@
 import { lineName, stationName } from '../../lib/rutas'
-import { stationById, type Alert, type PlannedRoute } from '../../lib/mockData'
+import { stationById } from '../../lib/mockData'
+import type { Alert, PlannedRoute } from '../../lib/types'
 
 interface RouteDetailProps {
   route: PlannedRoute
@@ -147,7 +148,7 @@ export function RouteDetail({ route, originId, destId, onBack, onSave, saved, on
 }
 
 function AlertCard({ alert }: { alert: Alert }) {
-  const station = alert.stationId ? stationById(alert.stationId) : null
+  const station = alert.stationId ? stationById[alert.stationId] : null
   const typeLabel = {
     delay: 'Demora',
     incident: 'Incidente',
