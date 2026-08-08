@@ -984,6 +984,260 @@ input {
   margin: 0 0 12px;
 }
 
+/* ---- Grafo de ruta activa ---- */
+
+.route-graph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 16px 0;
+}
+
+.station-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow);
+  width: min(100%, 320px);
+}
+
+.station-node--start {
+  border-color: var(--color-primary-deep);
+  box-shadow: 0 0 0 1px var(--color-primary-deep) inset, var(--shadow);
+}
+
+.station-node--transfer {
+  border-color: var(--color-state-alert);
+  box-shadow: 0 0 0 1px var(--color-state-alert) inset, var(--shadow);
+}
+
+.station-node--end {
+  border-color: var(--color-diamond);
+  box-shadow: 0 0 0 1px var(--color-diamond) inset, var(--shadow);
+}
+
+.station-node__name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.station-node__label {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.station-node__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-primary-deep);
+}
+
+.segment-line {
+  width: 2px;
+  height: 28px;
+  background: var(--color-border);
+  position: relative;
+}
+
+.segment-line--ok {
+  background: var(--color-state-ok);
+}
+
+.segment-line--alert {
+  background: var(--color-state-alert);
+}
+
+.segment-line--critical {
+  background: var(--color-state-critical);
+}
+
+.segment-line__badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+/* ---- Resumen de ruta activa ---- */
+
+.route-summary {
+  text-align: center;
+  padding: 8px 0 16px;
+}
+
+/* ---- Canal / PostCard ---- */
+
+.post-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.post-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.post-card__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-celeste);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-deep);
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.post-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.post-card__author {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.post-card__time {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.post-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.post-card__badge--delay {
+  background: var(--color-state-alert);
+  color: var(--ink);
+}
+
+.post-card__badge--incident {
+  background: var(--color-yellow);
+  color: var(--ink);
+}
+
+.post-card__badge--closure {
+  background: var(--color-state-critical);
+  color: #fff;
+}
+
+.post-card__body {
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.post-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+/* ---- Reporte selector ---- */
+
+.report-selector {
+  display: grid;
+  gap: 12px;
+}
+
+.report-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  color: var(--ink);
+  transition: border-color 0.1s ease;
+}
+
+.report-card:hover {
+  border-color: var(--color-primary);
+}
+
+.report-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.report-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.report-card__title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.report-card__desc {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+/* Responsive: 2 columnas en móvil */
+@media (max-width: 500px) {
+  .metro-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 160px;
+  }
+
+  .metro-tile--wide {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
