@@ -16,6 +16,10 @@ interface StationNode {
   stop_order: number
 }
 
+function safeLineName(name: string): string {
+  try { return lineName(name) } catch { return name }
+}
+
 function formatDirection(d: string): string {
   if (d === 'norte') return 'Norte a Sur'
   if (d === 'sur') return 'Sur a Norte'
@@ -96,7 +100,7 @@ export function BusesPage() {
             >
               <option value="" disabled>Selecciona una linea</option>
               {lines.map((l) => (
-                <option key={l.id} value={l.id}>{lineName(l.name)}</option>
+                <option key={l.id} value={l.id}>{safeLineName(l.name)}</option>
               ))}
             </select>
           </div>
@@ -124,7 +128,7 @@ export function BusesPage() {
   return (
     <div className="buses-page">
       <h1 className="screen-title text-center">Donde estan los buses?</h1>
-      <p className="screen-caption text-center">{lineName(selectedLine?.name ?? '')} · {formatDirection(direction)}</p>
+      <p className="screen-caption text-center">{safeLineName(selectedLine?.name ?? '')} · {formatDirection(direction)}</p>
 
       <div className="planear-selects-compact">
         <div className="field">
