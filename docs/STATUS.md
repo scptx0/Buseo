@@ -66,6 +66,8 @@ Quedan como *seam* documentado para una futura versión (ver "Fase 4" más abajo
   iconos de incidentes en nodos de estaciones y en tramos del grafo.
 - ✅ Incidentes solo entre estaciones consecutivas: el formulario filtra la
   estación 2 por adyacencia y `submit_report` valida el par en `segments`.
+- ✅ Canal: nombres de estación en vez de ids y botón de filtro por tipo de
+  incidente (Demora/Incidente/Cierre) y por estación o tramo.
 - ☐ Línea de viaje + mapa.
 - ☐ Tu ruta actual: nodos/tramos y marcador en vivo.
 - ☐ suscripción a canales de estación/tramo.
