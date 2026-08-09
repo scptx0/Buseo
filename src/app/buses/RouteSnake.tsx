@@ -50,7 +50,8 @@ export function RouteSnake({ stations, busProgress }: Props) {
     }
   }
 
-  const busPos = useMemo(() => {
+  // Bus position and direction angle
+  const busData = useMemo(() => {
     if (busProgress === undefined || n < 2) return null
     const segs: Array<{ len: number; sx: number; sy: number; ex: number; ey: number }> = []
     let total = 0
@@ -62,14 +63,24 @@ export function RouteSnake({ stations, busProgress }: Props) {
       total += len
     }
     let target = busProgress * total
+    let angle = 0
     for (const seg of segs) {
       if (target <= seg.len) {
         const t = seg.len > 0 ? target / seg.len : 0
-        return { x: seg.sx + (seg.ex - seg.sx) * t, y: seg.sy + (seg.ey - seg.sy) * t }
+        const x = seg.sx + (seg.ex - seg.sx) * t
+        const y = seg.sy + (seg.ey - seg.sy) * t
+        const dx = seg.ex - seg.sx
+        const dy = seg.ey - seg.sy
+        angle = Math.atan2(dy, dx) * 180 / Math.PI
+        // If barely moving vertically, keep last known angle
+        return { x, y, angle }
       }
       target -= seg.len
     }
-    return { x: pts[n - 1].x, y: pts[n - 1].y }
+    const dx = pts[n - 1].x - pts[n - 2].x
+    const dy = pts[n - 1].y - pts[n - 2].y
+    angle = Math.atan2(dy, dx) * 180 / Math.PI
+    return { x: pts[n - 1].x, y: pts[n - 1].y, angle }
   }, [busProgress, n, pts])
 
   return (
@@ -101,8 +112,15 @@ export function RouteSnake({ stations, busProgress }: Props) {
             </g>
           )
         })}
-        {busPos && (
-          <circle cx={busPos.x} cy={busPos.y} r={3.5} fill="#ef4444" stroke="#fff" strokeWidth={0.8} vectorEffect="non-scaling-stroke" />
+        {busData && (
+          <g transform={`translate(${busData.x}, ${busData.y}) rotate(${busData.angle})`}>
+            <rect x={-4.5} y={-2.5} width={9} height={5} rx={1.2} fill="#ef4444" stroke="#fff" strokeWidth={0.5} />
+            <circle cx={-2} cy={3} r={1.2} fill="#333" stroke="#fff" strokeWidth={0.3} />
+            <circle cx={2} cy={3} r={1.2} fill="#333" stroke="#fff" strokeWidth={0.3} />
+            <circle cx={-2} cy={-3} r={1.2} fill="#333" stroke="#fff" strokeWidth={0.3} />
+            <circle cx={2} cy={-3} r={1.2} fill="#333" stroke="#fff" strokeWidth={0.3} />
+            <rect x={4} y={-1.5} width={2.5} height={3} rx={0.5} fill="#fbbf24" stroke="#fff" strokeWidth={0.3} />
+          </g>
         )}
       </svg>
     </div>
