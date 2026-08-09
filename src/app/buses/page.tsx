@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase/client'
 import { lineName } from '../../lib/rutas'
 import type { StationApi } from '../../lib/types'
 import { RouteSnake } from './RouteSnake'
+import { BusTracker } from './BusTracker'
 
 interface LineOption {
   id: number
@@ -33,6 +34,7 @@ export function BusesPage() {
   const [stations, setStations] = useState<StationApi[]>([])
   const [loading, setLoading] = useState(true)
   const [everSelected, setEverSelected] = useState(false)
+  const [busProgress, setBusProgress] = useState(0)
 
   useEffect(() => {
     void supabase
@@ -162,7 +164,8 @@ export function BusesPage() {
           <div className="snake-header">
             <span>{stations.length} estaciones</span>
           </div>
-          <RouteSnake stations={stations} />
+          <BusTracker stationCount={stations.length} lineId={Number(lineId)} direction={direction} onProgress={setBusProgress} />
+          <RouteSnake stations={stations} busProgress={busProgress} />
         </div>
       )}
     </div>
