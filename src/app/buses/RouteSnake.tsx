@@ -1,5 +1,5 @@
 import type { StationApi } from '../../lib/types'
-import { useMemo } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import busIcon from '../../../iconos/icono_localizar_buss.png'
 
 interface Props {
@@ -30,6 +30,9 @@ function xCol(i: number, total: number): number {
 export function RouteSnake({ stations, busProgress }: Props) {
   const n = stations.length
   if (n === 0) return null
+  const pathRef = useRef<SVGPathElement>(null)
+  const [pathLen, setPathLen] = useState(0)
+  const [busPos, setBusPos] = useState<{ x: number; y: number; angle: number } | null>(null)
 
   const h = PAD * 2 + (n - 1) * GAP
   const pts: Array<{ x: number; y: number }> = []
@@ -51,38 +54,29 @@ export function RouteSnake({ stations, busProgress }: Props) {
     }
   }
 
-  // Bus position and direction angle
-  const busData = useMemo(() => {
-    if (busProgress === undefined || n < 2) return null
-    const segs: Array<{ len: number; sx: number; sy: number; ex: number; ey: number }> = []
-    let total = 0
-    for (let i = 0; i < n - 1; i++) {
-      const dx = pts[i + 1].x - pts[i].x
-      const dy = pts[i + 1].y - pts[i].y
-      const len = Math.sqrt(dx * dx + dy * dy)
-      segs.push({ len, sx: pts[i].x, sy: pts[i].y, ex: pts[i + 1].x, ey: pts[i + 1].y })
-      total += len
+  // Measure path length once the SVG mounts
+  useEffect(() => {
+    if (!pathRef.current) return
+    const len = pathRef.current.getTotalLength()
+    setPathLen(len)
+  }, [d])
+
+  // Calculate bus position along the actual path curve
+  useEffect(() => {
+    if (busProgress === undefined || !pathRef.current || pathLen === 0) {
+      setBusPos(null)
+      return
     }
-    let target = busProgress * total
-    let angle = 0
-    for (const seg of segs) {
-      if (target <= seg.len) {
-        const t = seg.len > 0 ? target / seg.len : 0
-        const x = seg.sx + (seg.ex - seg.sx) * t
-        const y = seg.sy + (seg.ey - seg.sy) * t
-        const dx = seg.ex - seg.sx
-        const dy = seg.ey - seg.sy
-        angle = Math.atan2(dy, dx) * 180 / Math.PI
-        // If barely moving vertically, keep last known angle
-        return { x, y, angle }
-      }
-      target -= seg.len
-    }
-    const dx = pts[n - 1].x - pts[n - 2].x
-    const dy = pts[n - 1].y - pts[n - 2].y
-    angle = Math.atan2(dy, dx) * 180 / Math.PI
-    return { x: pts[n - 1].x, y: pts[n - 1].y, angle }
-  }, [busProgress, n, pts])
+    const path = pathRef.current
+    const target = busProgress * pathLen
+    const pt = path.getPointAtLength(target)
+    // Get direction from nearby point
+    const next = path.getPointAtLength(Math.min(target + 0.5, pathLen))
+    const dx = next.x - pt.x
+    const dy = next.y - pt.y
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI
+    setBusPos({ x: pt.x, y: pt.y - 1.5, angle })
+  }, [busProgress, pathLen])
 
   return (
     <div className="snake-graph">
@@ -92,6 +86,7 @@ export function RouteSnake({ stations, busProgress }: Props) {
         style={{ width: '100%', height: 'auto', minHeight: Math.max(200, h / 2) }}
       >
         <path
+          ref={pathRef}
           d={d}
           fill="none"
           stroke="#3b82f6"
@@ -113,9 +108,9 @@ export function RouteSnake({ stations, busProgress }: Props) {
             </g>
           )
         })}
-        {busData && (
-          <g transform={`translate(${busData.x}, ${busData.y}) rotate(${busData.angle})`}>
-            <image href={busIcon} x={-6} y={-5} width={12} height={10} />
+        {busPos && (
+          <g transform={`translate(${busPos.x}, ${busPos.y}) rotate(${busPos.angle})`}>
+            <image href={busIcon} x={-19.5} y={-16.5} width={39} height={33} />
           </g>
         )}
       </svg>
