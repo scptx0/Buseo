@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { MessageCircle } from 'lucide-react'
+import { MessageCircle, MapPin } from 'lucide-react'
 import { ReactionPicker } from './ReactionPicker'
 import { ReactionBar } from './ReactionBar'
 import { formatTime } from '../../lib/format'
@@ -9,13 +9,14 @@ interface Props {
   title: string
   content: string
   tags?: string[]
+  locationLabel?: string
   created_at: string
   reactions: Record<string, number>
   onReact: (postId: string, type: string) => void
   onComment: (postId: string) => void
 }
 
-export function PostCard({ id, title, content, tags, created_at, reactions, onReact, onComment }: Props) {
+export function PostCard({ id, title, content, tags, locationLabel, created_at, reactions, onReact, onComment }: Props) {
   const [picker, setPicker] = useState(false)
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pressStart = useRef(0)
@@ -39,6 +40,12 @@ export function PostCard({ id, title, content, tags, created_at, reactions, onRe
       </div>
 
       <h3 className="canal-post__title">{title}</h3>
+      {locationLabel && (
+        <div className="canal-post__location">
+          <MapPin size={13} />
+          {locationLabel}
+        </div>
+      )}
       <p className="canal-post__content">{content}</p>
 
       {tags && tags.length > 0 && (
