@@ -139,7 +139,7 @@ export function BusesPage() {
           >
             <option value="" disabled>Linea</option>
             {lines.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
+              <option key={l.id} value={l.id}>{safeLineName(l.name)}</option>
             ))}
           </select>
         </div>
@@ -151,7 +151,7 @@ export function BusesPage() {
           >
             <option value="" disabled>Dir</option>
             {directions.map((d) => (
-              <option key={d} value={d}>{d === 'norte' ? 'Norte' : 'Sur'}</option>
+              <option key={d} value={d}>{formatDirection(d)}</option>
             ))}
           </select>
         </div>
