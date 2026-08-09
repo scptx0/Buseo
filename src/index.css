@@ -386,9 +386,46 @@ input {
     0 12px 0 -2px var(--color-primary-deep);
 }
 
+/* ---- Pantalla de carga inicial ---- */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(163, 218, 255);
+  transition: opacity 0.4s ease;
+}
+
+.splash--closing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash__logo {
+  width: min(62vw, 260px);
+  height: auto;
+  object-fit: contain;
+  animation: splashPop 0.6s ease;
+}
+
+@keyframes splashPop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .gate__title {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 2rem;
   font-weight: 600;
   margin: 8px 0 0;
 }
@@ -402,6 +439,28 @@ input {
 
 .gate .btn {
   max-width: 320px;
+}
+
+/* Campos del login — ajustables desde aquí */
+.gate-input {
+  min-height: 48px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 1rem;
+  border-color: #b9c8e6;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+.gate-input:focus {
+  border-color: var(--color-primary-deep);
+  box-shadow: 0 0 0 3px rgba(95, 126, 201, 0.18);
+}
+
+/* Botones del login — mismas dimensiones para ambos */
+.gate-btn {
+  min-height: 48px;
+  padding: 8px 14px;
+  font-size: 1.1rem;
 }
 
 .gate__hint {
@@ -1531,14 +1590,21 @@ input {
   border: 1px solid #ddd;
   border-radius: 999px;
   padding: 4px 6px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   z-index: 50;
   animation: pickerIn 0.15s ease;
 }
 
 @keyframes pickerIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.9); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
 }
 
 .reaction-picker__btn {
@@ -1586,13 +1652,18 @@ input {
   z-index: 60;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
   animation: sheetIn 0.2s ease;
 }
 
 @keyframes sheetIn {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 
 .comment-sheet__header {
