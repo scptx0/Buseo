@@ -102,7 +102,7 @@ export function RouteSnake({ stations, busProgress }: Props) {
           )
         })}
         {busPos && (
-          <circle cx={busPos.x} cy={busPos.y} r={6} fill="#ef4444" stroke="#fff" strokeWidth={1.2} vectorEffect="non-scaling-stroke" />
+          <circle cx={busPos.x} cy={busPos.y} r={3.5} fill="#ef4444" stroke="#fff" strokeWidth={0.8} vectorEffect="non-scaling-stroke" />
         )}
       </svg>
     </div>
