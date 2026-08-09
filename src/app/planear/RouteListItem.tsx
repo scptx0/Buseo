@@ -5,14 +5,10 @@ import { lineName } from '../../lib/rutas'
 
 interface RouteListItemProps {
   route: RouteApi
-  stationName: (id: number) => string
   onSelect: () => void
 }
 
-export function RouteListItem({ route, stationName, onSelect }: RouteListItemProps) {
-  const firstNode = route.steps[0]?.nodes[0]
-  const lastStep = route.steps[route.steps.length - 1]
-  const lastNode = lastStep?.nodes[lastStep.nodes.length - 1]
+export function RouteListItem({ route, onSelect }: RouteListItemProps) {
   const hasAlerts = route.alerts.length > 0
   const hasCritical = route.alerts.some((a) => a.type === 'closure')
   const hasWarning = route.alerts.some((a) => a.type === 'incident' || a.type === 'delay')

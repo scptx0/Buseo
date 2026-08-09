@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { LocationGate } from './app/entrada/LocationGate'
@@ -10,6 +11,7 @@ import { ReportePage } from './app/reporte/page'
 import { RutaActualPage } from './app/ruta-actual/page'
 import { Layout } from './components/Layout'
 import { HeaderTitleProvider } from './components/HeaderTitleContext'
+import { SplashScreen } from './components/SplashScreen'
 import { BuseoPortalProvider } from './lib/portal/client'
 import { hasUserProfile } from './lib/storage'
 
@@ -25,7 +27,20 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+const SPLASH_SEEN_KEY = 'buseo:splash-shown'
+
 export function App() {
+  const [splashDone, setSplashDone] = useState(() => {
+    // La splash solo aparece antes de loguearse y una sola vez por sesión
+    if (hasUserProfile()) return true
+    return sessionStorage.getItem(SPLASH_SEEN_KEY) === '1'
+  })
+
+  function finishSplash() {
+    sessionStorage.setItem(SPLASH_SEEN_KEY, '1')
+    setSplashDone(true)
+  }
+
   return (
     <BuseoPortalProvider>
       <HashRouter>
@@ -44,6 +59,7 @@ export function App() {
               </Route>
             </Routes>
           </LocationGate>
+          {!splashDone && <SplashScreen onDone={finishSplash} />}
         </HeaderTitleProvider>
       </HashRouter>
     </BuseoPortalProvider>

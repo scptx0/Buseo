@@ -50,14 +50,45 @@ export async function finishTrip(userId: string): Promise<void> {
     .eq('status', 'active')
 }
 
+const USER_UUID_KEY = 'buseo:user-uuid'
+
 export function getUserUUID(): string {
-  const key = 'buseo:user-uuid'
-  let uuid = localStorage.getItem(key)
+  let uuid = localStorage.getItem(USER_UUID_KEY)
   if (!uuid) {
     uuid = crypto.randomUUID()
-    localStorage.setItem(key, uuid)
+    localStorage.setItem(USER_UUID_KEY, uuid)
   }
   return uuid
+}
+
+export function setUserUUID(uuid: string): void {
+  localStorage.setItem(USER_UUID_KEY, uuid)
+}
+
+export interface AuthResult {
+  ok: boolean
+  message?: string
+  id?: string
+  username?: string
+  gender?: string | null
+  preferredLineId?: string | null
+}
+
+export async function loginOrRegister(username: string, gender: string): Promise<AuthResult> {
+  const { data, error } = await supabase.rpc('login_or_register', {
+    p_username: username,
+    p_gender: gender,
+  })
+  if (error) throw new Error(error.message)
+  const d = (data ?? {}) as Record<string, unknown>
+  return {
+    ok: Boolean(d.ok),
+    message: d.message as string | undefined,
+    id: d.id as string | undefined,
+    username: d.username as string | undefined,
+    gender: (d.gender as string | null) ?? null,
+    preferredLineId: (d.preferred_line_id as string | null) ?? null,
+  }
 }
 
 export async function submitReport(params: {
