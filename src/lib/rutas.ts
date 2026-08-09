@@ -126,11 +126,12 @@ export function stationName(id: string): string {
 export function lineName(raw: string): string {
   if (raw.includes(' + ')) return raw.split(' + ').map(lineName).join(' + ')
   if (raw.startsWith('regular-')) return `Regular ${raw.split('-')[1]?.toUpperCase()}`
-  if (raw.startsWith('super-expreso')) {
-    if (raw === 'super-expreso') return 'Super Expreso'
-    const rest = raw.replace('super-expreso-', '').split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')
-    return `Super Expreso ${rest}`
+  if (raw === 'super-expreso') return 'SX'
+  if (raw.startsWith('super-expreso-norte-')) {
+    const rest = raw.replace('super-expreso-norte-', '').split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')
+    return `SXN ${rest}`
   }
+  if (raw.startsWith('super-expreso')) return 'SXN'
   if (raw.startsWith('expreso-')) return `Expreso ${raw.split('-')[1]}`
   if (raw === 'lechucero') return 'Lechucero'
   return raw
