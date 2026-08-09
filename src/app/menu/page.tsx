@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 
 import { getUserName } from '../../lib/storage'
-import logoBuseo from '../../../iconos/logo_buseo.png'
 import iconoPlanear from '../../../iconos/icono_metrop.png'
 import iconoTuRuta from '../../../iconos/icono_tu_ruta.png'
 import iconoBuses from '../../../iconos/icono_localizar_buss.png'
