@@ -153,9 +153,10 @@ Saluda: `Hola <usuario>`. Opciones:
 
 - Feed de reportes generados por IA (mismos que aparecen en "Tu ruta actual" y "¿Dónde están los buses?", pero agregados de todos los usuarios).
 - Botón **Filtrar** por:
-    - Tipo de reporte (estado de estación, incidente en ruta).
-    - Ubicación (estación o tramo).
-    - Fecha/hora.
+    - Tipo de incidente (Demora, Incidente, Cierre).
+    - Ubicación (estación o tramo entre dos estaciones).
+    - Fecha/hora (pendiente).
+- Los avisos muestran el **nombre** de la estación (o "de X a Y" en tramos), no su id.
 - Cada publicación: resumen, tags, reacciones.
 - Al abrir una publicación: título, descripción detallada (combinación de reportes similares), reacciones.
 - Comentarios con jerarquía (respuestas anidadas) y reacciones por comentario.

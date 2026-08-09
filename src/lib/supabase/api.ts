@@ -259,12 +259,34 @@ export async function getPostComments(postId: string): Promise<Array<{ id: strin
   return (data as Array<{ id: string; user_id: string; content: string; likes_count: number; created_at: string }>) ?? []
 }
 
-export async function getFeedPosts(): Promise<Array<{ id: string; title: string; content: string; tags: string[]; created_at: string }>> {
-  const { data, error } = await supabase
-    .from('feed_posts')
-    .select('id, title, content, tags, created_at')
-    .order('created_at', { ascending: false })
-    .limit(50)
-  if (error) throw new Error(error.message)
-  return (data as Array<{ id: string; title: string; content: string; tags: string[]; created_at: string }>) ?? []
+export interface FeedPost {
+  id: string
+  title: string
+  content: string
+  tags: string[]
+  report_type: string | null
+  station1_id: number | null
+  station2_id: number | null
+  created_at: string
+}
+
+export async function getFeedPosts(): Promise<FeedPost[]> {
+  const run = async (select: string) => {
+    const { data, error } = await supabase
+      .from('feed_posts')
+      .select(select)
+      .order('created_at', { ascending: false })
+      .limit(50)
+    if (error) throw new Error(error.message)
+    return (data ?? []) as unknown as FeedPost[]
+  }
+
+  try {
+    // Campos de filtro (requieren la migración 20260809000003)
+    return await run('id, title, content, tags, report_type, station1_id, station2_id, created_at')
+  } catch {
+    // Migración no aplicada: consultar el esquema básico y degradar con elegancia
+    const rows = await run('id, title, content, tags, created_at')
+    return rows.map((r) => ({ ...r, report_type: null, station1_id: null, station2_id: null }))
+  }
 }
