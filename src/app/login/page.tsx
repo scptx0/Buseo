@@ -1,51 +1,72 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Bus, ArrowRight } from 'lucide-react'
 import { lines } from '../../lib/mockData'
-import { lineName } from '../../lib/rutas'
 import { saveUserProfile } from '../../lib/storage'
+import { loginOrRegister, setUserUUID } from '../../lib/supabase/api'
+import { GoogleIcon } from '../../components/GoogleIcon'
+
+const GENDER_OPTIONS = [
+  { value: 'hombre', label: 'Hombre' },
+  { value: 'mujer', label: 'Mujer' },
+  { value: 'na', label: 'Prefiero no decir' },
+]
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
   const [gender, setGender] = useState('')
-  const [lineId, setLineId] = useState('')
   const [error, setError] = useState('')
+  const [googleNote, setGoogleNote] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim() || !gender || !lineId) {
+    if (!username.trim() || !gender) {
       setError('Completa todos los campos para continuar.')
       return
     }
-    saveUserProfile({ name: name.trim(), gender, preferredLineId: lineId })
-    navigate('/')
+    setError('')
+    setLoading(true)
+    try {
+      const res = await loginOrRegister(username.trim(), gender)
+      if (!res.ok || !res.id) {
+        setError(res.message ?? 'No pudimos iniciar sesión.')
+        return
+      }
+      saveUserProfile({
+        name: res.username ?? username.trim(),
+        gender: res.gender ?? gender,
+        preferredLineId: res.preferredLineId ?? lines[0].id,
+      })
+      setUserUUID(res.id)
+      navigate('/')
+    } catch {
+      setError('No pudimos conectar. Revisa tu conexión e intenta de nuevo.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="gate" style={{ minHeight: '100dvh' }}>
-      <div className="gate__icon" aria-hidden>
-        <Bus size={40} strokeWidth={1.5} />
-      </div>
-      <h1 className="gate__title">Bienvenido a Buseo</h1>
-      <p className="gate__caption">
-        Elige tu línea preferida y cuéntanos tu nombre para personalizar tu experiencia.
-      </p>
+      <h1 className="gate__title">¿Listo para busear?</h1>
+      <p className="gate__caption">Cuéntanos quién eres para empezar.</p>
 
       <form onSubmit={onSubmit} className="stack" style={{ width: '100%', maxWidth: 320 }}>
         <div className="field">
-          <label className="field__label" htmlFor="name">
-            Tu nombre
+          <label className="field__label" htmlFor="username">
+            Usuario
           </label>
           <input
-            id="name"
-            className="input"
+            id="username"
+            className="input gate-input"
             type="text"
-            placeholder="Ej. Carlos"
-            value={name}
+            autoComplete="username"
+            placeholder="Ej. carlos_mtz"
+            value={username}
             onChange={(e) => {
-              setName(e.target.value)
+              setUsername(e.target.value)
               setError('')
             }}
             required
@@ -53,53 +74,25 @@ export function LoginPage() {
         </div>
 
         <div className="field">
-          <span className="field__label">Género</span>
-          <div className="radio-grid">
-            {[
-              { value: 'hombre', label: 'Hombre' },
-              { value: 'mujer', label: 'Mujer' },
-              { value: 'na', label: 'Prefiero no decir' },
-            ].map((opt) => (
-              <label key={opt.value} className="radio-option">
-                <input
-                  type="radio"
-                  name="gender"
-                  value={opt.value}
-                  checked={gender === opt.value}
-                  onChange={() => {
-                    setGender(opt.value)
-                    setError('')
-                  }}
-                />
-                <span>
-                  {opt.label}
-                  {gender === opt.value && <ArrowRight size={16} />}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="field">
-          <label className="field__label" htmlFor="line">
-            Línea preferida
+          <label className="field__label" htmlFor="gender">
+            Género
           </label>
           <select
-            id="line"
-            className="select"
-            value={lineId}
+            id="gender"
+            className="select gate-input"
+            value={gender}
             onChange={(e) => {
-              setLineId(e.target.value)
+              setGender(e.target.value)
               setError('')
             }}
             required
           >
             <option value="" disabled>
-              Selecciona tu línea
+              Selecciona tu género
             </option>
-            {lines.map((l) => (
-              <option key={l.id} value={l.id}>
-                {lineName(l.id)}
+            {GENDER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
               </option>
             ))}
           </select>
@@ -111,23 +104,24 @@ export function LoginPage() {
           </p>
         )}
 
-        <button type="submit" className="btn btn--primary">
-          Comenzar
+        <button type="submit" className="btn btn--primary gate-btn" disabled={loading}>
+          {loading ? 'Ingresando…' : 'Comenzar'}
         </button>
 
         <button
           type="button"
-          className="btn btn--ghost"
-          onClick={() => {
-            saveUserProfile({ name: 'Viajero', gender: 'na', preferredLineId: lines[0].id })
-            navigate('/')
-          }}
+          className="btn btn--ghost gate-btn"
+          onClick={() => setGoogleNote('Aún no implementado')}
         >
+          <GoogleIcon size={18} />
           Continuar con Google
         </button>
+        {googleNote && (
+          <p className="text-center" style={{ color: '#555', fontSize: '0.8rem', margin: 0 }}>
+            {googleNote}
+          </p>
+        )}
       </form>
-
-      <p className="gate__hint">Solo usamos estos datos para personalizar la app.</p>
     </div>
   )
 }
