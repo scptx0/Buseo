@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase/client'
+import { lineName } from '../../lib/rutas'
 import type { StationApi } from '../../lib/types'
 import { RouteSnake } from './RouteSnake'
+import { BusTracker } from './BusTracker'
 
 interface LineOption {
   id: number
@@ -15,6 +17,16 @@ interface StationNode {
   stop_order: number
 }
 
+function safeLineName(name: string): string {
+  try { return lineName(name) } catch { return name }
+}
+
+function formatDirection(d: string): string {
+  if (d === 'norte') return 'Norte a Sur'
+  if (d === 'sur') return 'Sur a Norte'
+  return d.charAt(0).toUpperCase() + d.slice(1)
+}
+
 export function BusesPage() {
   const [lines, setLines] = useState<LineOption[]>([])
   const [lineId, setLineId] = useState<number | ''>('')
@@ -22,6 +34,7 @@ export function BusesPage() {
   const [stations, setStations] = useState<StationApi[]>([])
   const [loading, setLoading] = useState(true)
   const [everSelected, setEverSelected] = useState(false)
+  const [busProgress, setBusProgress] = useState(0)
 
   useEffect(() => {
     void supabase
@@ -89,7 +102,7 @@ export function BusesPage() {
             >
               <option value="" disabled>Selecciona una linea</option>
               {lines.map((l) => (
-                <option key={l.id} value={l.id}>{l.name}</option>
+                <option key={l.id} value={l.id}>{safeLineName(l.name)}</option>
               ))}
             </select>
           </div>
@@ -105,7 +118,7 @@ export function BusesPage() {
             >
               <option value="" disabled>Selecciona direccion</option>
               {directions.map((d) => (
-                <option key={d} value={d}>{d === 'norte' ? 'Norte' : 'Sur'}</option>
+                <option key={d} value={d}>{formatDirection(d)}</option>
               ))}
             </select>
           </div>
@@ -117,7 +130,7 @@ export function BusesPage() {
   return (
     <div className="buses-page">
       <h1 className="screen-title text-center">Donde estan los buses?</h1>
-      <p className="screen-caption text-center">{selectedLine?.name} · {direction === 'norte' ? 'Norte' : 'Sur'}</p>
+      <p className="screen-caption text-center">{safeLineName(selectedLine?.name ?? '')} · {formatDirection(direction)}</p>
 
       <div className="planear-selects-compact">
         <div className="field">
@@ -128,7 +141,7 @@ export function BusesPage() {
           >
             <option value="" disabled>Linea</option>
             {lines.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
+              <option key={l.id} value={l.id}>{safeLineName(l.name)}</option>
             ))}
           </select>
         </div>
@@ -140,7 +153,7 @@ export function BusesPage() {
           >
             <option value="" disabled>Dir</option>
             {directions.map((d) => (
-              <option key={d} value={d}>{d === 'norte' ? 'Norte' : 'Sur'}</option>
+              <option key={d} value={d}>{formatDirection(d)}</option>
             ))}
           </select>
         </div>
@@ -151,7 +164,8 @@ export function BusesPage() {
           <div className="snake-header">
             <span>{stations.length} estaciones</span>
           </div>
-          <RouteSnake stations={stations} />
+          <BusTracker stationCount={stations.length} lineId={Number(lineId)} direction={direction} onProgress={setBusProgress} />
+          <RouteSnake stations={stations} busProgress={busProgress} />
         </div>
       )}
     </div>
