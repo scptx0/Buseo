@@ -16,15 +16,19 @@ export function RouteListItem({ route, stationName, onSelect }: RouteListItemPro
   const hasAlerts = route.alerts.length > 0
   const hasCritical = route.alerts.some((a) => a.type === 'closure')
   const hasWarning = route.alerts.some((a) => a.type === 'incident' || a.type === 'delay')
-  const toneClass = hasCritical ? 'route-item--critical' : hasWarning ? 'route-item--warning' : 'route-item--clean'
+  const transferClass =
+    route.transfers === 0 ? 'route-item--t0' : route.transfers === 1 ? 'route-item--t1' : 'route-item--t2'
+  const alertClass = hasCritical ? 'route-item--critical' : hasWarning ? 'route-item--warning' : ''
+  const pillClass =
+    route.transfers === 0 ? 'status-pill--t0' : route.transfers === 1 ? 'status-pill--t1' : 'status-pill--t2'
 
   return (
-    <button type="button" className={`route-item ${toneClass}`} onClick={onSelect}>
+    <button
+      type="button"
+      className={['route-item', transferClass, alertClass].filter(Boolean).join(' ')}
+      onClick={onSelect}
+    >
       <span className="route-item__lines">{lineName(route.lineName)}</span>
-      <span className="route-item__path">
-        {firstNode ? stationName(firstNode.stationId) : '?'} →{' '}
-        {lastNode ? stationName(lastNode.stationId) : '?'}
-      </span>
       <span className="route-item__meta">
         <b className="mono">{route.etaMin} min</b>
         {hasAlerts ? (
@@ -36,9 +40,13 @@ export function RouteListItem({ route, stationName, onSelect }: RouteListItemPro
             </span>
           </span>
         ) : (
-          <span className="status-pill status-pill--ok">
+          <span className={`status-pill ${pillClass}`}>
             <span className="status-dot" aria-hidden />
-            {route.transfers === 0 ? 'Directo' : `${route.transfers} transbordo`}
+            {route.transfers === 0
+              ? 'Directo'
+              : route.transfers === 1
+                ? '1 transbordo'
+                : `${route.transfers} transbordos`}
           </span>
         )}
         <span className="route-item__arrow" aria-hidden>
