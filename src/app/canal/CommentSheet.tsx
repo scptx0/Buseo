@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { X, Send, Flag } from 'lucide-react'
 import { getPostComments, addComment, getUserUUID, moderateReport, toggleCommentLike, reportComment } from '../../lib/supabase/api'
+import { formatTime } from '../../lib/format'
 
 interface Comment {
   id: string
@@ -139,15 +140,4 @@ export function CommentSheet({ postId, onClose }: Props) {
       </div>
     </div>
   )
-}
-
-function formatTime(ts: string): string {
-  const d = new Date(ts)
-  const now = new Date()
-  const min = Math.floor((now.getTime() - d.getTime()) / 60000)
-  if (min < 1) return 'Ahora'
-  if (min < 60) return `Hace ${min}m`
-  const h = Math.floor(min / 60)
-  if (h < 24) return `Hace ${h}h`
-  return d.toLocaleDateString()
 }
