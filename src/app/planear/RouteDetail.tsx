@@ -39,71 +39,71 @@ export function RouteDetail({
       </header>
 
       <div className="route-detail__body">
-      <div className="route-detail__hero">
-        <div className="route-detail__stations">
-          <span className="route-detail__station">{stationName(originId)}</span>
-          <ArrowRight className="route-detail__arrow" size={26} strokeWidth={2} />
-          <span className="route-detail__station">{stationName(destId)}</span>
+        <div className="route-detail__hero">
+          <div className="route-detail__stations">
+            <span className="route-detail__station">{stationName(originId)}</span>
+            <ArrowRight className="route-detail__arrow" size={26} strokeWidth={2} />
+            <span className="route-detail__station">{stationName(destId)}</span>
+          </div>
         </div>
-      </div>
 
-      <div className="route-detail__stats">
-        <div className="route-detail__stat">
-          <Clock className="route-detail__stat-icon" size={24} strokeWidth={2} />
-          <span className="route-detail__stat-value">{route.etaMin} min</span>
-          <span className="route-detail__stat-label">Tiempo</span>
+        <div className="route-detail__stats">
+          <div className="route-detail__stat">
+            <Clock className="route-detail__stat-icon" size={24} strokeWidth={2} />
+            <span className="route-detail__stat-value">{route.etaMin} min</span>
+            <span className="route-detail__stat-label">Tiempo</span>
+          </div>
+          <div className="route-detail__stat">
+            <Bus className="route-detail__stat-icon" size={24} strokeWidth={2} />
+            <span className="route-detail__stat-value">{lines.length}</span>
+            <span className="route-detail__stat-label">{lines.length === 1 ? 'Línea' : 'Líneas'}</span>
+          </div>
+          <div className="route-detail__stat">
+            <ArrowLeftRight className="route-detail__stat-icon" size={24} strokeWidth={2} />
+            <span className="route-detail__stat-value">{route.transfers}</span>
+            <span className="route-detail__stat-label">
+              {route.transfers === 0 ? 'Directo' : route.transfers === 1 ? 'Transbordo' : 'Transbordos'}
+            </span>
+          </div>
         </div>
-        <div className="route-detail__stat">
-          <Bus className="route-detail__stat-icon" size={24} strokeWidth={2} />
-          <span className="route-detail__stat-value">{lines.length}</span>
-          <span className="route-detail__stat-label">{lines.length === 1 ? 'Línea' : 'Líneas'}</span>
-        </div>
-        <div className="route-detail__stat">
-          <ArrowLeftRight className="route-detail__stat-icon" size={24} strokeWidth={2} />
-          <span className="route-detail__stat-value">{route.transfers}</span>
-          <span className="route-detail__stat-label">
-            {route.transfers === 0 ? 'Directo' : route.transfers === 1 ? 'Transbordo' : 'Transbordos'}
-          </span>
-        </div>
-      </div>
 
-      {alerts.length > 0 && (
-        <div className="route-alerts">
-          {alerts.map((alert) => (
-            <AlertCard key={alert.id} alert={alert} stationName={stationName} />
-          ))}
-        </div>
-      )}
+        {alerts.length > 0 && (
+          <div className="route-alerts">
+            {alerts.map((alert) => (
+              <AlertCard key={alert.id} alert={alert} stationName={stationName} />
+            ))}
+          </div>
+        )}
 
-      <div className="route-detail__timeline">
-        {route.steps.map((step, i) => (
-          <div key={i} className="route-step">
-            <div className="route-step__content">
-              <div className="route-step__header">
-                <span className="route-step__action">
-                  {i === 0 ? 'Sube' : 'Transbordo'}
-                </span>
-                 <span className="route-step__line-name" style={{ backgroundColor: getLineColor(step.lineId) }}>
-                  {lineName(step.lineName)}
-                </span>
-              </div>
-              <div className="route-step__stations">
-                <div className="route-step__station">
-                  <span>{stationName(step.nodes[0]?.stationId ?? 0)}</span>
+        <div className="route-detail__timeline">
+          {route.steps.map((step, i) => (
+            <div key={i} className="route-step">
+              <div className="route-step__content">
+                <div className="route-step__header">
+                  <span className="route-step__action">
+                    {i === 0 ? 'Sube' : 'Transbordo'}
+                  </span>
+                  <span className="route-step__line-name" style={{ backgroundColor: getLineColor(step.lineId) }}>
+                    {lineName(step.lineName)}
+                  </span>
                 </div>
-                <ArrowDown className="route-step__arrow" size={18} strokeWidth={2} />
-                <div className="route-step__station">
-                  <span>{stationName(step.nodes[step.nodes.length - 1]?.stationId ?? 0)}</span>
+                <div className="route-step__stations">
+                  <div className="route-step__station">
+                    <span>{stationName(step.nodes[0]?.stationId ?? 0)}</span>
+                  </div>
+                  <ArrowRight className="route-step__arrow" size={18} strokeWidth={2} />
+                  <div className="route-step__station">
+                    <span>{stationName(step.nodes[step.nodes.length - 1]?.stationId ?? 0)}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="route-detail__graph">
-        <RouteGraphView route={route} />
-      </div>
+        <div className="route-detail__graph">
+          <RouteGraphView route={route} />
+        </div>
       </div>
 
       <div className="route-detail__footer">
