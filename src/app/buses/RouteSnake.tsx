@@ -10,6 +10,11 @@ const RIGHT = 85
 const GAP = 26
 const PAD = 20
 
+function formatName(raw: string): string {
+  const cleaned = raw.toLowerCase().replace(/-/g, ' ')
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+}
+
 function xCol(i: number, total: number): number {
   if (i === 0) return LEFT
   if (i === total - 1) return RIGHT
@@ -64,7 +69,7 @@ export function RouteSnake({ stations }: Props) {
           const first = i === 0
           const last = i === n - 1
           const r = first || last ? 5 : 3.5
-          const name = stations[i].name
+          const name = formatName(stations[i].name)
 
           return (
             <g key={i}>

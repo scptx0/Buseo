@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase/client'
+import { lineName } from '../../lib/rutas'
 import type { StationApi } from '../../lib/types'
 import { RouteSnake } from './RouteSnake'
 
@@ -13,6 +14,12 @@ interface StationNode {
   station_id: number
   station_name: string
   stop_order: number
+}
+
+function formatDirection(d: string): string {
+  if (d === 'norte') return 'Norte a Sur'
+  if (d === 'sur') return 'Sur a Norte'
+  return d.charAt(0).toUpperCase() + d.slice(1)
 }
 
 export function BusesPage() {
@@ -89,7 +96,7 @@ export function BusesPage() {
             >
               <option value="" disabled>Selecciona una linea</option>
               {lines.map((l) => (
-                <option key={l.id} value={l.id}>{l.name}</option>
+                <option key={l.id} value={l.id}>{lineName(l.name)}</option>
               ))}
             </select>
           </div>
@@ -105,7 +112,7 @@ export function BusesPage() {
             >
               <option value="" disabled>Selecciona direccion</option>
               {directions.map((d) => (
-                <option key={d} value={d}>{d === 'norte' ? 'Norte' : 'Sur'}</option>
+                <option key={d} value={d}>{formatDirection(d)}</option>
               ))}
             </select>
           </div>
@@ -117,7 +124,7 @@ export function BusesPage() {
   return (
     <div className="buses-page">
       <h1 className="screen-title text-center">Donde estan los buses?</h1>
-      <p className="screen-caption text-center">{selectedLine?.name} · {direction === 'norte' ? 'Norte' : 'Sur'}</p>
+      <p className="screen-caption text-center">{lineName(selectedLine?.name ?? '')} · {formatDirection(direction)}</p>
 
       <div className="planear-selects-compact">
         <div className="field">
