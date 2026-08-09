@@ -95,7 +95,7 @@ export async function submitReport(params: {
   userId: string
   type: string
   targetId: string
-  severity: string
+  severity?: string
   description?: string
   metadata?: Record<string, unknown>
 }): Promise<{ id: string; success: boolean }> {
@@ -103,12 +103,59 @@ export async function submitReport(params: {
     p_user_id: params.userId,
     p_type: params.type,
     p_target_id: params.targetId,
-    p_severity: params.severity,
+    p_severity: params.severity ?? 'ok',
     p_description: params.description ?? '',
     p_metadata: params.metadata ?? {},
   })
   if (error) throw new Error(error.message)
   return (data as { id: string; success: boolean }) ?? { id: '', success: false }
+}
+
+export interface BusAtStation {
+  lineId: number
+  lineName: string
+  direction: 'norte' | 'sur'
+}
+
+interface LineStop { line_id: number; direction: 'norte' | 'sur' }
+interface LineRow { id: number; name: string; directions: string[] }
+
+export async function fetchBusesAtStation(stationId: number): Promise<BusAtStation[]> {
+  const { data: stops, error } = await supabase
+    .from('line_stops')
+    .select('line_id, direction')
+    .eq('station_id', stationId)
+  if (error || !stops || stops.length === 0) return []
+
+  const deduped = new Map<string, LineStop>()
+  for (const s of stops as LineStop[]) {
+    deduped.set(`${s.line_id}|${s.direction}`, s)
+  }
+
+  const lineIds = [...new Set(Array.from(deduped.values()).map((d) => d.line_id))]
+  const { data: lines } = await supabase
+    .from('lines')
+    .select('id, name, directions')
+    .in('id', lineIds)
+  const lineMap = new Map<number, LineRow>()
+  for (const l of (lines as LineRow[]) ?? []) {
+    lineMap.set(l.id, l)
+  }
+
+  const result: BusAtStation[] = []
+  for (const s of deduped.values()) {
+    const line = lineMap.get(s.line_id)
+    if (!line) continue
+    result.push({ lineId: s.line_id, lineName: line.name, direction: s.direction })
+  }
+  return result.sort((a, b) => a.lineName.localeCompare(b.lineName))
+}
+
+export async function inferReport(reportId: string): Promise<void> {
+  await supabase.functions.invoke('infer-report', {
+    method: 'POST',
+    body: { reportId },
+  })
 }
 
 export async function moderateReport(text: string): Promise<{ allowed: boolean; reason?: string }> {
