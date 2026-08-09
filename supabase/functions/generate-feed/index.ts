@@ -22,8 +22,15 @@ interface ClusterRow {
   target_type: string;
   target_id: string;
   report_type: string;
+  incident_type: string | null;
+  station2_id: string | null;
   count: number;
   sample_descriptions: string[];
+}
+
+function formatName(raw: string): string {
+  const c = raw.toLowerCase().replace(/-/g, " ");
+  return c.charAt(0).toUpperCase() + c.slice(1);
 }
 
 async function sha256hex(data: string): Promise<string> {
@@ -63,6 +70,12 @@ Deno.serve(async (req: Request) => {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+  // Nombres de estación para que la IA y los tags muestren nombres, no ids
+  const { data: stations } = await supabase.from("stations").select("id, name");
+  const stationNames = new Map<string, string>(
+    ((stations as Array<{ id: number; name: string }>) ?? []).map((s) => [String(s.id), formatName(s.name)]),
+  );
+
   const { data: clusters, error } = await supabase.rpc("get_report_clusters", { p_min_reports: 2, p_window_hours: 0.5, p_dedup_minutes: 30 });
   if (error) return new Response(JSON.stringify({ error: error.message, step: "rpc" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   if (!clusters || clusters.length === 0) return new Response(JSON.stringify({ generated: 0, reason: "no-clusters" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -71,7 +84,20 @@ Deno.serve(async (req: Request) => {
 
   for (const cluster of (clusters as ClusterRow[])) {
     const descriptions = cluster.sample_descriptions.filter(Boolean).slice(0, 5).join("; ");
-    const targetName = cluster.target_type === 'bus' ? 'la linea ' + cluster.target_id : 'la estacion ' + cluster.target_id;
+
+    let targetName: string;
+    if (cluster.target_type === 'bus') {
+      targetName = 'la linea ' + cluster.target_id;
+    } else {
+      const s1 = stationNames.get(cluster.target_id) ?? 'la estacion ' + cluster.target_id;
+      if (cluster.report_type === 'incident' && cluster.station2_id) {
+        const s2 = stationNames.get(cluster.station2_id) ?? 'la estacion ' + cluster.station2_id;
+        targetName = `el tramo entre ${s1} y ${s2}`;
+      } else {
+        targetName = 'la estacion ' + s1;
+      }
+    }
+
     const prompt = `Eres un asistente del Metropolitano de Lima. ${cluster.count} usuarios reportaron problemas en ${targetName}. Comentarios: "${descriptions}". Genera un aviso breve en JSON: {"title":"titulo max 60 chars","content":"2-3 lineas informativas","tags":["#tag1"],"severity":"info|warning|critical"}. Solo responde con el JSON.`;
 
     try {
@@ -93,7 +119,17 @@ Deno.serve(async (req: Request) => {
 
       const { data: post, error: postErr } = await supabase
         .from("feed_posts")
-        .insert({ title: json.title, content: json.content, tags: [...(json.tags || []), cluster.target_id], created_at: new Date().toISOString() })
+        .insert({
+          title: json.title,
+          content: json.content,
+          tags: [...(json.tags || []), cluster.target_id],
+          report_type: cluster.report_type === "incident"
+            ? (cluster.incident_type || "other")
+            : cluster.report_type,
+          station1_id: cluster.target_type === "bus" ? null : Number(cluster.target_id),
+          station2_id: cluster.station2_id ? Number(cluster.station2_id) : null,
+          created_at: new Date().toISOString(),
+        })
         .select("id").single();
 
       if (postErr || !post) continue;
