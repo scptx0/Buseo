@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, ArrowDown, ArrowLeftRight, X, Clock, Bus, AlertTriangle, XCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowLeftRight, X, Clock, Bus, AlertTriangle, XCircle } from 'lucide-react'
 
 import type { Alert, RouteApi } from '../../lib/types'
 import { RouteGraphView } from './RouteGraphView'

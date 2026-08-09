@@ -201,7 +201,6 @@ export function PlanearPage() {
             <RouteListItem
               key={route.id}
               route={route}
-              stationName={stationName}
               onSelect={() => onSelect(route)}
             />
           ))}
