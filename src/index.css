@@ -306,7 +306,7 @@ input {
   border: 2px solid var(--color-primary-deep);
   box-shadow: var(--shadow);
   min-height: 44px;
-  font-size: clamp(0.85rem, 2.5vw, 1rem);
+  font-size: 1.4rem;
 }
 
 .btn--deep {
@@ -339,12 +339,13 @@ input {
   right: 0;
   bottom: 0;
   z-index: 20;
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  padding: 12px 60px calc(12px + env(safe-area-inset-bottom));
   background: linear-gradient(to top, var(--color-bg) 70%, transparent);
 }
 
 .cta-bar .btn {
   max-width: 560px;
+  min-height: 70px;
   margin: 0 auto;
   display: flex;
 }
@@ -422,14 +423,37 @@ input {
   font-weight: 600;
 }
 
-.status-pill--ok {
-  background: #4ade80;
-  color: #000;
+/* Badge por número de transbordos — rampa fría (azul→violeta), sin asociación a riesgo */
+.status-pill--t0 {
+  background: #bae6fd;
+  color: #0c4a6e;
+}
+
+.status-pill--t1 {
+  background: #bfdbfe;
+  color: #1e3a8a;
+}
+
+.status-pill--t2 {
+  background: #ddd6fe;
+  color: #4c1d95;
 }
 
 .status-pill--alert {
   background: var(--color-state-alert);
   color: var(--ink);
+}
+
+.status-pill--t0 .status-dot {
+  background: #0369a1;
+}
+
+.status-pill--t1 .status-dot {
+  background: #1d4ed8;
+}
+
+.status-pill--t2 .status-dot {
+  background: #6d28d9;
 }
 
 .status-dot {
@@ -715,16 +739,29 @@ input {
   cursor: pointer;
 }
 
-.route-item--clean {
-  border-left-color: #22c55e;
+/* Borde y tinte según número de transbordos — rampa fría (azul→violeta), sin asociación a riesgo */
+.route-item--t0 {
+  border-left-color: #38bdf8;
+  background: #f0f9ff;
 }
 
+.route-item--t1 {
+  border-left-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.route-item--t2 {
+  border-left-color: #8b5cf6;
+  background: #f5f3ff;
+}
+
+/* Alertas: anillo de severidad (el borde izquierdo lo define el nº de transbordos) */
 .route-item--warning {
-  border-left-color: #eab308;
+  box-shadow: var(--shadow), 0 0 0 1px #eab308 inset;
 }
 
 .route-item--critical {
-  border-left-color: #ef4444;
+  box-shadow: var(--shadow), 0 0 0 2px #ef4444 inset;
 }
 
 .route-item:hover {
@@ -954,6 +991,7 @@ input {
   bottom: 0;
   flex-shrink: 0;
   width: 100%;
+  max-height: 100px;
   display: flex;
   justify-content: center;
 }
@@ -961,6 +999,7 @@ input {
 .btn--full {
   width: 100%;
   max-width: 320px;
+  min-height: 70px;
 }
 
 /* ---- Pantalla de ruta guardada ---- */
