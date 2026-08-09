@@ -9,14 +9,14 @@ import iconoReporte from '../../../iconos/icono_aviso.png'
 import iconoCanal from '../../../iconos/icono_canal.png'
 
 const LEFT_TILES = [
-  { to: '/planear', img: iconoPlanear, label: 'Planear ruta', cls: 'home-tile--planear' },
-  { to: '/ruta-actual', img: iconoTuRuta, label: 'Tu ruta actual', cls: 'home-tile--ruta' },
+  { to: '/planear', img: iconoPlanear, label: 'Planear ruta', cls: 'home-tile--planear', imgCls: 'home-tile__icon--planear' },
+  { to: '/ruta-actual', img: iconoTuRuta, label: 'Tu ruta actual', cls: 'home-tile--ruta', imgCls: 'home-tile__icon--ruta' },
 ]
 
 const RIGHT_TILES = [
-  { to: '/buses', img: iconoBuses, label: '¿Dónde están los buses?', cls: 'home-tile--buses' },
-  { to: '/reporte', img: iconoReporte, label: 'Reporte', cls: 'home-tile--reporte' },
-  { to: '/canal', img: iconoCanal, label: 'Canal', cls: 'home-tile--canal' },
+  { to: '/buses', img: iconoBuses, label: '¿Dónde están los buses?', cls: 'home-tile--buses', imgCls: 'home-tile__icon--buses' },
+  { to: '/reporte', img: iconoReporte, label: 'Reporte', cls: 'home-tile--reporte', imgCls: 'home-tile__icon--reporte' },
+  { to: '/canal', img: iconoCanal, label: 'Canal', cls: 'home-tile--canal', imgCls: 'home-tile__icon--canal' },
 ]
 
 export function MenuPage() {
@@ -24,7 +24,6 @@ export function MenuPage() {
   return (
     <div className="home-page">
       <header className="home-header">
-        <img className="home-logo" src={logoBuseo} alt="Buseo" />
         <span className="home-greeting">
           Hola{name ? `, ${name}` : ''}
         </span>
@@ -33,13 +32,13 @@ export function MenuPage() {
       <nav className="home-grid" aria-label="Módulos">
         {LEFT_TILES.map((t) => (
           <Link key={t.to} className={`home-tile ${t.cls}`} to={t.to}>
-            <img className="home-tile__img" src={t.img} alt={t.label} />
+            <img className={t.imgCls} src={t.img} alt={t.label} />
             <span className="home-tile__label">{t.label}</span>
           </Link>
         ))}
         {RIGHT_TILES.map((t) => (
           <Link key={t.to} className={`home-tile ${t.cls}`} to={t.to}>
-            <img className="home-tile__img" src={t.img} alt={t.label} />
+            <img className={t.imgCls} src={t.img} alt={t.label} />
             <span className="home-tile__label">{t.label}</span>
           </Link>
         ))}
