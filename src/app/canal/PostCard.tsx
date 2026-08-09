@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { MessageCircle } from 'lucide-react'
 import { ReactionPicker } from './ReactionPicker'
 import { ReactionBar } from './ReactionBar'
+import { formatTime } from '../../lib/format'
 
 interface Props {
   id: string
@@ -64,15 +65,4 @@ export function PostCard({ id, title, content, tags, created_at, reactions, onRe
       )}
     </article>
   )
-}
-
-function formatTime(ts: string): string {
-  const d = new Date(ts)
-  const now = new Date()
-  const min = Math.floor((now.getTime() - d.getTime()) / 60000)
-  if (min < 1) return 'Ahora'
-  if (min < 60) return `Hace ${min}m`
-  const h = Math.floor(min / 60)
-  if (h < 24) return `Hace ${h}h`
-  return d.toLocaleDateString()
 }

@@ -153,3 +153,16 @@ export interface RouteApi {
   steps: RouteStepApi[]
   alerts: Alert[]
 }
+
+export interface ReportRow {
+  target_id: string
+  severity: Severity | null
+  type: string
+}
+
+export interface ReportDetail extends ReportRow {
+  id: string
+  metadata: Record<string, unknown> | null
+  description: string | null
+  created_at: string
+}

@@ -242,6 +242,12 @@ input {
   color: #000;
 }
 
+.field__hint {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  margin-top: -8px;
+}
+
 .select,
 .input {
   min-height: 28px;
@@ -937,6 +943,171 @@ input {
   color: #000;
 }
 
+/* Botón de reportes en el header del detalle */
+.route-detail__reports {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  margin-left: auto;
+  border: 1.5px solid var(--color-border);
+  background: var(--surface);
+  border-radius: 10px;
+  cursor: pointer;
+  color: #b45309;
+  flex-shrink: 0;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.route-detail__reports:hover {
+  background: var(--color-yellow);
+  border-color: #d4a017;
+}
+
+.route-detail__reports-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ---- Hoja de reportes de la ruta (superpuesta) ---- */
+
+.reports-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(53, 61, 94, 0.35);
+}
+
+.reports-sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+  animation: sheetIn 0.2s ease;
+}
+
+.reports-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.reports-sheet__title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.reports-sheet__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  padding: 4px;
+}
+
+.reports-sheet__body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 16px calc(16px + env(safe-area-inset-bottom));
+  display: grid;
+  gap: 2px;
+}
+
+.reports-sheet__empty {
+  text-align: center;
+  color: var(--ink-muted);
+  padding: 28px 0;
+  margin: 0;
+}
+
+.report-item {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.report-item:last-child {
+  border-bottom: none;
+}
+
+.report-item__icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.report-item__icon--critical {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.report-item__icon--warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.report-item__icon--ok {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.report-item__content {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.report-item__title {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #000;
+}
+
+.report-item__desc {
+  font-size: 0.85rem;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.report-item__time {
+  font-size: 0.72rem;
+  color: #999;
+}
+
 .route-detail__hero {
   padding: 28px 16px 20px;
   text-align: center;
@@ -1200,6 +1371,34 @@ input {
   color: #d4a017;
   font-size: 0.82rem;
   font-weight: 500;
+  justify-self: start;
+}
+
+/* Badge de incidentes en vivo (lista de rutas) */
+.route-item__incident {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  justify-self: start;
+}
+
+.route-item__incident svg {
+  flex-shrink: 0;
+}
+
+.route-item__incident--warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.route-item__incident--critical {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .alert-card__content {

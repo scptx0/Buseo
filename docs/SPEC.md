@@ -128,7 +128,9 @@ Saluda: `Hola <usuario>`. Opciones:
 ### 4.3 Incidente en la ruta
 
 - Ícono de info → _"Este reporte es para reportar un incidente que ocurrió en alguna parte de la ruta"_.
-- Selección de Estación 1 y Estación 2 (tramo donde ocurrió).
+- Selección de Estación 1 y Estación 2 — **deben ser estaciones consecutivas** (tramo donde ocurrió):
+    - La Estación 2 solo ofrece estaciones adyacentes a la Estación 1 (pares de la tabla `segments`).
+    - El backend (`submit_report`) rechaza pares que no existan como tramo en `segments`.
 - Tipo de incidente (dropdown — tipos por definir).
 - Caja de texto para describir el incidente.
 - **Sí** alimenta la IA de incidentes (con el mismo filtro anti-falsos-positivos).

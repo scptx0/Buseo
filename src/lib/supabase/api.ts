@@ -1,10 +1,64 @@
 import { supabase } from './client'
-import type { StationApi, RouteApi } from '../types'
+import type { StationApi, RouteApi, ReportRow, ReportDetail } from '../types'
 
 export async function fetchStations(): Promise<StationApi[]> {
   const { data, error } = await supabase.rpc('get_stations')
   if (error) throw new Error(error.message)
   return (data as StationApi[]) ?? []
+}
+
+/**
+ * Pares de estaciones consecutivas del corredor (tabla segments: un segmento
+ * por línea y dirección). Un par (A, B) es válido si existe en cualquier sentido.
+ */
+export async function fetchStationPairs(): Promise<Array<[number, number]>> {
+  const { data, error } = await supabase.from('segments').select('from_station, to_station')
+  if (error) throw new Error(error.message)
+  return ((data ?? []) as Array<{ from_station: number; to_station: number }>).map(
+    (s) => [s.from_station, s.to_station],
+  )
+}
+
+/**
+ * Reportes recientes (ventana por defecto de 2h) de las estaciones indicadas.
+ * `target_id` en la tabla reports es el id numérico de estación como texto.
+ */
+export async function fetchRecentReportsByStations(
+  stationIds: number[],
+  windowMinutes = 120,
+): Promise<ReportRow[]> {
+  if (stationIds.length === 0) return []
+  const since = new Date(Date.now() - windowMinutes * 60_000).toISOString()
+  const { data, error } = await supabase
+    .from('reports')
+    .select('target_id, severity, type')
+    .in('target_id', stationIds.map(String))
+    .in('type', ['station', 'incident'])
+    .gte('created_at', since)
+  if (error) throw new Error(error.message)
+  return (data as ReportRow[]) ?? []
+}
+
+/**
+ * Reportes completos (para el detalle de ruta) de las estaciones de una ruta
+ * en la ventana indicada: reportes de estación + incidentes anclados en esas
+ * estaciones, con metadata/descripción para mostrarlos en la UI.
+ */
+export async function fetchRouteReports(
+  stationIds: number[],
+  windowMinutes = 120,
+): Promise<ReportDetail[]> {
+  if (stationIds.length === 0) return []
+  const since = new Date(Date.now() - windowMinutes * 60_000).toISOString()
+  const { data, error } = await supabase
+    .from('reports')
+    .select('id, target_id, severity, type, metadata, description, created_at')
+    .in('target_id', stationIds.map(String))
+    .in('type', ['station', 'incident'])
+    .gte('created_at', since)
+    .order('created_at', { ascending: false })
+  if (error) throw new Error(error.message)
+  return (data as ReportDetail[]) ?? []
 }
 
 export async function searchRoutes(origin: number, dest: number): Promise<RouteApi[]> {

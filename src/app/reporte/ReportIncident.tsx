@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   submitReport,
   moderateReport,
   getUserUUID,
   inferReport,
+  fetchStationPairs,
 } from '../../lib/supabase/api'
+import { publishReportEvent } from '../../lib/portal/reports'
 
 interface StationOption { id: number; name: string }
 
@@ -34,9 +36,39 @@ export default function ReportIncident({ stations, onCancel: _onCancel, onSent, 
   const [description, setDescription] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
+  const [adjacent, setAdjacent] = useState<Map<number, Set<number>>>(new Map())
+
+  // Un incidente es en el tramo entre DOS estaciones CONSECUTIVAS del corredor:
+  // la estación 2 solo puede ser una estación adyacente a la 1 (según segments).
+  useEffect(() => {
+    fetchStationPairs()
+      .then((pairs) => {
+        const map = new Map<number, Set<number>>()
+        for (const [a, b] of pairs) {
+          if (!map.has(a)) map.set(a, new Set())
+          if (!map.has(b)) map.set(b, new Set())
+          map.get(a)!.add(b)
+          map.get(b)!.add(a)
+        }
+        setAdjacent(map)
+      })
+      .catch(() => {
+        setAdjacent(new Map())
+        setError('No se pudieron cargar las estaciones consecutivas. Intenta de nuevo.')
+      })
+  }, [])
+
+  const station2Options = useMemo(() => {
+    if (station1Id === '') return []
+    return stations.filter((s) => adjacent.get(station1Id as number)?.has(s.id))
+  }, [stations, adjacent, station1Id])
 
   const canSubmit =
-    station1Id !== '' && station2Id !== '' && incidentType !== '' && !sending
+    station1Id !== '' &&
+    station2Id !== '' &&
+    (adjacent.get(station1Id as number)?.has(station2Id as number) ?? false) &&
+    incidentType !== '' &&
+    !sending
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -70,6 +102,9 @@ export default function ReportIncident({ stations, onCancel: _onCancel, onSent, 
 
       inferReport(id).catch(() => { /* background */ })
 
+      // Avisar en tiempo real a la pantalla de rutas (el evento es efímero)
+      publishReportEvent({ type: 'incident', targetId: String(station1Id), severity: 'ok' })
+
       onSent()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al enviar el reporte.')
@@ -95,7 +130,10 @@ export default function ReportIncident({ stations, onCancel: _onCancel, onSent, 
             id="inc-s1"
             className="select"
             value={station1Id}
-            onChange={(e) => setStation1Id(Number(e.target.value))}
+            onChange={(e) => {
+              setStation1Id(Number(e.target.value))
+              setStation2Id('')
+            }}
             required
           >
             <option value="" disabled>
@@ -111,7 +149,7 @@ export default function ReportIncident({ stations, onCancel: _onCancel, onSent, 
 
         <div className="field">
           <label htmlFor="inc-s2" className="field__label">
-            Estacion 2
+            Estacion 2 (consecutiva)
           </label>
           <select
             id="inc-s2"
@@ -119,16 +157,18 @@ export default function ReportIncident({ stations, onCancel: _onCancel, onSent, 
             value={station2Id}
             onChange={(e) => setStation2Id(Number(e.target.value))}
             required
+            disabled={station1Id === ''}
           >
             <option value="" disabled>
-              Selecciona una estacion
+              {station1Id === '' ? 'Primero elige la estacion 1' : 'Elige una estacion consecutiva'}
             </option>
-            {stations.map((s) => (
+            {station2Options.map((s) => (
               <option key={s.id} value={s.id}>
                 {formatStationName(s.name)}
               </option>
             ))}
           </select>
+          <span className="field__hint">El incidente es en el tramo entre dos estaciones consecutivas.</span>
         </div>
 
         <div className="field">
