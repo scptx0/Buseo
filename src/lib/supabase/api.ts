@@ -88,3 +88,51 @@ export async function moderateReport(text: string): Promise<{ allowed: boolean; 
   if (error) return { allowed: true }
   return data ?? { allowed: true }
 }
+
+export async function addComment(postId: string, userId: string, content: string): Promise<unknown> {
+  const { data, error } = await supabase.rpc('add_comment', {
+    p_post_id: postId, p_user_id: userId, p_content: content,
+  })
+  if (error) throw new Error(error.message)
+  return data
+}
+
+export async function toggleCommentLike(commentId: string, userId: string): Promise<{ liked: boolean; count: number }> {
+  const { data, error } = await supabase.rpc('toggle_comment_like', {
+    p_comment_id: commentId, p_user_id: userId,
+  })
+  if (error) throw new Error(error.message)
+  return (data as { liked: boolean; count: number }) ?? { liked: false, count: 0 }
+}
+
+export async function togglePostReaction(postId: string, userId: string, type: string): Promise<Record<string, number>> {
+  const { data, error } = await supabase.rpc('toggle_post_reaction', {
+    p_post_id: postId, p_user_id: userId, p_type: type,
+  })
+  if (error) throw new Error(error.message)
+  return (data as Record<string, number>) ?? {}
+}
+
+export async function reportComment(commentId: string, reporterId: string, reason: string): Promise<{ deleted: boolean; reports: number }> {
+  const { data, error } = await supabase.rpc('report_comment', {
+    p_comment_id: commentId, p_reporter_id: reporterId, p_reason: reason,
+  })
+  if (error) throw new Error(error.message)
+  return (data as { deleted: boolean; reports: number }) ?? { deleted: false, reports: 0 }
+}
+
+export async function getPostComments(postId: string): Promise<Array<{ id: string; user_id: string; content: string; likes_count: number; created_at: string }>> {
+  const { data, error } = await supabase.rpc('get_post_comments', { p_post_id: postId })
+  if (error) throw new Error(error.message)
+  return (data as Array<{ id: string; user_id: string; content: string; likes_count: number; created_at: string }>) ?? []
+}
+
+export async function getFeedPosts(): Promise<Array<{ id: string; title: string; content: string; tags: string[]; created_at: string }>> {
+  const { data, error } = await supabase
+    .from('feed_posts')
+    .select('id, title, content, tags, created_at')
+    .order('created_at', { ascending: false })
+    .limit(50)
+  if (error) throw new Error(error.message)
+  return (data as Array<{ id: string; title: string; content: string; tags: string[]; created_at: string }>) ?? []
+}
