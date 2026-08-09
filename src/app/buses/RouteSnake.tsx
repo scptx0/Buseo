@@ -1,5 +1,6 @@
 import type { StationApi } from '../../lib/types'
 import { useMemo } from 'react'
+import busIcon from '../../../iconos/icono_localizar_buss.png'
 
 interface Props {
   stations: StationApi[]
@@ -114,12 +115,7 @@ export function RouteSnake({ stations, busProgress }: Props) {
         })}
         {busData && (
           <g transform={`translate(${busData.x}, ${busData.y}) rotate(${busData.angle})`}>
-            <rect x={-4.5} y={-2.5} width={9} height={5} rx={1.2} fill="#ef4444" stroke="#fff" strokeWidth={0.5} />
-            <circle cx={-2} cy={3} r={1.2} fill="#333" stroke="#fff" strokeWidth={0.3} />
-            <circle cx={2} cy={3} r={1.2} fill="#333" stroke="#fff" strokeWidth={0.3} />
-            <circle cx={-2} cy={-3} r={1.2} fill="#333" stroke="#fff" strokeWidth={0.3} />
-            <circle cx={2} cy={-3} r={1.2} fill="#333" stroke="#fff" strokeWidth={0.3} />
-            <rect x={4} y={-1.5} width={2.5} height={3} rx={0.5} fill="#fbbf24" stroke="#fff" strokeWidth={0.3} />
+            <image href={busIcon} x={-6} y={-5} width={12} height={10} />
           </g>
         )}
       </svg>
