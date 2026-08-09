@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import { ArrowLeft, ArrowRight, ArrowLeftRight, X, Clock, Bus, AlertTriangle, XCircle } from 'lucide-react'
 
 import type { Alert, RouteApi } from '../../lib/types'
 import { RouteGraphView } from './RouteGraphView'
+import { RouteReportsSheet } from './RouteReportsSheet'
+import { useRouteReports } from '../../hooks/useRouteReports'
 import { lineName } from '../../lib/rutas'
 
 interface RouteDetailProps {
@@ -20,6 +23,8 @@ export function RouteDetail({
   route, originId, destId, stationName, onBack, onSave,
   saved, onClose, onGoToRoute,
 }: RouteDetailProps) {
+  const [reportsOpen, setReportsOpen] = useState(false)
+  const { reports, stationIncidents, segmentIncidents, total, loading } = useRouteReports(route)
   const lines = [...new Set(route.steps.map((s) => lineName(s.lineName)))]
   const alerts = route.alerts ?? []
 
@@ -36,6 +41,15 @@ export function RouteDetail({
           </button>
         )}
         <span className="route-detail__title">Detalle de ruta</span>
+        <button
+          type="button"
+          className="route-detail__reports"
+          onClick={() => setReportsOpen(true)}
+          aria-label="Ver reportes de la ruta"
+        >
+          <AlertTriangle size={20} strokeWidth={2.5} />
+          {total > 0 && <span className="route-detail__reports-badge">{total}</span>}
+        </button>
       </header>
 
       <div className="route-detail__body">
@@ -102,9 +116,22 @@ export function RouteDetail({
         </div>
 
         <div className="route-detail__graph">
-          <RouteGraphView route={route} />
+          <RouteGraphView
+            route={route}
+            stationIncidents={stationIncidents}
+            segmentIncidents={segmentIncidents}
+          />
         </div>
       </div>
+
+      {reportsOpen && (
+        <RouteReportsSheet
+          reports={reports}
+          loading={loading}
+          stationName={stationName}
+          onClose={() => setReportsOpen(false)}
+        />
+      )}
 
       <div className="route-detail__footer">
         {saved ? (

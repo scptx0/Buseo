@@ -2,16 +2,37 @@ import { useMemo, useEffect, useRef } from 'react'
 
 import type { RouteApi, RouteNodeApi } from '../../lib/types'
 import { lineName } from '../../lib/rutas'
+import { segmentKey, type SegmentIncidentMap, type StationIncidentMap } from '../../lib/reports'
 
 interface RouteGraphViewProps {
   route: RouteApi
   alertStationIds?: Set<number>
   userProgress?: number
+  stationIncidents?: StationIncidentMap
+  segmentIncidents?: SegmentIncidentMap
 }
 
 interface GraphPosition {
   x: number
   y: number
+}
+
+function WarningBadge({ x, y, critical }: { x: number; y: number; critical: boolean }) {
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      <circle r={7.5} fill={critical ? '#ef4444' : '#f59e0b'} stroke="#fff" strokeWidth={1.6} />
+      <text
+        y={3}
+        textAnchor="middle"
+        fontSize={9.5}
+        fontWeight={800}
+        fill="#fff"
+        fontFamily="system-ui, sans-serif"
+      >
+        !
+      </text>
+    </g>
+  )
 }
 
 export const LINE_COLORS: Record<number, string> = {
@@ -34,10 +55,10 @@ function getLineColor(lineId: number): string {
   return LINE_COLORS[lineId] || '#999'
 }
 
-export function RouteGraphView({ route, alertStationIds, userProgress }: RouteGraphViewProps) {
+export function RouteGraphView({ route, alertStationIds, userProgress, stationIncidents, segmentIncidents }: RouteGraphViewProps) {
   const { nodes, edges, width, height, lineColorMap, lineNameMap } = useMemo(() => {
     const allNodes: Array<{ node: RouteNodeApi; kind: string; lineId: number; row: number }> = []
-    const edgeList: Array<{ from: GraphPosition; to: GraphPosition; lineId: number }> = []
+    const edgeList: Array<{ from: GraphPosition; to: GraphPosition; lineId: number; fromStation: number; toStation: number }> = []
     const colorMap = new Map<number, string>()
     const nameMap = new Map<number, string>()
 
@@ -71,7 +92,13 @@ export function RouteGraphView({ route, alertStationIds, userProgress }: RouteGr
         for (let i = 0; i < step.nodes.length - 1; i++) {
           const from = { x: LEFT_PAD, y: TOP_PAD + (startRow + i) * ROW_H }
           const to = { x: LEFT_PAD, y: TOP_PAD + (startRow + i + 1) * ROW_H }
-          edgeList.push({ from, to, lineId: step.lineId })
+          edgeList.push({
+            from,
+            to,
+            lineId: step.lineId,
+            fromStation: step.nodes[i].stationId,
+            toStation: step.nodes[i + 1].stationId,
+          })
         }
       }
     }
@@ -140,17 +167,26 @@ export function RouteGraphView({ route, alertStationIds, userProgress }: RouteGr
           const cy1 = edge.from.y + (edge.to.y - edge.from.y) * 0.3
           const cy2 = edge.to.y - (edge.to.y - edge.from.y) * 0.3
           const d = `M ${edge.from.x} ${edge.from.y} C ${edge.from.x} ${cy1}, ${edge.to.x} ${cy2}, ${edge.to.x} ${edge.to.y}`
+          const segInc = segmentIncidents?.get(segmentKey(edge.fromStation, edge.toStation))
           return (
-            <path
-              key={`edge-${i}`}
-              d={d}
-              fill="none"
-              stroke={color}
-              strokeWidth={LINE_W}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity={0.8}
-            />
+            <g key={`edge-${i}`}>
+              <path
+                d={d}
+                fill="none"
+                stroke={color}
+                strokeWidth={LINE_W}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity={0.8}
+              />
+              {segInc && (
+                <WarningBadge
+                  x={(edge.from.x + edge.to.x) / 2}
+                  y={(edge.from.y + edge.to.y) / 2}
+                  critical={segInc.critical}
+                />
+              )}
+            </g>
           )
         })}
 
@@ -162,6 +198,7 @@ export function RouteGraphView({ route, alertStationIds, userProgress }: RouteGr
           const labelColor = getLabelColor(kind)
           const isOrigin = kind === 'origin'
           const hasAlert = alertStationIds?.has(node.stationId)
+          const stationInc = stationIncidents?.get(node.stationId)
 
           return (
             <g key={`${node.stationId}-${i}`}>
@@ -177,6 +214,7 @@ export function RouteGraphView({ route, alertStationIds, userProgress }: RouteGr
                 strokeWidth={2}
                 filter={isOrigin ? 'url(#glow)' : undefined}
               />
+              {stationInc && <WarningBadge x={x} y={y - r - 11} critical={stationInc.critical} />}
               <text
                 x={x + r + 8}
                 y={y + 4}
