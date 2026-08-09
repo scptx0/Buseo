@@ -1,10 +1,12 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 
 import type { RouteApi, RouteNodeApi } from '../../lib/types'
 import { lineName } from '../../lib/rutas'
 
 interface RouteGraphViewProps {
   route: RouteApi
+  alertStationIds?: Set<number>
+  userProgress?: number
 }
 
 interface GraphPosition {
@@ -32,7 +34,7 @@ function getLineColor(lineId: number): string {
   return LINE_COLORS[lineId] || '#999'
 }
 
-export function RouteGraphView({ route }: RouteGraphViewProps) {
+export function RouteGraphView({ route, alertStationIds, userProgress }: RouteGraphViewProps) {
   const { nodes, edges, width, height, lineColorMap, lineNameMap } = useMemo(() => {
     const allNodes: Array<{ node: RouteNodeApi; kind: string; lineId: number; row: number }> = []
     const edgeList: Array<{ from: GraphPosition; to: GraphPosition; lineId: number }> = []
@@ -82,6 +84,20 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
   }, [route])
 
   if (route.steps.length === 0) return null
+
+  const totalRows = nodes.length
+  const hasProgress = typeof userProgress === 'number' && totalRows >= 2
+  const userY = hasProgress
+    ? TOP_PAD + userProgress * Math.max(0, totalRows - 1) * ROW_H
+    : TOP_PAD
+
+  const dotRef = useRef<SVGCircleElement>(null)
+  const haloRef = useRef<SVGCircleElement>(null)
+  useEffect(() => {
+    const cy = String(userY)
+    if (dotRef.current) dotRef.current.setAttribute('cy', cy)
+    if (haloRef.current) haloRef.current.setAttribute('cy', cy)
+  }, [userY])
 
   function getRadius(kind: string): number {
     if (kind === 'origin' || kind === 'destination') return NODE_R_LG
@@ -145,6 +161,7 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
           const color = getNodeColor(kind)
           const labelColor = getLabelColor(kind)
           const isOrigin = kind === 'origin'
+          const hasAlert = alertStationIds?.has(node.stationId)
 
           return (
             <g key={`${node.stationId}-${i}`}>
@@ -169,11 +186,30 @@ export function RouteGraphView({ route }: RouteGraphViewProps) {
                 fontWeight={isOrigin ? 700 : 600}
                 fontFamily="system-ui, sans-serif"
               >
-                 {node.stationName.toLowerCase().replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase())}
+                 {node.stationName.toLowerCase().replace(/-/g, ' ').replace(/^./, (c: string) => c.toUpperCase())}{hasAlert ? ' ⚠' : ''}
               </text>
             </g>
           )
         })}
+
+        {hasProgress && (
+          <g className="user-dot">
+            <circle ref={haloRef} cx={LEFT_PAD} cy={userY} r={14} fill="#a50000" opacity={0.18}>
+              <animate attributeName="r" values="14;20;14" dur="1.4s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.18;0.04;0.18" dur="1.4s" repeatCount="indefinite" />
+            </circle>
+            <circle
+              ref={dotRef}
+              cx={LEFT_PAD}
+              cy={userY}
+              r={10}
+              fill="#a50000"
+              stroke="#ffffff"
+              strokeWidth={3}
+              filter="url(#glow)"
+            />
+          </g>
+        )}
       </svg>
 
       {lineColorMap.size > 0 && (
