@@ -5,6 +5,7 @@ import {
   getUserUUID,
   inferReport,
 } from '../../lib/supabase/api'
+import { publishReportEvent } from '../../lib/portal/reports'
 
 interface StationOption { id: number; name: string }
 
@@ -69,6 +70,9 @@ export default function ReportIncident({ stations, onCancel: _onCancel, onSent, 
       })
 
       inferReport(id).catch(() => { /* background */ })
+
+      // Avisar en tiempo real a la pantalla de rutas (el evento es efímero)
+      publishReportEvent({ type: 'incident', targetId: String(station1Id), severity: 'ok' })
 
       onSent()
     } catch (err) {

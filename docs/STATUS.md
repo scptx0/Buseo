@@ -60,6 +60,8 @@ Quedan como *seam* documentado para una futura versión (ver "Fase 4" más abajo
 - ☑️ Lista de rutas ordenadas por tiempo, detalle y activación.
 
 ### Fase 2 — Tiempo real y reportes (W3–W6)
+- ✅ Resultados de rutas: contador de incidentes en vivo por ruta (carga desde
+  Supabase + canal Portal `reportes:global` + polling de respaldo 10s).
 - ☐ Línea de viaje + mapa.
 - ☐ Tu ruta actual: nodos/tramos y marcador en vivo.
 - ☐ suscripción a canales de estación/tramo.

@@ -1200,6 +1200,34 @@ input {
   color: #d4a017;
   font-size: 0.82rem;
   font-weight: 500;
+  justify-self: start;
+}
+
+/* Badge de incidentes en vivo (lista de rutas) */
+.route-item__incident {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  justify-self: start;
+}
+
+.route-item__incident svg {
+  flex-shrink: 0;
+}
+
+.route-item__incident--warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.route-item__incident--critical {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .alert-card__content {

@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X, Check, Loader2 } from 'lucide-react'
+import { useChannel } from '@portalsdk/react'
 
 import type { StationApi, RouteApi } from '../../lib/types'
 import {
@@ -8,12 +9,15 @@ import {
   searchRoutes as apiSearchRoutes,
   startTrip,
   getUserUUID,
+  fetchRecentReportsByStations,
 } from '../../lib/supabase/api'
 import { getRouteHistory, pushToRouteHistory } from '../../lib/storage'
 import { useGeo } from '../entrada/LocationGate'
 import { RouteDetail } from './RouteDetail'
 import { RouteListItem } from './RouteListItem'
 import { useHeaderTitle } from '../../components/HeaderTitleContext'
+import { aggregateRouteIncidents, getRouteStationIds, type RouteIncidents } from '../../lib/reports'
+import { REPORTS_CHANNEL_ID, type ReportEvent } from '../../lib/portal/reports'
 
 export function PlanearPage() {
   const { position } = useGeo()
@@ -28,6 +32,7 @@ export function PlanearPage() {
   const [saved, setSaved] = useState(false)
   const [savedText, setSavedText] = useState('')
   const [searching, setSearching] = useState(false)
+  const [incidentsByRoute, setIncidentsByRoute] = useState<Record<string, RouteIncidents>>({})
 
   useEffect(() => {
     fetchStations()
@@ -79,6 +84,53 @@ export function PlanearPage() {
     window.addEventListener('popstate', handler)
     return () => window.removeEventListener('popstate', handler)
   }, [routes.length, saved])
+
+  // ---- Incidentes en tiempo real por ruta ----
+
+  const routeStationIds = useMemo(
+    () => [...new Set(routes.flatMap(getRouteStationIds))],
+    [routes],
+  )
+
+  const refreshIncidents = useCallback(async (ids: number[]) => {
+    if (ids.length === 0) {
+      setIncidentsByRoute({})
+      return
+    }
+    try {
+      const rows = await fetchRecentReportsByStations(ids)
+      setIncidentsByRoute(aggregateRouteIncidents(routes, rows))
+    } catch (e) {
+      console.error('Error cargando incidentes:', e)
+    }
+  }, [routes])
+
+  // Carga inicial al mostrar resultados + polling de respaldo (captura también
+  // la severidad que infiere la IA en background y cubre caídas de Portal).
+  useEffect(() => {
+    if (routes.length === 0) {
+      setIncidentsByRoute({})
+      return
+    }
+    refreshIncidents(routeStationIds)
+    const interval = setInterval(() => refreshIncidents(routeStationIds), 10_000)
+    return () => clearInterval(interval)
+  }, [routes, routeStationIds, refreshIncidents])
+
+  // Canal Portal: actualización instantánea cuando alguien reporta.
+  const reportsChannelId = routes.length > 0 ? REPORTS_CHANNEL_ID : undefined
+  const { messages, status } = useChannel<ReportEvent>({ channelId: reportsChannelId, history: 'none' })
+  const lastReportEventRef = useRef<string>('')
+  useEffect(() => {
+    if (status !== 'ready' || messages.length === 0 || routes.length === 0) return
+    const last = messages[messages.length - 1]
+    if (last.id === lastReportEventRef.current) return
+    lastReportEventRef.current = last.id
+    // Solo refrescar si el reporte es de una estación de las rutas mostradas
+    if (routeStationIds.includes(Number(last.content.targetId))) {
+      refreshIncidents(routeStationIds)
+    }
+  }, [messages, status, routes.length, routeStationIds, refreshIncidents])
 
   async function onSearch() {
     if (originId === '' || destId === '' || originId === destId) return
@@ -201,6 +253,7 @@ export function PlanearPage() {
             <RouteListItem
               key={route.id}
               route={route}
+              incidents={incidentsByRoute[route.id]}
               onSelect={() => onSelect(route)}
             />
           ))}

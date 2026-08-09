@@ -12,6 +12,7 @@
 | `station:{stationId}` | → clientes | Simulador / backend | Tu ruta actual (nodo naranja) |
 | `segment:{from}->{to}` | → clientes | Simulador / backend | Tu ruta actual (tramo naranja) |
 | `line:{lineId}:status` | → clientes | Simulador / backend | Planear ruta, Tu ruta actual |
+| `reportes:global` | clientes → clientes | App (formularios de reporte) | Planear ruta (resultados) |
 | `reportes` (publicación) | clientes → | App (reportes) | Se publica hacia el emisor correspondiente (station/segment) |
 
 ## 2. Payloads (tipos TS de referencia)
@@ -66,6 +67,18 @@ interface LineStatus extends PortalMessage {
     incidents: Array<{ from: string; to: string; severity: Severity; summary: string }>
     delays: Array<{ from: string; to: string; delayMin: number }>
     updatedAt: number
+  }
+}
+
+// reportes:global — aviso efímero de un reporte recién creado.
+// Lo publican los formularios de reporte tras submit_report; la pantalla de
+// resultados de rutas lo escucha y re-consulta Supabase (la severidad inicial
+// es un hint: infer-report la actualiza luego vía Bedrock).
+interface ReportEvent extends PortalMessage {
+  content: {
+    type: 'station' | 'incident'
+    targetId: string   // id numérico de estación como texto
+    severity: Severity
   }
 }
 ```

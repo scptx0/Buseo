@@ -8,6 +8,7 @@ import {
   type BusAtStation,
 } from '../../lib/supabase/api'
 import { lineName } from '../../lib/rutas'
+import { publishReportEvent } from '../../lib/portal/reports'
 
 interface StationOption { id: number; name: string }
 
@@ -76,6 +77,9 @@ export default function ReportStation({ stations, onCancel: _onCancel, onSent, o
 
       // Inferir severidad y summary con Bedrock en background
       inferReport(id).catch(() => { /* background, no bloquea la UI */ })
+
+      // Avisar en tiempo real a la pantalla de rutas (el evento es efímero)
+      publishReportEvent({ type: 'station', targetId: String(stationId), severity: 'ok' })
 
       onSent()
     } catch (err) {

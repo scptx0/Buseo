@@ -1,10 +1,30 @@
 import { supabase } from './client'
-import type { StationApi, RouteApi } from '../types'
+import type { StationApi, RouteApi, ReportRow } from '../types'
 
 export async function fetchStations(): Promise<StationApi[]> {
   const { data, error } = await supabase.rpc('get_stations')
   if (error) throw new Error(error.message)
   return (data as StationApi[]) ?? []
+}
+
+/**
+ * Reportes recientes (ventana por defecto de 2h) de las estaciones indicadas.
+ * `target_id` en la tabla reports es el id numérico de estación como texto.
+ */
+export async function fetchRecentReportsByStations(
+  stationIds: number[],
+  windowMinutes = 120,
+): Promise<ReportRow[]> {
+  if (stationIds.length === 0) return []
+  const since = new Date(Date.now() - windowMinutes * 60_000).toISOString()
+  const { data, error } = await supabase
+    .from('reports')
+    .select('target_id, severity, type')
+    .in('target_id', stationIds.map(String))
+    .in('type', ['station', 'incident'])
+    .gte('created_at', since)
+  if (error) throw new Error(error.message)
+  return (data as ReportRow[]) ?? []
 }
 
 export async function searchRoutes(origin: number, dest: number): Promise<RouteApi[]> {
